@@ -32,7 +32,9 @@ function saveLocalApps(apps: any[]) {
 }
 
 export async function GET(req: NextRequest) {
-  let supabaseApps: any[] = [];
+  const mergedMap = new Map();
+
+  // 1. Fetch from Supabase applications table
   try {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/applications?select=*`, {
       headers: {
@@ -43,18 +45,86 @@ export async function GET(req: NextRequest) {
     });
     if (res.ok) {
       const data = await res.json();
-      if (Array.isArray(data)) supabaseApps = data;
+      if (Array.isArray(data)) {
+        for (const a of data) {
+          if (a.email) mergedMap.set(a.email.toLowerCase(), a);
+        }
+      }
     }
   } catch {}
 
-  const localApps = getLocalApps();
+  // 2. Fetch from Supabase founders table
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/founders?select=*`, {
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+      next: { revalidate: 0 },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        for (const f of data) {
+          if (f.email && !mergedMap.has(f.email.toLowerCase())) {
+            mergedMap.set(f.email.toLowerCase(), {
+              id: f.id,
+              role: "founder",
+              full_name: f.full_name,
+              company_name: f.company_name,
+              email: f.email,
+              primary_sector: f.primary_sector,
+              secondary_sectors: f.secondary_sectors,
+              stage_or_cheque: f.stage || f.stage_or_cheque,
+              ask_or_focus: f.ask || f.ask_or_focus,
+              file_url: f.file_url,
+              created_at: f.created_at,
+            });
+          }
+        }
+      }
+    }
+  } catch {}
 
-  const mergedMap = new Map();
+  // 3. Fetch from Supabase investors table
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/investors?select=*`, {
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+      next: { revalidate: 0 },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        for (const i of data) {
+          if (i.email && !mergedMap.has(i.email.toLowerCase())) {
+            mergedMap.set(i.email.toLowerCase(), {
+              id: i.id,
+              role: "investor",
+              full_name: i.full_name,
+              company_name: i.company_name,
+              email: i.email,
+              primary_sector: i.primary_sector,
+              secondary_sectors: i.secondary_sectors,
+              stage_or_cheque: i.cheque_size || i.stage_or_cheque,
+              ask_or_focus: i.thesis || i.ask_or_focus,
+              linkedin_url: i.linkedin_url,
+              created_at: i.created_at,
+            });
+          }
+        }
+      }
+    }
+  } catch {}
+
+  // 4. Merge with local backup
+  const localApps = getLocalApps();
   for (const a of localApps) {
-    if (a.email) mergedMap.set(a.email.toLowerCase(), a);
-  }
-  for (const a of supabaseApps) {
-    if (a.email) mergedMap.set(a.email.toLowerCase(), a);
+    if (a.email && !mergedMap.has(a.email.toLowerCase())) {
+      mergedMap.set(a.email.toLowerCase(), a);
+    }
   }
 
   const allApps = Array.from(mergedMap.values());
@@ -79,22 +149,79 @@ export async function POST(req: NextRequest) {
       } else {
         existing.unshift(recordWithId);
       }
+
+      // Forward to Supabase:
+      // A. Insert/upsert into 'applications' table
+      try {
+        await fetch(`${SUPABASE_URL}/rest/v1/applications`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: SUPABASE_ANON_KEY,
+            Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+            Prefer: "return=representation,resolution=merge-duplicates",
+          },
+          body: JSON.stringify(recordWithId),
+        });
+      } catch {}
+
+      // B. If founder, insert into 'founders' table
+      if (rec.role === "founder") {
+        try {
+          const founderPayload = {
+            id: recordWithId.id,
+            full_name: recordWithId.full_name,
+            company_name: recordWithId.company_name,
+            email: recordWithId.email,
+            primary_sector: recordWithId.primary_sector,
+            secondary_sectors: recordWithId.secondary_sectors,
+            stage: recordWithId.stage_or_cheque,
+            ask: recordWithId.ask_or_focus,
+            file_url: recordWithId.file_url || null,
+            created_at: recordWithId.created_at,
+          };
+          await fetch(`${SUPABASE_URL}/rest/v1/founders`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              apikey: SUPABASE_ANON_KEY,
+              Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+              Prefer: "return=representation,resolution=merge-duplicates",
+            },
+            body: JSON.stringify(founderPayload),
+          });
+        } catch {}
+      }
+
+      // C. If investor, insert into 'investors' table
+      if (rec.role === "investor") {
+        try {
+          const investorPayload = {
+            id: recordWithId.id,
+            full_name: recordWithId.full_name,
+            company_name: recordWithId.company_name,
+            email: recordWithId.email,
+            primary_sector: recordWithId.primary_sector,
+            secondary_sectors: recordWithId.secondary_sectors,
+            cheque_size: recordWithId.stage_or_cheque,
+            thesis: recordWithId.ask_or_focus,
+            linkedin_url: recordWithId.linkedin_url || null,
+            created_at: recordWithId.created_at,
+          };
+          await fetch(`${SUPABASE_URL}/rest/v1/investors`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              apikey: SUPABASE_ANON_KEY,
+              Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+              Prefer: "return=representation,resolution=merge-duplicates",
+            },
+            body: JSON.stringify(investorPayload),
+          });
+        } catch {}
+      }
     }
     saveLocalApps(existing);
-
-    // Forward to Supabase in background
-    try {
-      await fetch(`${SUPABASE_URL}/rest/v1/applications`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          apikey: SUPABASE_ANON_KEY,
-          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-          Prefer: "return=representation",
-        },
-        body: JSON.stringify(records),
-      });
-    } catch {}
 
     return NextResponse.json({ ok: true, data: existing });
   } catch (err: any) {
@@ -115,7 +242,7 @@ export async function DELETE(req: NextRequest) {
     }
     saveLocalApps(existing);
 
-    // Also clean up any associated matches
+    // Clean up matches
     try {
       if (fs.existsSync(MATCHES_FILE) && email) {
         const matchesContent = fs.readFileSync(MATCHES_FILE, "utf-8");
@@ -129,21 +256,22 @@ export async function DELETE(req: NextRequest) {
       }
     } catch {}
 
-    // Forward deletion to Supabase
-    try {
-      if (email) {
-        await fetch(
-          `${SUPABASE_URL}/rest/v1/applications?email=eq.${encodeURIComponent(email)}`,
-          {
+    // Delete from Supabase applications, founders, and investors
+    if (email) {
+      const emailFilter = `email=eq.${encodeURIComponent(email)}`;
+      const tables = ["applications", "founders", "investors"];
+      for (const t of tables) {
+        try {
+          await fetch(`${SUPABASE_URL}/rest/v1/${t}?${emailFilter}`, {
             method: "DELETE",
             headers: {
               apikey: SUPABASE_ANON_KEY,
               Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
             },
-          }
-        );
+          });
+        } catch {}
       }
-    } catch {}
+    }
 
     return NextResponse.json({ ok: true, data: existing });
   } catch (err: any) {

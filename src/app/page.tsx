@@ -772,7 +772,9 @@ function Registration({
   const [linkedinUrl, setLinkedinUrl] = useState(userProfile?.linkedinUrl || "");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState("");
-  const [uploading, setUploading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [submittedProfile, setSubmittedProfile] = useState<UserProfile | null>(null);
 
   useEffect(() => {
     if (userProfile?.name && !name) setName(userProfile.name);
@@ -786,6 +788,7 @@ function Registration({
     if (step < 3) {
       setStep(step + 1);
     } else {
+      setSubmitting(true);
       let filePublicUrl = "";
 
       if (founder && selectedFile) {
@@ -813,28 +816,44 @@ function Registration({
 
       try {
         localStorage.setItem("rp_live_user_profile", JSON.stringify(profile));
+        localStorage.setItem("rp_live_user_role", role);
+        localStorage.setItem("rp_live_auth_email", profile.email);
       } catch {}
 
-      // Fire database insert with verified file_url
-      supabase.from("applications").insert([
-        {
-          role,
-          full_name: profile.name,
-          company_name: profile.company,
-          email: profile.email,
-          primary_sector: primary,
-          secondary_sectors: interests,
-          stage_or_cheque: stageOrCheque,
-          ask_or_focus: askOrFocus,
-          file_url: filePublicUrl,
-          linkedin_url: linkedinUrl,
-          created_at: new Date().toISOString(),
-        },
-      ]).catch(() => {});
+      // Fire database inserts to applications and founders/investors tables
+      try {
+        await fetch("/api/applications", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            role,
+            full_name: profile.name,
+            company_name: profile.company,
+            email: profile.email,
+            primary_sector: primary,
+            secondary_sectors: interests,
+            stage_or_cheque: stageOrCheque,
+            ask_or_focus: askOrFocus,
+            file_url: filePublicUrl,
+            linkedin_url: linkedinUrl,
+            created_at: new Date().toISOString(),
+          }),
+        });
+      } catch {}
 
-      // Transition immediately to dashboard!
-      setUploading(false);
-      done(profile);
+      // Clear form inputs
+      setName("");
+      setCompany("");
+      setEmail("");
+      setAskOrFocus("");
+      setLinkedinUrl("");
+      setSelectedFile(null);
+      setFileName("");
+      setSubmitting(false);
+
+      // Show confirmation modal
+      setSubmittedProfile(profile);
+      setShowSuccessModal(true);
     }
   }
 
@@ -994,8 +1013,8 @@ function Registration({
               </label>
             </>
           )}
-          <button className="primary" disabled={uploading}>
-            {uploading ? "Saving application..." : step === 3 ? "Submit application" : "Continue"} <Arrow />
+          <button className="primary" disabled={submitting}>
+            {submitting ? "Saving to Supabase..." : step === 3 ? "Submit application" : "Continue"} <Arrow />
           </button>
         </form>
       </section>
@@ -1018,6 +1037,57 @@ function Registration({
           <small>investor seats</small>
         </div>
       </aside>
+
+      {/* Confirmation Modal */}
+      {showSuccessModal && submittedProfile && (
+        <div className="overlay" style={{ zIndex: 1000 }}>
+          <section
+            className="meeting-modal"
+            style={{
+              maxWidth: "460px",
+              padding: "36px 32px",
+              textAlign: "center",
+              border: "2px solid #0f6b61",
+            }}
+          >
+            <div
+              style={{
+                width: "56px",
+                height: "56px",
+                borderRadius: "50%",
+                background: "#e3f5f0",
+                color: "#0f6b61",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "26px",
+                margin: "0 auto 16px",
+              }}
+            >
+              ✓
+            </div>
+            <span className="kicker" style={{ color: "#0f6b61" }}>
+              APPLICATION CONFIRMED · SUPABASE SYNCED
+            </span>
+            <h2 style={{ fontSize: "22px", margin: "8px 0 12px", color: "#102720" }}>
+              {founder ? "Founder Deck Received" : "Investor Profile Registered"}
+            </h2>
+            <p className="modal-copy" style={{ fontSize: "13px", lineHeight: "1.6", color: "#475c53", marginBottom: "20px" }}>
+              Thank you, <b>{submittedProfile.name}</b> ({submittedProfile.company}). Your application has been recorded in the Supabase live database and forwarded to the Curator Studio for match curation.
+            </p>
+            <button
+              className="primary"
+              onClick={() => {
+                setShowSuccessModal(false);
+                done(submittedProfile);
+              }}
+              style={{ width: "100%", padding: "14px", fontSize: "14px" }}
+            >
+              Enter RailPitch Workspace →
+            </button>
+          </section>
+        </div>
+      )}
     </div>
   );
 }

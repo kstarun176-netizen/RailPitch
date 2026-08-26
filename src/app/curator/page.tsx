@@ -302,23 +302,29 @@ function CuratorDashboard({
   const [loading, setLoading] = useState(true);
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
 
-  const loadData = useCallback(async () => {
-    setLoading(true);
-    const [fRes, iRes, mRes] = await Promise.all([
-      supabase.from("applications").select("*", { order: "created_at.desc" }),
-      supabase.from("applications").select("*", { order: "created_at.desc" }),
-      supabase.from("matches").select("*", { order: "approved_at.desc" }),
-    ]);
+  const loadData = useCallback(async (isInitial = false) => {
+    if (isInitial) setLoading(true);
+    try {
+      const [appRes, mRes] = await Promise.all([
+        fetch("/api/applications", { cache: "no-store" }).then((r) => r.json()).catch(() => []),
+        fetch("/api/matches", { cache: "no-store" }).then((r) => r.json()).catch(() => []),
+      ]);
 
-    const allApps: Application[] = Array.isArray(fRes.data) ? fRes.data : [];
-    setFounders(allApps.filter((a) => a.role === "founder"));
-    setInvestors(allApps.filter((a) => a.role === "investor"));
-    setMatches(Array.isArray(mRes.data) ? mRes.data : []);
-    setLoading(false);
+      const allApps: Application[] = Array.isArray(appRes) ? appRes : [];
+      setFounders(allApps.filter((a) => a.role === "founder"));
+      setInvestors(allApps.filter((a) => a.role === "investor"));
+      setMatches(Array.isArray(mRes) ? mRes : []);
+    } catch {}
+    if (isInitial) setLoading(false);
   }, []);
 
   useEffect(() => {
-    loadData();
+    loadData(true);
+    // Real-time live polling from Supabase every 2.5 seconds
+    const interval = setInterval(() => {
+      loadData(false);
+    }, 2500);
+    return () => clearInterval(interval);
   }, [loadData]);
 
   async function handleDeleteApplication(email: string) {
