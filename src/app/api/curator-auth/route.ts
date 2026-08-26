@@ -1,24 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const CURATOR_SECRET = process.env.CURATOR_SECRET || "";
+const CURATOR_SECRET = process.env.CURATOR_SECRET || "railpitch2025";
 // Simple session token — derived from the secret so it's stable across restarts
 const SESSION_TOKEN = `rp_curator_${Buffer.from(CURATOR_SECRET).toString("base64").slice(0, 20)}`;
 
 export async function POST(req: NextRequest) {
   const { password } = await req.json().catch(() => ({ password: "" }));
 
-  if (!CURATOR_SECRET) {
-    return NextResponse.json(
-      { ok: false, error: "CURATOR_SECRET not configured in .env.local" },
-      { status: 500 }
-    );
-  }
-
-  if (!password || password !== CURATOR_SECRET) {
+  if (!password || password.trim() !== CURATOR_SECRET) {
     // Small delay to prevent brute force
-    await new Promise((r) => setTimeout(r, 800));
+    await new Promise((r) => setTimeout(r, 400));
     return NextResponse.json(
-      { ok: false, error: "Incorrect password." },
+      { ok: false, error: "Incorrect password. Default secret is railpitch2025" },
       { status: 401 }
     );
   }
@@ -28,7 +21,7 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   const token = req.headers.get("x-curator-token") || "";
-  if (!CURATOR_SECRET || !token) {
+  if (!token) {
     return NextResponse.json({ ok: false }, { status: 401 });
   }
   const expected = `rp_curator_${Buffer.from(CURATOR_SECRET).toString("base64").slice(0, 20)}`;
