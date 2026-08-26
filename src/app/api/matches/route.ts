@@ -3,7 +3,10 @@ import fs from "fs";
 import path from "path";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://jmlufhrkscwvdcnekvae.supabase.co";
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+const SUPABASE_ANON_KEY =
+  process.env.SUPABASE_SERVICE_ROLE_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImptbHVmaHJrc2N3dmRjbmVrdmFlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3NDQ4NzksImV4cCI6MjEwMzMyMDg3OX0.EZs49olU61MGJsjl4EREb-twIYx57bBifHnF2ThRqbA";
 
 const DATA_DIR = path.join(process.cwd(), ".data");
 const DATA_FILE = path.join(DATA_DIR, "matches.json");
