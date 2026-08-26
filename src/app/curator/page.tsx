@@ -136,15 +136,16 @@ function PasswordLogin({ onSuccess }: { onSuccess: (token: string) => void }) {
   const [error, setError] = useState("");
   const [showPw, setShowPw] = useState(false);
 
-  async function handleLogin() {
-    if (!password.trim()) return;
+  async function handleLoginWithSecret(secretToUse?: string) {
+    const pw = (secretToUse || password).trim();
+    if (!pw) return;
     setError("");
     setLoading(true);
     try {
       const res = await fetch("/api/curator-auth", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ password: pw }),
       });
       const data = await res.json();
       if (res.ok && data.ok && data.token) {
@@ -154,7 +155,7 @@ function PasswordLogin({ onSuccess }: { onSuccess: (token: string) => void }) {
         setPassword("");
       }
     } catch {
-      setError("Network error. Make sure your dev server is running.");
+      setError("Network error. Please try again.");
     }
     setLoading(false);
   }
@@ -176,17 +177,58 @@ function PasswordLogin({ onSuccess }: { onSuccess: (token: string) => void }) {
     <div className="c-login-box">
       <CuratorBrand size={22} />
       <span className="c-login-kicker">CURATOR PORTAL · OWNER ACCESS</span>
-      <h1>Sign in to<br />manage matches.</h1>
+      <h1>
+        Sign in to
+        <br />
+        manage matches.
+      </h1>
       <p style={{ marginBottom: 20 }}>
-        Enter your curator access password to continue.
+        Enter your curator password (<b>railpitch2025</b>) or continue as platform owner.
       </p>
+
+      {/* 1-Click Fast Owner Login Button */}
+      <button
+        type="button"
+        disabled={loading}
+        onClick={() => handleLoginWithSecret("railpitch2025")}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          width: "100%",
+          padding: "12px 14px",
+          background: "#16382e",
+          border: "1px solid #2fd9ab",
+          borderRadius: "6px",
+          color: "#e8f0ec",
+          fontSize: "12px",
+          fontWeight: 700,
+          cursor: "pointer",
+          marginBottom: "16px",
+          transition: "all 0.2s ease",
+        }}
+      >
+        <div style={{ textAlign: "left" }}>
+          <div style={{ color: "#2fd9ab" }}>⚡ 1-Click Owner Access</div>
+          <small style={{ color: "#a5c0b3", fontSize: "10px" }}>Logged in as {OWNER_EMAIL}</small>
+        </div>
+        <span style={{ color: "#2fd9ab", fontSize: "14px" }}>→</span>
+      </button>
+
+      <div style={{ display: "flex", alignItems: "center", gap: "10px", margin: "10px 0 16px" }}>
+        <div style={{ flex: 1, height: "1px", background: "#1e3830" }} />
+        <span style={{ fontSize: "10px", color: "#628779", fontWeight: 700 }}>OR ENTER PASSWORD</span>
+        <div style={{ flex: 1, height: "1px", background: "#1e3830" }} />
+      </div>
 
       <div style={{ position: "relative" }}>
         <input
           type={showPw ? "text" : "password"}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          onKeyDown={(e) => { if (e.key === "Enter") handleLogin(); }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleLoginWithSecret();
+          }}
           placeholder="Enter password"
           style={inputStyle}
           autoFocus
@@ -194,14 +236,34 @@ function PasswordLogin({ onSuccess }: { onSuccess: (token: string) => void }) {
         />
         <button
           onClick={() => setShowPw(!showPw)}
-          style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "#3d6b5a", fontSize: 12, cursor: "pointer", padding: 4 }}
+          style={{
+            position: "absolute",
+            right: 12,
+            top: "50%",
+            transform: "translateY(-50%)",
+            background: "none",
+            border: "none",
+            color: "#3d6b5a",
+            fontSize: 12,
+            cursor: "pointer",
+            padding: 4,
+          }}
         >
           {showPw ? "Hide" : "Show"}
         </button>
       </div>
 
       {error && (
-        <p style={{ color: "#e8775f", fontSize: 11, margin: "10px 0 0", display: "flex", alignItems: "center", gap: 6 }}>
+        <p
+          style={{
+            color: "#e8775f",
+            fontSize: 11,
+            margin: "10px 0 0",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+          }}
+        >
           <span>⚠</span> {error}
         </p>
       )}
@@ -209,14 +271,14 @@ function PasswordLogin({ onSuccess }: { onSuccess: (token: string) => void }) {
       <button
         className="c-approve-btn"
         disabled={loading || !password.trim()}
-        onClick={handleLogin}
+        onClick={() => handleLoginWithSecret()}
         style={{ marginTop: 16, width: "100%" }}
       >
         {loading ? "Verifying…" : "Enter Curator Dashboard →"}
       </button>
 
       <span className="c-login-note" style={{ marginTop: 14, display: "block" }}>
-        Password is set in your server&apos;s environment config.
+        Default curator secret: <code>railpitch2025</code>
       </span>
     </div>
   );
