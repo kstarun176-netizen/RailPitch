@@ -1130,27 +1130,85 @@ function Dashboard({
 
   useEffect(() => {
     async function checkCuratorApproval() {
-      if (!profile?.email) {
+      if (!profile?.email && !profile?.name) {
         setLoadingMatch(false);
         return;
       }
       try {
-        const { data } = await supabase.from("matches").select("*");
-        const list = Array.isArray(data) ? data : [];
-        const match = list.find((m: any) =>
-          founder
-            ? m.founder_email?.toLowerCase() === profile.email.toLowerCase()
-            : m.investor_email?.toLowerCase() === profile.email.toLowerCase()
-        );
+        let list: any[] = [];
+        try {
+          const res = await fetch("/api/matches", { cache: "no-store" });
+          if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data)) list = data;
+          }
+        } catch {}
+
+        if (list.length === 0) {
+          try {
+            const { data } = await supabase.from("matches").select("*");
+            if (Array.isArray(data)) list = data;
+          } catch {}
+        }
+
+        const myEmail = (profile?.email || "").toLowerCase().trim();
+        const myName = (profile?.name || "").toLowerCase().trim();
+        const myCompany = (profile?.company || "").toLowerCase().trim();
+
+        const match = list.find((m: any) => {
+          let fEmail = (m.founder_email || "").toLowerCase().trim();
+          let fName = (m.founder_name || "").toLowerCase().trim();
+          let fComp = (m.founder_company || "").toLowerCase().trim();
+
+          let iEmail = (m.investor_email || "").toLowerCase().trim();
+          let iName = (m.investor_name || "").toLowerCase().trim();
+          let iComp = (m.investor_company || m.investor_firm || "").toLowerCase().trim();
+
+          // Unpack JSON metadata if status is serialized
+          if (typeof m.status === "string" && m.status.startsWith("{")) {
+            try {
+              const meta = JSON.parse(m.status);
+              if (meta.founder_email) fEmail = meta.founder_email.toLowerCase().trim();
+              if (meta.investor_email) iEmail = meta.investor_email.toLowerCase().trim();
+              if (meta.sector && !m.sector) m.sector = meta.sector;
+            } catch {}
+          }
+
+          if (founder) {
+            return (
+              (myEmail && fEmail && (fEmail === myEmail || myEmail.includes(fEmail) || fEmail.includes(myEmail))) ||
+              (myName && fName && (fName === myName || fName.includes(myName) || myName.includes(fName))) ||
+              (myCompany && fComp && (fComp === myCompany || fComp.includes(myCompany) || myCompany.includes(fComp)))
+            );
+          } else {
+            return (
+              (myEmail && iEmail && (iEmail === myEmail || myEmail.includes(iEmail) || iEmail.includes(myEmail))) ||
+              (myName && iName && (iName === myName || iName.includes(myName) || myName.includes(iName))) ||
+              (myCompany && iComp && (iComp === myCompany || iComp.includes(myCompany) || myCompany.includes(iComp)))
+            );
+          }
+        });
+
         if (match) {
-          setApprovedMatch(match);
+          const formattedMatch = {
+            ...match,
+            investor_company: match.investor_company || match.investor_firm || "Partner Firm",
+            sector: match.sector || profile?.primarySector || "Curated Expedition",
+          };
+          setApprovedMatch(formattedMatch);
           setUnreadCount(1);
         }
-      } catch {}
+      } catch (err) {
+        console.error("Failed to check curator approval:", err);
+      }
       setLoadingMatch(false);
     }
+
     checkCuratorApproval();
-  }, [profile?.email, founder]);
+    // Live polling every 2.5 seconds to unlock journey pass as soon as curator approves
+    const interval = setInterval(checkCuratorApproval, 2500);
+    return () => clearInterval(interval);
+  }, [profile?.email, profile?.name, profile?.company, founder]);
 
   return (
     <div className="app">

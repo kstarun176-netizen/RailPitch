@@ -378,6 +378,19 @@ function CuratorDashboard({
     loadData(false);
   }
 
+  function handleApproveMatch(m: Match) {
+    setMatches((prev) => [
+      m,
+      ...prev.filter(
+        (x) =>
+          !(
+            x.founder_email.toLowerCase() === m.founder_email.toLowerCase() &&
+            x.investor_email.toLowerCase() === m.investor_email.toLowerCase()
+          )
+      ),
+    ]);
+  }
+
   const initials = ownerName
     ? ownerName.split(" ").map((x) => x[0]).join("").toUpperCase().slice(0, 2)
     : "KS";
@@ -484,6 +497,7 @@ function CuratorDashboard({
                 onRefresh={loadData}
                 onInspect={(app) => setSelectedApp(app)}
                 onCancelMatch={handleCancelMatch}
+                onApproveMatch={handleApproveMatch}
               />
             )}
           </>
@@ -1039,6 +1053,7 @@ function MatchStudioTab({
   onRefresh,
   onInspect,
   onCancelMatch,
+  onApproveMatch,
 }: {
   founders: Application[];
   investors: Application[];
@@ -1046,6 +1061,7 @@ function MatchStudioTab({
   onRefresh: () => void;
   onInspect: (app: Application) => void;
   onCancelMatch: (founder_email: string, investor_email: string) => void;
+  onApproveMatch?: (m: Match) => void;
 }) {
   const [selectedFounder, setSelectedFounder] = useState<Application | null>(null);
   const [selectedInvestor, setSelectedInvestor] = useState<Application | null>(null);
@@ -1067,12 +1083,23 @@ function MatchStudioTab({
       approved_at: new Date().toISOString(),
     };
 
+    // Optimistically update Curator dashboard matches immediately
+    if (onApproveMatch) {
+      onApproveMatch(matchRecord);
+    }
+
     try {
       await fetch("/api/matches", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(matchRecord),
       });
+    } catch (e) {
+      console.error("Failed to save match to API:", e);
+    }
+
+    try {
+      await supabase.from("matches").insert([matchRecord]);
     } catch {}
 
     setLastApproved(

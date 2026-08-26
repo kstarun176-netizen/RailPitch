@@ -155,6 +155,40 @@ export const supabase = {
         return { data: null, error: err };
       }
     },
+
+    delete: () => ({
+      eq: async (col: string, val: string) => {
+        const isInternalTable = table === "applications" || table === "matches";
+        if (isInternalTable && typeof window !== "undefined") {
+          try {
+            const body: any = {};
+            body[col] = val;
+            const res = await fetch(`/api/${table}`, {
+              method: "DELETE",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(body),
+            });
+            const json = await res.json();
+            return { data: json, error: null };
+          } catch {}
+        }
+        try {
+          const res = await fetch(
+            `${SUPABASE_URL}/rest/v1/${table}?${col}=eq.${encodeURIComponent(val)}`,
+            {
+              method: "DELETE",
+              headers: {
+                apikey: SUPABASE_ANON_KEY,
+                Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+              },
+            }
+          );
+          return { data: null, error: res.ok ? null : { message: "delete error" } };
+        } catch (err) {
+          return { data: null, error: err };
+        }
+      },
+    }),
   }),
 
   // ─── Storage helpers ───────────────────────────────────────────────────────

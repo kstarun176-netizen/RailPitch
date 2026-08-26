@@ -53,12 +53,40 @@ export async function GET(req: NextRequest) {
 
   const mergedMap = new Map();
   for (const m of localMatches) {
-    const key = `${m.founder_email}_${m.investor_email}`;
+    const key = `${(m.founder_email || m.founder_name || "").toLowerCase()}_${(m.investor_email || m.investor_name || "").toLowerCase()}`;
     mergedMap.set(key, m);
   }
-  for (const m of supabaseMatches) {
-    const key = `${m.founder_email}_${m.investor_email}`;
-    mergedMap.set(key, m);
+
+  for (const row of supabaseMatches) {
+    let fEmail = row.founder_email || "";
+    let iEmail = row.investor_email || "";
+    let sector = row.sector || "Clean Energy & Mobility";
+    let approvedAt = row.approved_at || row.created_at || new Date().toISOString();
+
+    if (typeof row.status === "string" && row.status.startsWith("{")) {
+      try {
+        const meta = JSON.parse(row.status);
+        if (meta.founder_email) fEmail = meta.founder_email;
+        if (meta.investor_email) iEmail = meta.investor_email;
+        if (meta.sector) sector = meta.sector;
+        if (meta.approved_at) approvedAt = meta.approved_at;
+      } catch {}
+    }
+
+    const matchObj = {
+      id: row.id,
+      founder_name: row.founder_name || "",
+      founder_company: row.founder_company || "",
+      founder_email: fEmail,
+      investor_name: row.investor_name || "",
+      investor_company: row.investor_firm || row.investor_company || "",
+      investor_email: iEmail,
+      sector,
+      approved_at: approvedAt,
+    };
+
+    const key = `${(fEmail || row.founder_name || "").toLowerCase()}_${(iEmail || row.investor_name || "").toLowerCase()}`;
+    mergedMap.set(key, matchObj);
   }
 
   const allMatches = Array.from(mergedMap.values());
@@ -78,22 +106,38 @@ export async function POST(req: NextRequest) {
         ...rec,
       };
       existing.unshift(recordWithId);
+
+      // Forward to Supabase formatted to match the Supabase table columns
+      try {
+        const supabasePayload = {
+          founder_name: rec.founder_name || null,
+          founder_company: rec.founder_company || null,
+          investor_name: rec.investor_name || null,
+          investor_firm: rec.investor_company || null,
+          status: JSON.stringify({
+            founder_email: rec.founder_email || "",
+            investor_email: rec.investor_email || "",
+            sector: rec.sector || "",
+            approved_at: rec.approved_at || new Date().toISOString(),
+            status: "approved",
+          }),
+        };
+
+        await fetch(`${SUPABASE_URL}/rest/v1/matches`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: SUPABASE_ANON_KEY,
+            Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+            Prefer: "return=representation",
+          },
+          body: JSON.stringify(supabasePayload),
+        });
+      } catch (e) {
+        console.error("Supabase match insert error:", e);
+      }
     }
     saveLocalMatches(existing);
-
-    // Forward to Supabase in background
-    try {
-      await fetch(`${SUPABASE_URL}/rest/v1/matches`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          apikey: SUPABASE_ANON_KEY,
-          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-          Prefer: "return=representation",
-        },
-        body: JSON.stringify(records),
-      });
-    } catch {}
 
     return NextResponse.json({ ok: true, data: existing });
   } catch (err: any) {
@@ -104,7 +148,7 @@ export async function POST(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
-    const { founder_email, investor_email, id } = body;
+    const { founder_email, investor_email, id, founder_name, investor_name } = body;
 
     let existing = getLocalMatches();
     if (founder_email && investor_email) {
@@ -126,15 +170,30 @@ export async function DELETE(req: NextRequest) {
 
     // Forward deletion to Supabase
     try {
-      if (founder_email && investor_email) {
+      if (id) {
+        await fetch(`${SUPABASE_URL}/rest/v1/matches?id=eq.${encodeURIComponent(id)}`, {
+          method: "DELETE",
+          headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
+        });
+      }
+      if (founder_email) {
+        await fetch(`${SUPABASE_URL}/rest/v1/matches?status=like.*${encodeURIComponent(founder_email)}*`, {
+          method: "DELETE",
+          headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
+        });
+      }
+      if (investor_email) {
+        await fetch(`${SUPABASE_URL}/rest/v1/matches?status=like.*${encodeURIComponent(investor_email)}*`, {
+          method: "DELETE",
+          headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
+        });
+      }
+      if (founder_name && investor_name) {
         await fetch(
-          `${SUPABASE_URL}/rest/v1/matches?founder_email=eq.${encodeURIComponent(founder_email)}&investor_email=eq.${encodeURIComponent(investor_email)}`,
+          `${SUPABASE_URL}/rest/v1/matches?founder_name=eq.${encodeURIComponent(founder_name)}&investor_name=eq.${encodeURIComponent(investor_name)}`,
           {
             method: "DELETE",
-            headers: {
-              apikey: SUPABASE_ANON_KEY,
-              Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-            },
+            headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
           }
         );
       }
