@@ -11,6 +11,7 @@ const SUPABASE_ANON_KEY =
 const DATA_DIR = path.join(process.cwd(), ".data");
 const DATA_FILE = path.join(DATA_DIR, "applications.json");
 const MATCHES_FILE = path.join(DATA_DIR, "matches.json");
+const DELETED_FILE = path.join(DATA_DIR, "deleted_emails.json");
 
 const SEED_APPLICATIONS = [
   {
@@ -93,7 +94,27 @@ const SEED_APPLICATIONS = [
   },
 ];
 
+function getDeletedEmails(): Set<string> {
+  try {
+    if (fs.existsSync(DELETED_FILE)) {
+      const arr = JSON.parse(fs.readFileSync(DELETED_FILE, "utf-8"));
+      if (Array.isArray(arr)) return new Set(arr.map((e: string) => e.toLowerCase()));
+    }
+  } catch {}
+  return new Set();
+}
+
+function addDeletedEmail(email: string) {
+  try {
+    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+    const set = getDeletedEmails();
+    set.add(email.toLowerCase());
+    fs.writeFileSync(DELETED_FILE, JSON.stringify(Array.from(set)), "utf-8");
+  } catch {}
+}
+
 function getLocalApps(): any[] {
+  const deleted = getDeletedEmails();
   try {
     if (!fs.existsSync(DATA_DIR)) {
       fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -101,10 +122,12 @@ function getLocalApps(): any[] {
     if (fs.existsSync(DATA_FILE)) {
       const content = fs.readFileSync(DATA_FILE, "utf-8");
       const parsed = JSON.parse(content);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed)) {
+        return parsed.filter((a: any) => !a.email || !deleted.has(a.email.toLowerCase()));
+      }
     }
   } catch {}
-  return SEED_APPLICATIONS;
+  return SEED_APPLICATIONS.filter((a) => !deleted.has(a.email.toLowerCase()));
 }
 
 function saveLocalApps(apps: any[]) {
@@ -117,17 +140,22 @@ function saveLocalApps(apps: any[]) {
 }
 
 export async function GET(req: NextRequest) {
+  const deleted = getDeletedEmails();
   const mergedMap = new Map<string, any>();
 
-  // 1. Load seed applications
+  // 1. Load seed applications (except deleted)
   for (const s of SEED_APPLICATIONS) {
-    if (s.email) mergedMap.set(s.email.toLowerCase(), s);
+    if (s.email && !deleted.has(s.email.toLowerCase())) {
+      mergedMap.set(s.email.toLowerCase(), s);
+    }
   }
 
   // 2. Load local applications
   const localApps = getLocalApps();
   for (const a of localApps) {
-    if (a.email) mergedMap.set(a.email.toLowerCase(), a);
+    if (a.email && !deleted.has(a.email.toLowerCase())) {
+      mergedMap.set(a.email.toLowerCase(), a);
+    }
   }
 
   // 3. Fetch from Supabase applications table
@@ -143,7 +171,7 @@ export async function GET(req: NextRequest) {
       const data = await res.json();
       if (Array.isArray(data)) {
         for (const a of data) {
-          if (a.email) {
+          if (a.email && !deleted.has(a.email.toLowerCase())) {
             let detailsObj: any = {};
             try {
               if (typeof a.details === "string") detailsObj = JSON.parse(a.details);
@@ -183,7 +211,7 @@ export async function GET(req: NextRequest) {
       const data = await res.json();
       if (Array.isArray(data)) {
         for (const f of data) {
-          if (f.email) {
+          if (f.email && !deleted.has(f.email.toLowerCase())) {
             const existing = mergedMap.get(f.email.toLowerCase()) || {};
             mergedMap.set(f.email.toLowerCase(), {
               ...existing,
@@ -214,7 +242,7 @@ export async function GET(req: NextRequest) {
       const data = await res.json();
       if (Array.isArray(data)) {
         for (const i of data) {
-          if (i.email) {
+          if (i.email && !deleted.has(i.email.toLowerCase())) {
             const existing = mergedMap.get(i.email.toLowerCase()) || {};
             mergedMap.set(i.email.toLowerCase(), {
               ...existing,
@@ -341,13 +369,14 @@ export async function DELETE(req: NextRequest) {
 
     let existing = getLocalApps();
     if (email) {
+      addDeletedEmail(email);
       existing = existing.filter((a: any) => a.email?.toLowerCase() !== email.toLowerCase());
     } else if (id) {
       existing = existing.filter((a: any) => a.id !== id);
     }
     saveLocalApps(existing);
 
-    // Clean up matches
+    // Clean up matches for deleted applicant
     try {
       if (fs.existsSync(MATCHES_FILE) && email) {
         const matchesContent = fs.readFileSync(MATCHES_FILE, "utf-8");

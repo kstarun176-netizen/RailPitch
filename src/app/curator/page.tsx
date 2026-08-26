@@ -328,8 +328,21 @@ function CuratorDashboard({
   }, [loadData]);
 
   async function handleDeleteApplication(email: string) {
-    if (!window.confirm(`Are you sure you want to remove the application for "${email}"? This will also cancel any active meeting matches.`)) {
+    if (!window.confirm(`Are you sure you want to remove the application for "${email}"? This will permanently delete it and cancel any associated matches.`)) {
       return;
+    }
+    // Instant optimistic removal from UI
+    setFounders((prev) => prev.filter((f) => f.email.toLowerCase() !== email.toLowerCase()));
+    setInvestors((prev) => prev.filter((i) => i.email.toLowerCase() !== email.toLowerCase()));
+    setMatches((prev) =>
+      prev.filter(
+        (m) =>
+          m.founder_email.toLowerCase() !== email.toLowerCase() &&
+          m.investor_email.toLowerCase() !== email.toLowerCase()
+      )
+    );
+    if (selectedApp?.email === email) {
+      setSelectedApp(null);
     }
     try {
       await fetch("/api/applications", {
@@ -338,16 +351,23 @@ function CuratorDashboard({
         body: JSON.stringify({ email }),
       });
     } catch {}
-    if (selectedApp?.email === email) {
-      setSelectedApp(null);
-    }
-    loadData();
+    loadData(false);
   }
 
   async function handleCancelMatch(founder_email: string, investor_email: string) {
     if (!window.confirm(`Are you sure you want to cancel and revoke this meeting match?`)) {
       return;
     }
+    // Instant optimistic removal from UI
+    setMatches((prev) =>
+      prev.filter(
+        (m) =>
+          !(
+            m.founder_email.toLowerCase() === founder_email.toLowerCase() &&
+            m.investor_email.toLowerCase() === investor_email.toLowerCase()
+          )
+      )
+    );
     try {
       await fetch("/api/matches", {
         method: "DELETE",
@@ -355,7 +375,7 @@ function CuratorDashboard({
         body: JSON.stringify({ founder_email, investor_email }),
       });
     } catch {}
-    loadData();
+    loadData(false);
   }
 
   const initials = ownerName
@@ -1047,7 +1067,14 @@ function MatchStudioTab({
       approved_at: new Date().toISOString(),
     };
 
-    await supabase.from("matches").insert([matchRecord]);
+    try {
+      await fetch("/api/matches", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(matchRecord),
+      });
+    } catch {}
+
     setLastApproved(
       `${selectedFounder.full_name} ↔ ${selectedInvestor.full_name}`
     );
@@ -1058,6 +1085,14 @@ function MatchStudioTab({
   }
 
   const canApprove = !!selectedFounder && !!selectedInvestor;
+  const isAlreadyMatched =
+    !!selectedFounder &&
+    !!selectedInvestor &&
+    matches.some(
+      (m) =>
+        m.founder_email.toLowerCase() === selectedFounder.email.toLowerCase() &&
+        m.investor_email.toLowerCase() === selectedInvestor.email.toLowerCase()
+    );
 
   return (
     <>
@@ -1066,9 +1101,10 @@ function MatchStudioTab({
           <div>
             <h2>Match Studio</h2>
             <span className="c-section-sub">
-              Select one founder and one investor, inspect their details and pitch decks, then approve the match.
+              Select one founder and one investor to approve pairing. You can match one founder with multiple investors and vice versa.
             </span>
           </div>
+          <button className="c-refresh-btn" onClick={onRefresh}>↻ Refresh</button>
         </div>
 
         <div className="c-match-grid">
@@ -1086,22 +1122,34 @@ function MatchStudioTab({
               )}
             </div>
             <div className="c-select-list">
-              {founders.map((f, i) => (
-                <button
-                  key={i}
-                  className={`c-select-item ${selectedFounder?.email === f.email ? "selected" : ""}`}
-                  onClick={() =>
-                    setSelectedFounder(
-                      selectedFounder?.email === f.email ? null : f
-                    )
-                  }
-                >
-                  <b>{f.full_name}</b>
-                  <small>
-                    {f.company_name} · {f.stage_or_cheque} · {f.primary_sector.split(",")[0]}
-                  </small>
-                </button>
-              ))}
+              {founders.map((f, i) => {
+                const fMatches = matches.filter(
+                  (m) => m.founder_email.toLowerCase() === f.email.toLowerCase()
+                );
+                return (
+                  <button
+                    key={i}
+                    className={`c-select-item ${selectedFounder?.email === f.email ? "selected" : ""}`}
+                    onClick={() =>
+                      setSelectedFounder(
+                        selectedFounder?.email === f.email ? null : f
+                      )
+                    }
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <b>{f.full_name}</b>
+                      {fMatches.length > 0 && (
+                        <span className="c-badge c-badge-teal" style={{ fontSize: "9px", padding: "2px 6px" }}>
+                          ✓ {fMatches.length} Match{fMatches.length > 1 ? "es" : ""}
+                        </span>
+                      )}
+                    </div>
+                    <small>
+                      {f.company_name} · {f.stage_or_cheque} · {f.primary_sector.split(",")[0]}
+                    </small>
+                  </button>
+                );
+              })}
               {founders.length === 0 && (
                 <p style={{ fontSize: 11, color: "#3d6b5a" }}>No founder applications yet.</p>
               )}
@@ -1111,19 +1159,21 @@ function MatchStudioTab({
           {/* Center score + approve */}
           <div className="c-match-center">
             <div className={`c-match-score ${canApprove ? "" : "empty"}`}>
-              {canApprove ? "✓" : "—"}
+              {isAlreadyMatched ? "✓✓" : canApprove ? "✓" : "—"}
             </div>
             <p style={{ fontSize: 10, color: "#3d6b5a", textAlign: "center", margin: "0 0 12px" }}>
-              {canApprove
-                ? "Pair selected. Ready for review & approval."
-                : "Select one from each side."}
+              {isAlreadyMatched
+                ? "This pair is already approved! You can approve additional matches anytime."
+                : canApprove
+                ? "Pair selected. Ready for curator review & confirmation."
+                : "Select one from each side to pair."}
             </p>
             <button
               className="c-approve-btn"
-              disabled={!canApprove || saving}
+              disabled={!canApprove || saving || isAlreadyMatched}
               onClick={handleApprove}
             >
-              {saving ? "Saving…" : "Approve Match →"}
+              {saving ? "Saving…" : isAlreadyMatched ? "Already Matched ✓" : "Approve Match →"}
             </button>
             {lastApproved && (
               <div className="c-approved-banner">
@@ -1146,22 +1196,34 @@ function MatchStudioTab({
               )}
             </div>
             <div className="c-select-list">
-              {investors.map((inv, i) => (
-                <button
-                  key={i}
-                  className={`c-select-item ${selectedInvestor?.email === inv.email ? "selected" : ""}`}
-                  onClick={() =>
-                    setSelectedInvestor(
-                      selectedInvestor?.email === inv.email ? null : inv
-                    )
-                  }
-                >
-                  <b>{inv.full_name}</b>
-                  <small>
-                    {inv.company_name} · {inv.stage_or_cheque} · {inv.primary_sector.split(",")[0]}
-                  </small>
-                </button>
-              ))}
+              {investors.map((inv, i) => {
+                const invMatches = matches.filter(
+                  (m) => m.investor_email.toLowerCase() === inv.email.toLowerCase()
+                );
+                return (
+                  <button
+                    key={i}
+                    className={`c-select-item ${selectedInvestor?.email === inv.email ? "selected" : ""}`}
+                    onClick={() =>
+                      setSelectedInvestor(
+                        selectedInvestor?.email === inv.email ? null : inv
+                      )
+                    }
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <b>{inv.full_name}</b>
+                      {invMatches.length > 0 && (
+                        <span className="c-badge c-badge-coral" style={{ fontSize: "9px", padding: "2px 6px" }}>
+                          ✓ {invMatches.length} Match{invMatches.length > 1 ? "es" : ""}
+                        </span>
+                      )}
+                    </div>
+                    <small>
+                      {inv.company_name} · {inv.stage_or_cheque} · {inv.primary_sector.split(",")[0]}
+                    </small>
+                  </button>
+                );
+              })}
               {investors.length === 0 && (
                 <p style={{ fontSize: 11, color: "#3d6b5a" }}>No investor applications yet.</p>
               )}
@@ -1171,14 +1233,18 @@ function MatchStudioTab({
       </div>
 
       {/* Approved matches log */}
-      {matches.length > 0 && (
-        <div className="c-section">
-          <div className="c-section-head">
-            <div>
-              <h2>Approved Matches Log</h2>
-              <span className="c-section-sub">{matches.length} confirmed pairings — you can cancel or revoke meetings below</span>
-            </div>
+      <div className="c-section">
+        <div className="c-section-head">
+          <div>
+            <h2>Approved Matches & Meetings Log ({matches.length})</h2>
+            <span className="c-section-sub">
+              {matches.length === 0
+                ? "No matches approved yet. Select a founder and an investor above to approve their journey."
+                : "Active matches confirmed by curator. You can cancel or revoke meetings anytime below."}
+            </span>
           </div>
+        </div>
+        {matches.length > 0 ? (
           <div className="c-table-wrap">
             <table className="c-table">
               <thead>
@@ -1186,8 +1252,8 @@ function MatchStudioTab({
                   <th>Founder</th>
                   <th>Investor</th>
                   <th>Sector</th>
-                  <th>Approved</th>
-                  <th>Cancel Meeting</th>
+                  <th>Approved Date</th>
+                  <th>Cancel Match & Revoke Meeting</th>
                 </tr>
               </thead>
               <tbody>
@@ -1196,13 +1262,13 @@ function MatchStudioTab({
                     <td>
                       <div className="c-name-cell">
                         <b>{m.founder_name}</b>
-                        <small>{m.founder_company}</small>
+                        <small>{m.founder_company} ({m.founder_email})</small>
                       </div>
                     </td>
                     <td>
                       <div className="c-name-cell">
                         <b>{m.investor_name}</b>
-                        <small>{m.investor_company}</small>
+                        <small>{m.investor_company} ({m.investor_email})</small>
                       </div>
                     </td>
                     <td style={{ fontSize: 10, color: "#7aaa95" }}>{m.sector}</td>
@@ -1211,7 +1277,8 @@ function MatchStudioTab({
                     </td>
                     <td>
                       <button
-                        className="c-cancel-btn"
+                        className="c-delete-btn"
+                        style={{ padding: "6px 10px", fontSize: "11px" }}
                         onClick={() => onCancelMatch(m.founder_email, m.investor_email)}
                       >
                         ✕ Cancel Match
@@ -1222,8 +1289,12 @@ function MatchStudioTab({
               </tbody>
             </table>
           </div>
-        </div>
-      )}
+        ) : (
+          <div style={{ padding: "32px", textAlign: "center", color: "#628779", background: "#0c1d17", borderRadius: "8px", border: "1px dashed #1e3830" }}>
+            No matches approved yet. Pair founders and investors above to unlock their journey tickets and boarding passes.
+          </div>
+        )}
+      </div>
     </>
   );
 }
