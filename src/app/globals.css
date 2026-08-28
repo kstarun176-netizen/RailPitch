@@ -662,13 +662,13 @@ header nav button,.link{border:0;background:none;color:var(--teal);font-weight:7
   line-height: 0.94;
   margin: 10px 0 18px;
   color: var(--ink);
-  font-weight: 900;
+  font-weight: 300;
 }
 
 .luxury-main-title em {
   font-family: Georgia, serif;
   color: var(--teal);
-  font-weight: 400;
+  font-weight: 700;
   font-style: italic;
 }
 
@@ -744,56 +744,35 @@ header nav button,.link{border:0;background:none;color:var(--teal);font-weight:7
   font-family: inherit;
 }
 
-/* Route Ribbon — railway track illustration */
+/* Route Ribbon — labels above, track below */
 .luxury-route-ribbon {
-  padding-top: 28px;
-  margin-top: 6px;
+  padding-top: 32px;
+  margin-top: 8px;
 }
 
-.ribbon-milestones {
+/* Outer wrapper: positions labels row above the track row */
+.ribbon-layout {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  flex-direction: column;
   gap: 0;
-  position: relative;
 }
 
-/* The railway track sits between nodes */
-.ribbon-track-wrap {
-  flex: 1;
+/* Row 1: station names equally spaced */
+.ribbon-labels-row {
   display: flex;
-  align-items: center;
-  padding: 0 6px;
-  padding-top: 1px;
-}
-
-.ribbon-track-svg {
-  width: 100%;
-  height: 32px;
-  display: block;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 0 10px;
 }
 
 .ribbon-node {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
+  align-items: center;
+  gap: 3px;
   flex-shrink: 0;
-}
-
-.ribbon-node .dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #c4d4cc;
-  border: 2px solid #dce8e0;
-  margin-bottom: 6px;
-}
-
-.ribbon-node .dot.active {
-  background: var(--teal);
-  border-color: var(--teal);
-  box-shadow: 0 0 0 4px rgba(15, 107, 97, 0.15);
+  min-width: 72px;
+  text-align: center;
 }
 
 .ribbon-node b {
@@ -802,12 +781,64 @@ header nav button,.link{border:0;background:none;color:var(--teal);font-weight:7
   font-weight: 800;
   letter-spacing: -0.2px;
   font-family: inherit;
+  white-space: nowrap;
 }
 
 .ribbon-node small {
-  font-size: 11px;
+  font-size: 10.5px;
   color: #63776d;
   font-weight: 600;
+}
+
+/* Gap spacer between labels — keeps them spread like track nodes */
+.ribbon-node-gap {
+  flex: 1;
+}
+
+/* Row 2: track + dots row */
+.ribbon-track-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ribbon-node-dot {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+}
+
+.ribbon-node-dot .dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #c4d4cc;
+  border: 2.5px solid #dce8e0;
+  position: relative;
+  z-index: 1;
+}
+
+.ribbon-node-dot .dot.active {
+  background: var(--teal);
+  border-color: var(--teal);
+  box-shadow: 0 0 0 5px rgba(15, 107, 97, 0.14);
+}
+
+/* The railway track sits between dots */
+.ribbon-track-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  margin-top: -1px;
+}
+
+.ribbon-track-svg {
+  width: 100%;
+  height: 32px;
+  display: block;
 }
 
 @media (max-width: 960px) {
@@ -821,10 +852,18 @@ header nav button,.link{border:0;background:none;color:var(--teal);font-weight:7
   .luxury-expedition-section {
     padding: 60px 4vw 70px;
   }
-  .ribbon-line {
+  .ribbon-labels-row,
+  .ribbon-track-row {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .ribbon-track-wrap {
     display: none;
   }
-  .ribbon-milestones {
-    gap: 12px;
+  .ribbon-node-gap {
+    display: none;
+  }
+  .ribbon-node-dot {
+    width: auto;
   }
 }

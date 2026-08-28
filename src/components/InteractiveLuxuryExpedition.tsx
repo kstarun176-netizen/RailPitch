@@ -100,38 +100,42 @@ export function InteractiveLuxuryExpedition() {
         })}
       </div>
 
-      {/* ── Route Timeline with Railway Track ────────────────────────── */}
+      {/* ── Route Timeline: Labels above + Track below ───────────────── */}
       <div className="luxury-route-ribbon">
-        <div className="ribbon-milestones">
+        <div className="ribbon-layout">
 
-          <div className="ribbon-node">
-            <span className="dot active" />
-            <b>Mumbai CSMT</b>
-            <small>08:10 AM</small>
+          {/* Row 1 — Station names + times */}
+          <div className="ribbon-labels-row">
+            <div className="ribbon-node">
+              <b>Mumbai CSMT</b>
+              <small>08:10 AM</small>
+            </div>
+            <div className="ribbon-node-gap" />
+            <div className="ribbon-node">
+              <b>Panvel</b>
+              <small>09:05 AM</small>
+            </div>
+            <div className="ribbon-node-gap" />
+            <div className="ribbon-node">
+              <b>Ratnagiri</b>
+              <small>01:30 PM</small>
+            </div>
+            <div className="ribbon-node-gap" />
+            <div className="ribbon-node">
+              <b>Goa (Madgaon)</b>
+              <small>06:45 PM</small>
+            </div>
           </div>
 
-          <div className="ribbon-track-wrap"><RailwayTrack /></div>
-
-          <div className="ribbon-node">
-            <span className="dot" />
-            <b>Panvel</b>
-            <small>09:05 AM</small>
-          </div>
-
-          <div className="ribbon-track-wrap"><RailwayTrack /></div>
-
-          <div className="ribbon-node">
-            <span className="dot" />
-            <b>Ratnagiri</b>
-            <small>01:30 PM</small>
-          </div>
-
-          <div className="ribbon-track-wrap"><RailwayTrack /></div>
-
-          <div className="ribbon-node">
-            <span className="dot active" />
-            <b>Goa (Madgaon)</b>
-            <small>06:45 PM</small>
+          {/* Row 2 — Dots sitting right on the track */}
+          <div className="ribbon-track-row">
+            <div className="ribbon-node-dot"><span className="dot active" /></div>
+            <div className="ribbon-track-wrap"><RailwayTrack /></div>
+            <div className="ribbon-node-dot"><span className="dot" /></div>
+            <div className="ribbon-track-wrap"><RailwayTrack /></div>
+            <div className="ribbon-node-dot"><span className="dot" /></div>
+            <div className="ribbon-track-wrap"><RailwayTrack /></div>
+            <div className="ribbon-node-dot"><span className="dot active" /></div>
           </div>
 
         </div>
