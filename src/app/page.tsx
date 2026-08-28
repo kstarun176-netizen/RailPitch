@@ -1179,23 +1179,37 @@ function Registration({
           </button>
         </form>
       </section>
-      <aside>
-        <span>EDITION 01</span>
-        <h2>
-          Mumbai
-          <br />
-          <em>→</em> Goa
+      <aside className="registration-aside">
+        <div className="reg-aside-badge">
+          <span className="reg-dot" />
+          <span>EDITION 01 · 18 OCT 2026</span>
+        </div>
+
+        <h2 className="reg-aside-title">
+          Mumbai <span className="reg-arrow">→</span> Goa
         </h2>
-        <p>
-          18 October 2026
-          <br />
-          Innovation Coach
+
+        <p className="reg-aside-sub">
+          Konkan Coastal Railway Expedition · Vande Bharat Innovation Express
         </p>
-        <div>
-          <b>16</b>
-          <small>founder seats</small>
-          <b>12</b>
-          <small>investor seats</small>
+
+        <div className="reg-aside-stats-grid">
+          <div className="reg-stat-card">
+            <b>16</b>
+            <small>Founder Seats</small>
+          </div>
+          <div className="reg-stat-card">
+            <b>12</b>
+            <small>Investor Seats</small>
+          </div>
+          <div className="reg-stat-card">
+            <b>3</b>
+            <small>1:1 Pitches</small>
+          </div>
+        </div>
+
+        <div className="reg-aside-footer-note">
+          <span>✓ Curated High-Conviction Matchmaking</span>
         </div>
       </aside>
 
@@ -1894,26 +1908,26 @@ function Schedule({
         Vande Bharat top-view coach sequence mapped from Mumbai CSMT down to Goa. Your private 1:1 meeting pods and boarding passes unlock automatically when matched by the curator.
       </p>
 
-      {/* Sleek Trainset Summary Pill */}
-      <div className="schedule-train-summary-pill">
-        <span className="text-base">🚆</span>
-        <div>
-          <b>Vande Bharat Express · 7 Connected Coaches</b>
-          <small>Mumbai CSMT ➔ Panvel ➔ Ratnagiri ➔ Madgaon Goa</small>
+      {/* Schedule Top Action Bar */}
+      <div className="schedule-header-actions">
+        <div className="schedule-train-summary-pill">
+          <span className="text-xl">🚆</span>
+          <div>
+            <b>Vande Bharat Express · 7 Connected Coaches</b>
+            <small>Mumbai CSMT ➔ Panvel ➔ Ratnagiri ➔ Madgaon Goa</small>
+          </div>
         </div>
-      </div>
 
-      {approvedMatch ? (
-        <button className="ticket-cta" onClick={onTicket}>
-          View Confirmed Journey Ticket <Arrow />
-        </button>
-      ) : (
-        <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "#ffffff", padding: "10px 18px", borderRadius: "6px", border: "1px dashed #cad8cf", margin: "0 0 24px" }}>
-          <span style={{ fontSize: "11px", color: "#63756d", fontWeight: 700 }}>
-            🔒 RailPitch Journey Ticket Locked — Issued after Curator approves your match
-          </span>
-        </div>
-      )}
+        {approvedMatch ? (
+          <button className="schedule-ticket-btn" onClick={onTicket}>
+            View Confirmed Journey Ticket <Arrow />
+          </button>
+        ) : (
+          <div className="schedule-locked-pill">
+            <span>🔒 Journey Ticket Locked — Unlocks on Curator Approval</span>
+          </div>
+        )}
+      </div>
 
       <div className="schedule-clean-timeline">
         {bogies.map((item, i) => (
