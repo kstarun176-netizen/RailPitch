@@ -240,7 +240,7 @@ export function CloudShader({
   }, [speed, cloudCoverage, cloudDensity, skyColor, cloudColor, sunColor]);
 
   return (
-    <div className={`relative overflow-hidden ${className}`}>
+    <div className={`relative overflow-hidden ${className}`} style={{ zIndex: 1 }}>
       <canvas
         ref={canvasRef}
         className="absolute inset-0 w-full h-full pointer-events-none block"
