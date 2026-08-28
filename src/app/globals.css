@@ -744,86 +744,6 @@ header nav button,.link{border:0;background:none;color:var(--teal);font-weight:7
   font-family: inherit;
 }
 
-/* Route Ribbon — single-row clean station timeline */
-.luxury-route-ribbon {
-  margin-top: 20px;
-  padding: 22px 28px 20px;
-  background: #ffffff;
-  border: 1px solid #dce5e0;
-  border-radius: 14px;
-}
-
-/* The whole timeline is one horizontal flex row */
-.ribbon-layout {
-  display: flex;
-  align-items: center;
-  gap: 0;
-}
-
-/* Each station: name above, dot on track, time below */
-.ribbon-station {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0;
-  flex-shrink: 0;
-}
-
-.ribbon-station-label {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  margin-bottom: 8px;
-}
-
-.ribbon-station-label b {
-  font-size: 12.5px;
-  color: #102720;
-  font-weight: 800;
-  letter-spacing: -0.2px;
-  white-space: nowrap;
-}
-
-.ribbon-station-label small {
-  font-size: 10px;
-  color: #7a9188;
-  font-weight: 600;
-}
-
-/* Station dot — sits inline with the track */
-.ribbon-dot {
-  width: 13px;
-  height: 13px;
-  border-radius: 50%;
-  background: #c8d8d0;
-  border: 2.5px solid #e0ebe5;
-  flex-shrink: 0;
-  position: relative;
-  z-index: 2;
-}
-
-.ribbon-dot.active {
-  background: var(--teal);
-  border-color: #0f6b61;
-  box-shadow: 0 0 0 5px rgba(15, 107, 97, 0.12);
-}
-
-/* Track segment between stations */
-.ribbon-track-seg {
-  flex: 1;
-  height: 28px;
-  position: relative;
-  overflow: hidden;
-  margin-top: 20px; /* push down to align with dots (below labels) */
-}
-
-.ribbon-track-seg svg {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
 @media (max-width: 960px) {
   .luxury-cards-showcase-grid {
     grid-template-columns: 1fr;
@@ -834,13 +754,5 @@ header nav button,.link{border:0;background:none;color:var(--teal);font-weight:7
 @media (max-width: 680px) {
   .luxury-expedition-section {
     padding: 60px 4vw 70px;
-  }
-  .ribbon-track-seg {
-    display: none;
-  }
-  .ribbon-layout {
-    flex-wrap: wrap;
-    gap: 16px;
-    justify-content: space-around;
   }
 }
