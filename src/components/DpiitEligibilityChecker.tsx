@@ -52,9 +52,88 @@ export function DpiitEligibilityChecker({ onApply }: { onApply?: () => void }) {
     }
   }
 
+  const CARDS = [
+    {
+      kicker: "MAX COMPANY AGE",
+      icon: "⏳",
+      title: activeTab === "normal" ? "Up to 10 Years" : "Up to 20 Years",
+      desc: activeTab === "normal" ? "Standard incorporation age" : "Deeptech extended window",
+      badge: activeTab === "normal" ? "10 Yrs Limit" : "20 Yrs Extended",
+      color1: "#f5ce7b",
+      color2: "#0f6b61",
+      color3: "#102720",
+      accentGrad: "linear-gradient(135deg, #f5ce7b 0%, #ffffff 100%)",
+    },
+    {
+      kicker: "ELIGIBLE ENTITY",
+      icon: "🏛️",
+      title: "Pvt Ltd & LLP",
+      desc: "Registered partnership or company",
+      badge: "Sole Props Ineligible",
+      color1: "#2fd9ab",
+      color2: "#0f6b61",
+      color3: "#07201a",
+      accentGrad: "linear-gradient(135deg, #2fd9ab 0%, #ffffff 100%)",
+    },
+    {
+      kicker: "TURNOVER CAP",
+      icon: "📈",
+      title: activeTab === "normal" ? "Max ₹200 Cr" : "Max ₹300 Cr",
+      desc: "Statutory annual revenue cap",
+      badge: activeTab === "normal" ? "₹200 Cr Ceiling" : "₹300 Cr Deeptech",
+      color1: "#fbbf24",
+      color2: "#b45309",
+      color3: "#1f1103",
+      accentGrad: "linear-gradient(135deg, #fde68a 0%, #ffffff 100%)",
+    },
+    {
+      kicker: "INDEPENDENT ENTITY",
+      icon: "🛡️",
+      title: "100% Original",
+      desc: "Not formed by split-up or merger",
+      badge: "Genuine Enterprise",
+      color1: "#38bdf8",
+      color2: "#0f4a42",
+      color3: "#071d19",
+      accentGrad: "linear-gradient(135deg, #7dd3fc 0%, #ffffff 100%)",
+    },
+    {
+      kicker: "CORE THESIS",
+      icon: "🚀",
+      title: "Innovation & Scale",
+      desc: "Scalable employment & wealth creation",
+      badge: "Curation Priority",
+      color1: "#ea580c",
+      color2: "#9a3412",
+      color3: "#102720",
+      accentGrad: "linear-gradient(135deg, #fb923c 0%, #fef08a 100%)",
+    },
+  ];
+
   return (
     <section className="dpiit-section" id="dpiit">
-      <div className="heading" style={{ marginBottom: "32px" }}>
+      {/* ── Global Shared SVG Noise Filter ─────────────────────────────── */}
+      <svg style={{ width: 0, height: 0, position: "absolute" }} aria-hidden="true">
+        <filter id="dpiit-noise">
+          <feTurbulence
+            type="turbulence"
+            baseFrequency="0.9"
+            numOctaves={2}
+            seed={1}
+            stitchTiles="stitch"
+            result="turbulence"
+          />
+          <feDisplacementMap
+            in="SourceGraphic"
+            in2="turbulence"
+            scale={28}
+            xChannelSelector="R"
+            yChannelSelector="G"
+          />
+        </filter>
+      </svg>
+
+      <div className="heading" style={{ marginBottom: "28px" }}>
         <div>
           <span className="kicker" style={{ color: "#d97706" }}>
             <b style={{ background: "#d97706" }} />
@@ -97,7 +176,7 @@ export function DpiitEligibilityChecker({ onApply }: { onApply?: () => void }) {
         </button>
       </div>
 
-      {/* Interactive Quiz Drawer / Modal */}
+      {/* Interactive Quiz Drawer */}
       {showQuiz && (
         <div className="dpiit-quiz-box">
           <div className="dpiit-quiz-header">
@@ -148,48 +227,43 @@ export function DpiitEligibilityChecker({ onApply }: { onApply?: () => void }) {
               />
               <div className="dpiit-range-labels">
                 <span>{currentYear - 25}</span>
-                <span>{currentYear - 10}</span>
-                <span>{currentYear} (New)</span>
+                <span>{currentYear}</span>
               </div>
             </div>
 
             <div className="dpiit-quiz-field">
-              <label>Entity Structure</label>
+              <label>Registered Legal Entity Structure</label>
               <select
                 value={entityType}
                 onChange={(e) => setEntityType(e.target.value)}
               >
-                <option value="pvt_ltd">Private Limited Company</option>
+                <option value="pvt_ltd">Private Limited Company (Pvt Ltd)</option>
                 <option value="llp">Limited Liability Partnership (LLP)</option>
                 <option value="partnership">Registered Partnership Firm</option>
                 <option value="coop">Cooperative Society</option>
-                <option value="sole_prop">Sole Proprietorship / Unregistered</option>
-                <option value="public_ltd">Public Limited Company</option>
+                <option value="sole_prop">Sole Proprietorship (Ineligible)</option>
+                <option value="unregistered">Unregistered Entity (Ineligible)</option>
               </select>
             </div>
 
             <div className="dpiit-quiz-field">
               <label>
-                Max Annual Turnover in any FY: <b>₹{turnover} Crore</b>
+                Peak Turnover in Any Fiscal Year: <b>₹{turnover} Cr</b>
               </label>
               <input
                 type="range"
-                min={0}
+                min={1}
                 max={400}
-                step={5}
                 value={turnover}
                 onChange={(e) => setTurnover(Number(e.target.value))}
               />
               <div className="dpiit-range-labels">
-                <span>₹0 Cr</span>
-                <span>₹200 Cr</span>
-                <span>₹300 Cr</span>
+                <span>₹1 Cr</span>
                 <span>₹400 Cr</span>
               </div>
             </div>
 
             <div className="dpiit-quiz-field" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              <label>Business Characteristics</label>
               <label className="dpiit-checkbox">
                 <input
                   type="checkbox"
@@ -245,84 +319,43 @@ export function DpiitEligibilityChecker({ onApply }: { onApply?: () => void }) {
         </div>
       )}
 
-      {/* 5 Dynamic Criteria Cards Grid */}
+      {/* ── 5 Aesthetic Noise-Displacement Criteria Cards ─────────────── */}
       <div className="dpiit-cards-grid">
-        {/* Card 1: Company Age */}
-        <article className="dpiit-card">
-          <div className="dpiit-card-icon">⏳</div>
-          <span className="dpiit-card-kicker">MAX COMPANY AGE</span>
-          <h3>
-            {activeTab === "normal" ? "Up to 10 Years" : "Up to 20 Years"}
-          </h3>
-          <p>
-            From the date of incorporation or registration.{" "}
-            {activeTab === "deeptech"
-              ? "Deeptech startups receive an extended 20-year gestation window."
-              : "Standard recognition applies for up to 10 years from inception."}
-          </p>
-          <div className="dpiit-card-pill">
-            {activeTab === "normal" ? "Standard (10 Yrs)" : "Extended Deeptech (20 Yrs)"}
-          </div>
-        </article>
+        {CARDS.map((card, idx) => (
+          <div key={idx} className="dpiit-noise-wrapper">
+            <div
+              className="dpiit-noise-card"
+              style={
+                {
+                  "--color-1": card.color1,
+                  "--color-2": card.color2,
+                  "--color-3": card.color3,
+                } as React.CSSProperties
+              }
+            >
+              <div className="dpiit-noise-bg" />
 
-        {/* Card 2: Company Type */}
-        <article className="dpiit-card">
-          <div className="dpiit-card-icon">🏛️</div>
-          <span className="dpiit-card-kicker">ELIGIBLE ENTITY TYPE</span>
-          <h3>Pvt Ltd, LLP, Partnership</h3>
-          <p>
-            Private Limited Company, Registered Partnership Firm, Limited Liability
-            Partnership (LLP), or Cooperative Society.
-          </p>
-          <div className="dpiit-card-pill">
-            Sole Proprietorships Not Eligible
-          </div>
-        </article>
+              {/* Card Header & Kicker */}
+              <div className="dpiit-noise-header">
+                <span className="dpiit-noise-icon">{card.icon}</span>
+                <span className="dpiit-noise-kicker">{card.kicker}</span>
+              </div>
 
-        {/* Card 3: Annual Turnover */}
-        <article className="dpiit-card">
-          <div className="dpiit-card-icon">📈</div>
-          <span className="dpiit-card-kicker">TURNOVER CAP</span>
-          <h3>
-            {activeTab === "normal" ? "Max ₹200 Crore" : "Max ₹300 Crore"}
-          </h3>
-          <p>
-            Turnover of the entity for any of the financial years since
-            incorporation/registration must not exceed this statutory threshold.
-          </p>
-          <div className="dpiit-card-pill">
-            {activeTab === "normal" ? "₹200 Cr Ceiling" : "₹300 Cr Deeptech Ceiling"}
-          </div>
-        </article>
+              {/* Big Aesthetic Title */}
+              <h3 className="dpiit-noise-title" style={{ background: card.accentGrad }}>
+                {card.title}
+              </h3>
 
-        {/* Card 4: Original Entity */}
-        <article className="dpiit-card">
-          <div className="dpiit-card-icon">🛡️</div>
-          <span className="dpiit-card-kicker">INDEPENDENT ENTITY</span>
-          <h3>Not Formed by Splitting Up</h3>
-          <p>
-            The entity must be an original enterprise and must not be formed by
-            splitting up or reconstructing an existing business.
-          </p>
-          <div className="dpiit-card-pill">
-            100% Genuine New Enterprise
-          </div>
-        </article>
+              {/* Clean Concise Description */}
+              <p className="dpiit-noise-desc">{card.desc}</p>
 
-        {/* Card 5: Innovation & Scalability */}
-        <article className="dpiit-card featured">
-          <div className="dpiit-card-icon">🚀</div>
-          <span className="dpiit-card-kicker">CORE THESIS</span>
-          <h3>Innovation & Scalability</h3>
-          <p>
-            Must work towards development or improvement of products, processes,
-            or services, or have a scalable business model with high potential for
-            employment or wealth creation.
-          </p>
-          <div className="dpiit-card-pill highlight">
-            Key Curation & Matching Factor
+              {/* Bottom Subtle Pill */}
+              <div className="dpiit-noise-badge">
+                <span>{card.badge}</span>
+              </div>
+            </div>
           </div>
-        </article>
+        ))}
       </div>
 
       <style jsx>{`
@@ -525,86 +558,147 @@ export function DpiitEligibilityChecker({ onApply }: { onApply?: () => void }) {
           flex-wrap: wrap;
         }
 
-        /* 5 Cards Grid */
+        /* ── 5 Aesthetic Noise-Displacement Criteria Cards ────────── */
         .dpiit-cards-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-          gap: 16px;
+          grid-template-columns: repeat(5, 1fr);
+          gap: 14px;
         }
 
-        .dpiit-card {
-          background: #ffffff;
-          border: 1px solid #dce2d9;
-          border-radius: 10px;
-          padding: 24px 20px;
-          box-shadow: 0 4px 16px rgba(16, 39, 32, 0.04);
+        .dpiit-noise-wrapper {
+          width: 100%;
+          border-radius: 14px;
+          overflow: hidden;
+          box-shadow: 0 10px 30px rgba(16, 39, 32, 0.08);
+          transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+            box-shadow 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .dpiit-noise-wrapper:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 16px 36px rgba(16, 39, 32, 0.16);
+        }
+
+        .dpiit-noise-card {
+          width: 100%;
+          min-height: 220px;
+          position: relative;
+          background-color: #102720;
+          overflow: hidden;
+          padding: 20px 18px;
           display: flex;
           flex-direction: column;
+          justify-content: space-between;
+          cursor: pointer;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .dpiit-noise-bg {
+          position: absolute;
+          inset: -10%;
+          width: 120%;
+          height: 120%;
+          filter: url("#dpiit-noise");
+          background: radial-gradient(
+              circle at 50% 100%,
+              var(--color-1) 18%,
+              var(--color-2) 42% 52%,
+              var(--color-3) 68%
+            )
+            no-repeat center / cover;
+          opacity: 0.95;
+          pointer-events: none;
+          z-index: 1;
+        }
+
+        .dpiit-noise-header {
           position: relative;
-          transition: transform 0.2s ease, border-color 0.2s ease;
+          z-index: 2;
+          display: flex;
+          align-items: center;
+          gap: 8px;
         }
 
-        .dpiit-card:hover {
+        .dpiit-noise-icon {
+          font-size: 16px;
+        }
+
+        .dpiit-noise-kicker {
+          font-size: 9px;
+          font-weight: 850;
+          letter-spacing: 0.8px;
+          text-transform: uppercase;
+          color: rgba(255, 255, 255, 0.75);
+        }
+
+        .dpiit-noise-title {
+          position: relative;
+          z-index: 2;
+          font-size: 20px;
+          font-weight: 850;
+          line-height: 1.15;
+          letter-spacing: -0.5px;
+          margin: 12px 0 6px;
+          -webkit-background-clip: text !important;
+          -webkit-text-fill-color: transparent !important;
+          background-clip: text !important;
+          color: transparent !important;
+          filter: drop-shadow(0px 3px 8px rgba(0, 0, 0, 0.45));
+          transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .dpiit-noise-wrapper:hover .dpiit-noise-title {
+          letter-spacing: -0.2px;
           transform: translateY(-2px);
-          border-color: #0f6b61;
-          box-shadow: 0 8px 24px rgba(15, 107, 97, 0.08);
+          filter: drop-shadow(0px 6px 14px rgba(0, 0, 0, 0.6));
         }
 
-        .dpiit-card.featured {
-          background: #f8faf8;
-          border-color: #9ac2b1;
+        .dpiit-noise-desc {
+          position: relative;
+          z-index: 2;
+          color: rgba(255, 255, 255, 0.88);
+          font-size: 11.5px;
+          font-weight: 500;
+          line-height: 1.4;
+          margin: 0 0 14px;
+          text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+          transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
-        .dpiit-card-icon {
-          font-size: 24px;
-          margin-bottom: 12px;
+        .dpiit-noise-wrapper:hover .dpiit-noise-desc {
+          color: #ffffff;
+          transform: translateY(-1px);
         }
 
-        .dpiit-card-kicker {
+        .dpiit-noise-badge {
+          position: relative;
+          z-index: 2;
+          margin-top: auto;
+          padding: 4px 10px;
+          border-radius: 20px;
+          background: rgba(0, 0, 0, 0.25);
+          border: 1px solid rgba(255, 255, 255, 0.18);
+          backdrop-filter: blur(8px);
+          width: fit-content;
+        }
+
+        .dpiit-noise-badge span {
           font-size: 9px;
           font-weight: 800;
-          letter-spacing: 1.2px;
-          color: #0f6b61;
-          margin-bottom: 6px;
+          color: rgba(255, 255, 255, 0.95);
+          letter-spacing: 0.4px;
           text-transform: uppercase;
         }
 
-        .dpiit-card h3 {
-          font-size: 18px;
-          letter-spacing: -0.6px;
-          margin: 0 0 8px;
-          color: var(--ink);
+        @media (max-width: 1100px) {
+          .dpiit-cards-grid {
+            grid-template-columns: repeat(3, 1fr);
+          }
         }
 
-        .dpiit-card p {
-          font-size: 11.5px;
-          line-height: 1.5;
-          color: #607368;
-          margin: 0 0 16px;
-          flex: 1;
-        }
-
-        .dpiit-card-pill {
-          background: #f4f7f4;
-          border: 1px solid #dbe4dc;
-          border-radius: 20px;
-          padding: 5px 10px;
-          font-size: 9px;
-          font-weight: 700;
-          color: #4b6154;
-          display: inline-block;
-          margin-top: auto;
-        }
-
-        .dpiit-card-pill.highlight {
-          background: #def1e6;
-          border-color: #b8dcce;
-          color: #0f6b61;
-        }
-
-        @media (max-width: 800px) {
+        @media (max-width: 768px) {
           .dpiit-section {
-            padding: 60px 7vw;
+            padding: 60px 4vw;
           }
           .dpiit-cards-grid {
             grid-template-columns: 1fr;
