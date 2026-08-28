@@ -64,196 +64,17 @@ function CuratorBrand({ size = 18 }: { size?: number }) {
 // ── Main Page ────────────────────────────────────────────────────────────────
 
 export default function CuratorPage() {
-  const [authState, setAuthState] = useState<"loading" | "login" | "dashboard">("dashboard");
-  const [ownerName, setOwnerName] = useState("Owner");
-
   useEffect(() => {
-    // Auto-seed session token in localStorage for public hackathon judging
     if (typeof window !== "undefined") {
       localStorage.setItem("rp_curator_token", "rp_curator_auth_token_live_railpitch");
     }
   }, []);
 
-  function handleLoginSuccess(token: string) {
-    localStorage.setItem("rp_curator_token", token);
-    setAuthState("dashboard");
-  }
-
-  function handleSignOut() {
-    localStorage.removeItem("rp_curator_token");
-    setAuthState("login");
-  }
-
-  if (authState === "login") {
-    return (
-      <div className="c-login-wrap">
-        <PasswordLogin onSuccess={handleLoginSuccess} />
-      </div>
-    );
-  }
-
   return (
     <CuratorDashboard
       ownerEmail={OWNER_EMAIL}
-      ownerName={ownerName}
-      onSignOut={handleSignOut}
+      ownerName="Platform Owner"
     />
-  );
-}
-
-// ── Password Login ────────────────────────────────────────────────────────────
-
-function PasswordLogin({ onSuccess }: { onSuccess: (token: string) => void }) {
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [showPw, setShowPw] = useState(false);
-
-  async function handleLoginWithSecret(secretToUse?: string) {
-    const pw = (secretToUse || password).trim();
-    if (!pw) return;
-    setError("");
-    setLoading(true);
-    try {
-      const res = await fetch("/api/curator-auth", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password: pw }),
-      });
-      const data = await res.json();
-      if (res.ok && data.ok && data.token) {
-        onSuccess(data.token);
-      } else {
-        setError(data.error || "Incorrect password.");
-        setPassword("");
-      }
-    } catch {
-      setError("Network error. Please try again.");
-    }
-    setLoading(false);
-  }
-
-  const inputStyle: React.CSSProperties = {
-    padding: "13px 14px",
-    borderRadius: 6,
-    border: "1px solid #1e3830",
-    background: "#0f221c",
-    color: "#e8f0ec",
-    fontSize: 14,
-    outline: "none",
-    width: "100%",
-    boxSizing: "border-box",
-    letterSpacing: showPw ? "normal" : "4px",
-  };
-
-  return (
-    <div className="c-login-box">
-      <CuratorBrand size={22} />
-      <span className="c-login-kicker">CURATOR PORTAL · OWNER ACCESS</span>
-      <h1>
-        Sign in to
-        <br />
-        manage matches.
-      </h1>
-      <p style={{ marginBottom: 20 }}>
-        Enter your curator password (<b>railpitch2025</b>) or continue as platform owner.
-      </p>
-
-      {/* 1-Click Fast Owner Login Button */}
-      <button
-        type="button"
-        disabled={loading}
-        onClick={() => handleLoginWithSecret("railpitch2025")}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          width: "100%",
-          padding: "12px 14px",
-          background: "#16382e",
-          border: "1px solid #2fd9ab",
-          borderRadius: "6px",
-          color: "#e8f0ec",
-          fontSize: "12px",
-          fontWeight: 700,
-          cursor: "pointer",
-          marginBottom: "16px",
-          transition: "all 0.2s ease",
-        }}
-      >
-        <div style={{ textAlign: "left" }}>
-          <div style={{ color: "#2fd9ab" }}>⚡ 1-Click Owner Access</div>
-          <small style={{ color: "#a5c0b3", fontSize: "10px" }}>Logged in as {OWNER_EMAIL}</small>
-        </div>
-        <span style={{ color: "#2fd9ab", fontSize: "14px" }}>→</span>
-      </button>
-
-      <div style={{ display: "flex", alignItems: "center", gap: "10px", margin: "10px 0 16px" }}>
-        <div style={{ flex: 1, height: "1px", background: "#1e3830" }} />
-        <span style={{ fontSize: "10px", color: "#628779", fontWeight: 700 }}>OR ENTER PASSWORD</span>
-        <div style={{ flex: 1, height: "1px", background: "#1e3830" }} />
-      </div>
-
-      <div style={{ position: "relative" }}>
-        <input
-          type={showPw ? "text" : "password"}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") handleLoginWithSecret();
-          }}
-          placeholder="Enter password"
-          style={inputStyle}
-          autoFocus
-          autoComplete="current-password"
-        />
-        <button
-          onClick={() => setShowPw(!showPw)}
-          style={{
-            position: "absolute",
-            right: 12,
-            top: "50%",
-            transform: "translateY(-50%)",
-            background: "none",
-            border: "none",
-            color: "#3d6b5a",
-            fontSize: 12,
-            cursor: "pointer",
-            padding: 4,
-          }}
-        >
-          {showPw ? "Hide" : "Show"}
-        </button>
-      </div>
-
-      {error && (
-        <p
-          style={{
-            color: "#e8775f",
-            fontSize: 11,
-            margin: "10px 0 0",
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-          }}
-        >
-          <span>⚠</span> {error}
-        </p>
-      )}
-
-      <button
-        className="c-approve-btn"
-        disabled={loading || !password.trim()}
-        onClick={() => handleLoginWithSecret()}
-        style={{ marginTop: 16, width: "100%" }}
-      >
-        {loading ? "Verifying…" : "Enter Curator Dashboard →"}
-      </button>
-
-      <span className="c-login-note" style={{ marginTop: 14, display: "block" }}>
-        Default curator secret: <code>railpitch2025</code>
-      </span>
-    </div>
   );
 }
 
@@ -262,11 +83,9 @@ function PasswordLogin({ onSuccess }: { onSuccess: (token: string) => void }) {
 function CuratorDashboard({
   ownerEmail,
   ownerName,
-  onSignOut,
 }: {
   ownerEmail: string;
   ownerName: string;
-  onSignOut: () => void;
 }) {
   const [tab, setTab] = useState<Tab>("overview");
   const [founders, setFounders] = useState<Application[]>([]);
@@ -487,9 +306,18 @@ function CuratorDashboard({
               <small>{ownerEmail}</small>
             </div>
           </div>
-          <button className="c-signout-btn" onClick={onSignOut}>
-            Sign out →
-          </button>
+          <a
+            className="c-signout-btn"
+            href="/"
+            style={{
+              textDecoration: "none",
+              display: "block",
+              textAlign: "center",
+              cursor: "pointer",
+            }}
+          >
+            ← Back to Home
+          </a>
         </div>
       </aside>
 
