@@ -690,10 +690,10 @@ header nav button,.link{border:0;background:none;color:var(--teal);font-weight:7
   background: #ffffff;
   border: 1.5px solid #dbe4de;
   border-radius: 14px;
-  padding: 20px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
   position: relative;
@@ -705,49 +705,6 @@ header nav button,.link{border:0;background:none;color:var(--teal);font-weight:7
 
 .visual-exp-card.selected-card {
   transform: translateY(-4px);
-}
-
-.exp-card-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.exp-icon-pill {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  display: grid;
-  place-items: center;
-  font-size: 16px;
-  flex-shrink: 0;
-}
-
-.exp-title {
-  font-size: 15.5px;
-  font-weight: 850;
-  color: var(--ink);
-  margin: 0;
-  letter-spacing: -0.3px;
-}
-
-.exp-tagline {
-  font-size: 11px;
-  color: #61776b;
-  font-weight: 600;
-  display: block;
-}
-
-.exp-badge {
-  font-size: 8.5px;
-  font-weight: 900;
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
-  padding: 4px 8px;
-  border-radius: 20px;
-  white-space: nowrap;
-  transition: all 0.2s ease;
 }
 
 /* Illustration Wrapper */
@@ -765,51 +722,23 @@ header nav button,.link{border:0;background:none;color:var(--teal);font-weight:7
   display: block;
 }
 
-/* Card Body Summary */
-.exp-card-body {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.exp-card-headline {
-  font-size: 13px;
-  font-weight: 800;
-  color: #102720;
-  margin: 0;
-  line-height: 1.4;
-}
-
-.exp-card-desc {
-  font-size: 11.5px;
-  color: #4b6357;
-  line-height: 1.5;
-  margin: 0;
-}
-
-.exp-card-bullets {
-  list-style: none;
-  padding: 0;
-  margin: 4px 0 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  border-top: 1px dashed #e1e9e3;
-  padding-top: 8px;
-}
-
-.exp-card-bullets li {
+/* One-line label row under illustration */
+.exp-label-row {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  color: #384e42;
-  font-weight: 600;
+  gap: 7px;
+  padding: 4px 2px 2px;
 }
 
-.bullet-check {
-  font-weight: 900;
-  font-size: 11px;
+.exp-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.exp-title {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
 }
 
 /* Route Ribbon Footer */
