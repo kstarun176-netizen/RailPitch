@@ -643,21 +643,17 @@ header nav button,.link{border:0;background:none;color:var(--teal);font-weight:7
   color: #ffffff !important;
 }
 
-/* ── Judge submission brief ─────────────────────────────────────────────── */
-.judge-brief{position:relative;overflow:hidden;padding:100px 5.2vw;background:linear-gradient(135deg,#0e2d27 0%,#123d34 57%,#145346 100%);color:#fff}.judge-brief:before{content:"";position:absolute;inset:auto -11vw -190px auto;width:540px;height:540px;border:1px solid rgba(184,231,213,.22);border-radius:50%;box-shadow:0 0 0 44px rgba(184,231,213,.05),0 0 0 88px rgba(184,231,213,.035)}.judge-brief-rail{display:flex;gap:6px;align-items:flex-end;margin-bottom:30px}.judge-brief-rail span{display:block;width:6px;border-radius:6px;background:#2fd9ab}.judge-brief-rail span:nth-child(1){height:13px}.judge-brief-rail span:nth-child(2){height:23px;background:#e8775f}.judge-brief-rail span:nth-child(3){height:17px}.judge-brief-heading{position:relative;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(230px,.65fr);column-gap:9vw;align-items:end;margin-bottom:38px}.judge-brief .kicker{color:#a8d9c7}.judge-brief h2{font-size:clamp(38px,4.5vw,64px);line-height:.96;letter-spacing:-3.2px;margin:13px 0 0;max-width:730px}.judge-brief h2 em{font-family:Georgia,serif;color:#a8e2cc;font-weight:400}.judge-brief-intro{max-width:380px;margin:0;padding-bottom:4px;color:#d1e9df;font-size:14px;line-height:1.6}.judge-brief-card{position:relative;max-width:1080px;margin:0 auto;background:#fffdf8;color:var(--ink);border-radius:12px;box-shadow:0 24px 60px rgba(2,20,16,.25);overflow:hidden}.judge-brief-cardhead{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:16px 25px;background:#edf5f0;border-bottom:1px solid #dce8df;color:#557367;font-size:10px;letter-spacing:1.2px;font-weight:850}.judge-brief-cardhead strong{padding:5px 9px;border:1px solid #b9dbc9;border-radius:999px;background:#fff;color:var(--teal);font-size:9px;white-space:nowrap}.judge-brief-copy{padding:31px 7.5%;columns:2;column-gap:46px;column-rule:1px solid #e1e8e1}.judge-brief-copy p{break-inside:avoid;margin:0 0 18px;font-size:14px;line-height:1.72;color:#40564c}.judge-brief-copy p:first-child:first-letter{float:left;font-family:Georgia,serif;color:var(--teal);font-size:55px;line-height:.84;padding:7px 8px 0 0}
-@media(max-width:760px){.landing-root{zoom:1}header{height:64px;padding:0 20px}header nav{display:none;position:absolute;top:64px;left:0;right:0;flex-direction:column;align-items:flex-start;gap:16px;padding:18px 20px;background:var(--cream);border-bottom:1px solid var(--line);box-shadow:0 12px 20px rgba(16,39,32,.08)}header nav.open{display:flex}.hamburger{display:block}.judge-brief{padding:70px 5.2vw}.judge-brief-heading{grid-template-columns:1fr;gap:18px}.judge-brief-intro{padding:0}.judge-brief-cardhead{padding:14px 17px}.judge-brief-copy{padding:24px 20px;columns:1;column-rule:0}.judge-brief-copy p{font-size:13px;line-height:1.68}}
-
 /* ── Interactive Luxury Expedition Showcase (Beyond the Boardroom) ──────── */
 .luxury-expedition-section {
-  padding: 95px 5.2vw 110px;
+  padding: 85px 5.2vw 95px;
   background: #f7f6f0;
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
 }
 
 .luxury-expedition-header {
-  max-width: 920px;
-  margin-bottom: 36px;
+  max-width: 900px;
+  margin-bottom: 30px;
 }
 
 .luxury-main-title {
@@ -682,75 +678,26 @@ header nav button,.link{border:0;background:none;color:var(--teal);font-weight:7
   margin: 0;
 }
 
-/* Zone Navigation Tabs */
-.luxury-zone-tabs {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 24px;
-}
-
-.luxury-tab-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: #ffffff;
-  border: 1px solid #d8e2dc;
-  color: #475e52;
-  padding: 10px 18px;
-  border-radius: 30px;
-  font-size: 12px;
-  font-weight: 800;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 6px rgba(16, 39, 32, 0.03);
-  position: relative;
-}
-
-.luxury-tab-btn:hover {
-  border-color: var(--teal);
-  color: var(--teal);
-  transform: translateY(-1px);
-}
-
-.luxury-tab-btn.active {
-  background: var(--ink);
-  color: #ffffff;
-  border-color: var(--ink);
-  box-shadow: 0 4px 14px rgba(16, 39, 32, 0.2);
-}
-
-.tab-icon {
-  font-size: 14px;
-}
-
-/* Main Grid Layout */
-.luxury-showcase-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(360px, 1fr);
-  gap: 24px;
-  align-items: stretch;
-}
-
-/* Left: Interactive Coach Card */
-.luxury-coach-card {
+/* Single Luxury Coach Card */
+.luxury-single-canvas-card {
   background: #ffffff;
   border: 1px solid #dce5e0;
   border-radius: 14px;
-  padding: 22px;
+  padding: 24px;
   box-shadow: 0 12px 36px rgba(16, 39, 32, 0.05);
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  gap: 18px;
+  max-width: 1100px;
+  margin: 0 auto;
 }
 
-.luxury-card-topbar {
+.luxury-canvas-topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid #edf2ee;
   padding-bottom: 14px;
-  margin-bottom: 18px;
 }
 
 .coach-live-dot {
@@ -762,13 +709,23 @@ header nav button,.link{border:0;background:none;color:var(--teal);font-weight:7
   animation: pulse-dot 2s infinite ease-in-out;
 }
 
+.zone-active-pill {
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.8px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid;
+  transition: all 0.25s ease;
+}
+
 .luxury-coach-svg-container {
   width: 100%;
   overflow: hidden;
   border-radius: 10px;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
-  padding: 8px;
+  padding: 10px;
 }
 
 .luxury-coach-svg {
@@ -782,7 +739,7 @@ header nav button,.link{border:0;background:none;color:var(--teal);font-weight:7
 }
 
 .coach-interactive-zone:hover rect:first-child {
-  filter: drop-shadow(0 4px 12px rgba(15, 107, 97, 0.2));
+  filter: drop-shadow(0 4px 14px rgba(15, 107, 97, 0.25));
 }
 
 .zone-pulse-beacon {
@@ -800,308 +757,111 @@ header nav button,.link{border:0;background:none;color:var(--teal);font-weight:7
   }
 }
 
-.luxury-coach-legend {
+/* Floating Tooltip Box */
+.luxury-floating-tooltip {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 18px;
-  padding-top: 14px;
-  border-top: 1px solid #edf2ee;
-}
-
-.legend-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  color: #556c60;
-  cursor: pointer;
-  padding: 5px 8px;
-  border-radius: 6px;
-  transition: all 0.15s ease;
-}
-
-.legend-pill:hover {
-  background: #f0f7f3;
-  color: #102720;
-}
-
-.legend-pill .dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-}
-
-/* Right / Side Panel: Dynamic Zone Detail & Map */
-.luxury-experience-panel {
-  display: flex;
-  flex-direction: column;
-}
-
-.luxury-zone-detail-card {
-  background: #ffffff;
-  border: 1px solid #dce5e0;
-  border-radius: 14px;
-  padding: 24px 26px;
-  box-shadow: 0 12px 36px rgba(16, 39, 32, 0.05);
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  height: 100%;
-}
-
-.detail-card-head {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.badge-pill {
-  display: inline-flex;
-  align-items: center;
-  font-size: 9.5px;
-  font-weight: 900;
-  letter-spacing: 0.8px;
-  padding: 4px 10px;
-  border-radius: 20px;
-  border-width: 1px;
-  border-style: solid;
-  width: fit-content;
-}
-
-.detail-title {
-  font-size: 20px;
-  font-weight: 850;
-  color: var(--ink);
-  margin: 2px 0 0;
-  letter-spacing: -0.5px;
-}
-
-.detail-tagline {
-  font-size: 12.5px;
-  color: #52685c;
-  margin: 0;
-  line-height: 1.45;
-}
-
-/* Tooltip Callout Box */
-.detail-tooltip-box {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  background: #eef7f3;
-  border-left: 3px solid var(--teal);
-  padding: 12px 14px;
-  border-radius: 4px;
-}
-
-/* Boardroom vs RailPitch Comparison Box */
-.detail-comparison-box {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.comp-item {
-  padding: 11px 13px;
-  border-radius: 7px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.comp-boardroom {
-  background: #f8faf9;
-  border: 1px solid #e1e7e3;
-}
-
-.comp-rail {
-  background: #fff8f5;
-  border: 1px solid #f8d5cc;
-}
-
-.comp-label {
-  font-size: 9px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.comp-boardroom .comp-label {
-  color: #72847b;
-}
-
-.comp-rail .comp-label {
-  color: var(--coral);
-}
-
-.comp-item p {
-  margin: 0;
-  font-size: 11px;
-  line-height: 1.45;
-  color: #384e43;
-}
-
-/* Features List */
-.detail-features-list ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-}
-
-.detail-features-list li {
-  display: flex;
-  align-items: flex-start;
-  gap: 7px;
-  font-size: 11.5px;
-  color: #3b5247;
-  line-height: 1.4;
-}
-
-.check-icon {
-  color: var(--teal);
-  font-weight: 900;
-  font-size: 11px;
-  flex-shrink: 0;
-  margin-top: 1px;
-}
-
-/* Specs Bar */
-.detail-specs-bar {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  border-top: 1px solid #edf2ee;
-  padding-top: 12px;
-}
-
-.spec-item {
-  background: #f7faf8;
-  border: 1px solid #e1ebe5;
-  border-radius: 6px;
-  padding: 7px 10px;
-  text-align: center;
-}
-
-.spec-item small {
-  display: block;
-  font-size: 8.5px;
-  text-transform: uppercase;
-  color: #71877b;
-  letter-spacing: 0.5px;
-}
-
-.spec-item b {
-  display: block;
-  font-size: 10.5px;
-  color: var(--ink);
-  margin-top: 2px;
-}
-
-/* Scenery Callout */
-.scenery-callout {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: linear-gradient(135deg, #102720 0%, #153a2f 100%);
-  color: #ffffff;
-  padding: 10px 14px;
-  border-radius: 8px;
-  margin-top: auto;
-}
-
-.scenery-icon {
-  font-size: 16px;
-}
-
-.scenery-callout small {
-  display: block;
-  font-size: 8.5px;
-  letter-spacing: 1px;
-  color: #a4cebd;
-  font-weight: 800;
-}
-
-.scenery-callout strong {
-  display: block;
-  font-size: 11px;
-  color: #ffffff;
-  font-weight: 750;
-}
-
-/* Integrated Map View */
-.luxury-map-integrated-card {
-  background: #ffffff;
-  border: 1px solid #dce5e0;
-  border-radius: 14px;
-  padding: 22px;
-  box-shadow: 0 12px 36px rgba(16, 39, 32, 0.05);
-  display: flex;
-  flex-direction: column;
   gap: 14px;
-  height: 100%;
-}
-
-.map-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
-
-.map-svg-wrap {
-  background: #f8fafc;
+  background: #f4faf6;
+  border: 1px solid #cce5d7;
   border-radius: 10px;
-  border: 1px solid #e2e8f0;
-  overflow: hidden;
-  height: 290px;
+  padding: 14px 18px;
+  transition: all 0.2s ease;
 }
 
-.map-integrated-svg {
-  width: 100%;
-  height: 100%;
+.tooltip-icon-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+  font-size: 16px;
+  flex-shrink: 0;
 }
 
-.map-station-node {
-  cursor: pointer;
-  transition: transform 0.15s ease;
+.tooltip-text-content h4 {
+  margin: 0 0 3px;
+  font-size: 14px;
+  font-weight: 850;
+  letter-spacing: -0.2px;
 }
 
-.map-station-node:hover {
-  transform: scale(1.04);
+.tooltip-text-content p {
+  margin: 0;
+  font-size: 12.5px;
+  color: #40574b;
+  line-height: 1.5;
+  font-weight: 600;
 }
 
-.map-card-footer {
+/* Route Ribbon Footer */
+.luxury-route-ribbon {
+  border-top: 1px solid #edf2ee;
+  padding-top: 16px;
+}
+
+.ribbon-milestones {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-top: 1px solid #edf2ee;
-  padding-top: 12px;
-  margin-top: auto;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
-/* Responsive Styles */
-@media (max-width: 1024px) {
-  .luxury-showcase-grid {
-    grid-template-columns: 1fr;
-  }
+.ribbon-node {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-@media (max-width: 640px) {
+.ribbon-node .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #cbd8d1;
+  margin-bottom: 4px;
+}
+
+.ribbon-node .dot.active {
+  background: var(--teal);
+  box-shadow: 0 0 6px rgba(15, 107, 97, 0.4);
+}
+
+.ribbon-node b {
+  font-size: 12px;
+  color: #102720;
+  font-weight: 800;
+}
+
+.ribbon-node small {
+  font-size: 10px;
+  color: #63776d;
+  font-weight: 600;
+}
+
+.ribbon-line {
+  flex: 1;
+  height: 2px;
+  background: #e2ebe6;
+  min-width: 20px;
+}
+
+@media (max-width: 768px) {
   .luxury-expedition-section {
     padding: 60px 4vw 70px;
   }
-  .detail-comparison-box {
-    grid-template-columns: 1fr;
-  }
-  .luxury-coach-card {
+  .luxury-single-canvas-card {
     padding: 16px;
   }
-  .luxury-zone-detail-card {
-    padding: 18px;
+  .luxury-floating-tooltip {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .ribbon-line {
+    display: none;
+  }
+  .ribbon-milestones {
+    gap: 14px;
   }
 }
