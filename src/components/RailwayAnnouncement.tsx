@@ -245,6 +245,15 @@ export function RailwayAnnouncement({ onTogglePlay }: RailwayAnnouncementProps) 
   // Start Announcement (Single Audio + 20% Station Crowd Sound + Echo)
   const startAnnouncement = useCallback(async () => {
     if (isPlayingRef.current) return;
+
+    // Ensure AudioContext is actively running
+    const ctx = getAudioContext();
+    if (ctx && ctx.state === "suspended") {
+      try {
+        await ctx.resume();
+      } catch {}
+    }
+
     setIsPlaying(true);
     setIsMuted(false);
     isPlayingRef.current = true;
@@ -273,7 +282,10 @@ export function RailwayAnnouncement({ onTogglePlay }: RailwayAnnouncementProps) 
         audioEl.onended = () => resolve();
         audioEl.onerror = () => resolve();
 
-        audioEl.play().catch(() => resolve());
+        const playPromise = audioEl.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => resolve());
+        }
       });
     } catch (err) {
       console.warn("Playback error:", err);
@@ -286,7 +298,7 @@ export function RailwayAnnouncement({ onTogglePlay }: RailwayAnnouncementProps) 
       setIsPlaying(false);
       isPlayingRef.current = false;
       onTogglePlay?.(false);
-      // Mark announcement as played to prevent future auto‑play
+      // Mark announcement as played for this session
       if (typeof window !== "undefined") {
         sessionStorage.setItem("railpitch_announcement_played", "true");
       }
@@ -322,45 +334,70 @@ export function RailwayAnnouncement({ onTogglePlay }: RailwayAnnouncementProps) 
 
   const pathname = usePathname();
 
-  // Automatically start on website open without any click or permission needed
+  // Automatically start on website enter without needing to click the audio button
   useEffect(() => {
-    // Ensure autoplay only on the home page and first visit
-    if (pathname !== "/") return; // not home page
+    // Ensure autoplay only on the root home page
+    if (pathname !== "/") return;
 
     // Check session flag for first-time play
     if (typeof window !== "undefined") {
       const played = sessionStorage.getItem("railpitch_announcement_played");
-      if (played) return; // already played in this session
+      if (played) return;
     }
 
     let started = false;
 
-    const triggerAutoPlay = () => {
+    const triggerAutoPlay = async () => {
       if (started || isPlayingRef.current) return;
       started = true;
+
+      const ctx = getAudioContext();
+      if (ctx && ctx.state === "suspended") {
+        try {
+          await ctx.resume();
+        } catch {}
+      }
+
       startAnnouncement().catch(() => {});
     };
 
-    // Immediate attempt on mount
+    // 1. Immediate attempt upon entering website
     triggerAutoPlay();
-    const timer = setTimeout(triggerAutoPlay, 100);
+    const t1 = setTimeout(triggerAutoPlay, 50);
+    const t2 = setTimeout(triggerAutoPlay, 250);
 
-    // Browser unlock via natural activity
-    const events = ["pointermove", "mousemove", "mouseenter", "scroll", "wheel", "focus", "touchstart", "pointerdown"];
+    // 2. Seamless automatic unlock on ANY initial visitor activity (moving mouse, scrolling, touching screen)
+    const events = [
+      "pointermove",
+      "mousemove",
+      "mouseenter",
+      "scroll",
+      "wheel",
+      "focus",
+      "touchstart",
+      "pointerdown",
+      "mousedown",
+      "keydown",
+    ];
+
     const handleNaturalActivity = () => {
       triggerAutoPlay();
-      events.forEach((ev) => window.removeEventListener(ev, handleNaturalActivity));
+      events.forEach((ev) => window.removeEventListener(ev, handleNaturalActivity, true));
+      events.forEach((ev) => document.removeEventListener(ev, handleNaturalActivity, true));
     };
-    events.forEach((ev) => window.addEventListener(ev, handleNaturalActivity, { once: true, passive: true }));
 
-    // Cleanup on unmount: stop any playing audio
+    events.forEach((ev) => window.addEventListener(ev, handleNaturalActivity, { capture: true, once: true, passive: true }));
+    events.forEach((ev) => document.addEventListener(ev, handleNaturalActivity, { capture: true, once: true, passive: true }));
+
+    // Cleanup on unmount: stop any playing audio when leaving home page
     return () => {
-      clearTimeout(timer);
-      events.forEach((ev) => window.removeEventListener(ev, handleNaturalActivity));
-      // Ensure announcement is stopped when navigating away
+      clearTimeout(t1);
+      clearTimeout(t2);
+      events.forEach((ev) => window.removeEventListener(ev, handleNaturalActivity, true));
+      events.forEach((ev) => document.removeEventListener(ev, handleNaturalActivity, true));
       stopAnnouncement();
     };
-  }, [pathname, startAnnouncement, stopAnnouncement]);
+  }, [pathname, getAudioContext, startAnnouncement, stopAnnouncement]);
 
 
   return (
