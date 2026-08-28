@@ -345,36 +345,6 @@ export default function RailPitch() {
           <a href="#how">How it works</a>
           <a href="#sectors">Sectors</a>
           <a href="#dpiit">DPIIT Checker</a>
-          <button
-            type="button"
-            onClick={() => setRole("founder")}
-            style={{ fontWeight: 750, color: "var(--teal)", background: "none", border: 0, padding: 0, cursor: "pointer" }}
-          >
-            Founder
-          </button>
-          <button
-            type="button"
-            onClick={() => setRole("investor")}
-            style={{ fontWeight: 750, color: "#e8775f", background: "none", border: 0, padding: 0, cursor: "pointer" }}
-          >
-            Investor
-          </button>
-          <a
-            href="/curator"
-            style={{
-              fontWeight: 750,
-              color: "var(--teal)",
-              background: "#eaf4ed",
-              padding: "4px 10px",
-              borderRadius: "4px",
-              border: "1px solid #c9e6d8",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "4px",
-            }}
-          >
-            Curator ↗
-          </a>
 
           {/* Hover Login Dropdown with Founder & Investor CTAs */}
           <div
@@ -538,7 +508,7 @@ export default function RailPitch() {
         sunColor={[1.0, 0.94, 0.78]}
       >
         <section className="hero" id="top">
-          <div className="hero-copy" style={{ background: "rgba(250, 249, 245, 0.82)", backdropFilter: "blur(10px)", borderRadius: "12px", margin: "20px 0 20px 5.2vw", border: "1px solid rgba(219, 225, 217, 0.6)" }}>
+          <div className="hero-copy">
             <span className="kicker">
               <b />
               CURATED EXPEDITION · EDITION 01
