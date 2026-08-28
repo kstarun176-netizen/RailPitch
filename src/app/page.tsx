@@ -1797,165 +1797,130 @@ function Schedule({
 }) {
   const bogies = [
     {
-      time: "08:10",
+      time: "08:10 AM",
       title: "Boarding & Welcome Coffee",
-      sub: "Innovation Coach · CSMT Platform 8",
-      coachCode: "CARRIAGE 01 · WELCOME SALON",
-      coachType: "Barista & Check-In Lounge",
+      location: "CSMT Concourse · Platform 8",
+      description: "Welcome gathering, espresso bar & cohort badge collection before flag-off.",
+      category: "Departure",
       confirmed: false,
-      seats: 4,
     },
     {
-      time: "08:45",
-      title: "Opening Circle & Cohort Intro",
-      sub: "Carriage A · all 28 participants",
-      coachCode: "CARRIAGE 02 · MAIN AUDITORIUM",
-      coachType: "Cohort Keynote Coach",
+      time: "08:45 AM",
+      title: "Opening Circle & Cohort Introduction",
+      location: "Executive Lounge Coach A",
+      description: "Expedition intention setting and rapid introductions across all 16 founders and 12 funds.",
+      category: "Keynote",
       confirmed: false,
-      seats: 6,
     },
     {
-      time: "10:30",
-      title: "Curated 1:1 Pod Session 01",
-      sub: approvedMatch
-        ? `Private Meeting Pod 01 · Confirmed with ${approvedMatch.founder_company || approvedMatch.investor_company || "Partner"}`
-        : "Private Meeting Pod 01 · Pending Curator Match",
-      coachCode: "CARRIAGE 03 · 1:1 POD 01",
-      coachType: approvedMatch ? "Private Meeting Pod 01 · Confirmed" : "Private Meeting Pod 01 · Locked",
+      time: "10:30 AM",
+      title: "Curated 1:1 Pod Session (Round 1)",
+      location: "Innovation Coach · Pod 01",
+      description: approvedMatch
+        ? `Confirmed 25-minute private pitch session with ${approvedMatch.investor_name || approvedMatch.founder_name || "matched partner"} (${approvedMatch.investor_company || approvedMatch.founder_company || "portfolio"}).`
+        : "Pre-matched 25-minute speed pitch with sector-aligned investment thesis partner.",
+      category: "1:1 Meeting",
       confirmed: !!approvedMatch,
-      seats: 2,
+      isMatchPod: true,
     },
     {
-      time: "12:40",
-      title: "Curated 1:1 Pod Session 02",
-      sub: approvedMatch
-        ? "Private Meeting Pod 02 · Confirmed Session"
-        : "Private Meeting Pod 02 · Pending Curator Match",
-      coachCode: "CARRIAGE 04 · 1:1 POD 02",
-      coachType: approvedMatch ? "Private Meeting Pod 02 · Confirmed" : "Private Meeting Pod 02 · Locked",
+      time: "12:40 PM",
+      title: "Curated 1:1 Pod Session (Round 2)",
+      location: "Innovation Coach · Pod 02",
+      description: approvedMatch
+        ? "Follow-up deep-dive session on unit economics and product roadmap."
+        : "Second curated 1:1 interaction slot with participating investment team.",
+      category: "1:1 Meeting",
       confirmed: !!approvedMatch,
-      seats: 2,
+      isMatchPod: true,
     },
     {
-      time: "13:15",
-      title: "Coastal Table & Product Showcase",
-      sub: "Dining Salon · Carriage D",
-      coachCode: "CARRIAGE 05 · DINING GALLEY",
-      coachType: "Coastal Gastronomy Salon",
+      time: "01:15 PM",
+      title: "Konkan Lunch & Founder Studio",
+      location: "Dining Salon · Carriage D",
+      description: "Authentic coastal dining service crossing Panval Viaduct followed by mentor breakout circles.",
+      category: "Dining & Mentorship",
       confirmed: false,
-      seats: 4,
     },
     {
-      time: "16:20",
+      time: "04:20 PM",
       title: "Sunset Pitch Sprint & Open Deck",
-      sub: "Observation Lounge · Carriage C",
-      coachCode: "CARRIAGE 06 · OBSERVATION DECK",
-      coachType: "Panoramic Observation Lounge",
+      location: "Observation Lounge · Carriage C",
+      description: "Lightning deck reviews and open collaboration discussions as the train approaches Goa.",
+      category: "Open Deck",
       confirmed: false,
-      seats: 4,
     },
     {
-      time: "18:45",
-      title: "Goa Arrival & Waterfront Reception",
-      sub: "Panjim Waterfront Terrace",
-      coachCode: "TERMINUS · PANJIM WATERFRONT",
-      coachType: "Arrival & Celebration Terrace",
+      time: "06:45 PM",
+      title: "Goa Arrival & Sunset Mixer",
+      location: "Madgaon / Waterfront Reception",
+      description: "Expedition arrival, villa showcase transition, term sheet discussions and cohort dinner.",
+      category: "Arrival & Mixer",
       confirmed: false,
-      seats: 0,
     },
   ];
 
   return (
     <section className="page">
-      <span className="kicker">18 OCTOBER · MUMBAI TO GOA</span>
-      <h2>Your journey, mapped.</h2>
+      <span className="kicker">18 OCTOBER 2026 · EXPEDITION ITINERARY</span>
+      <h2>Journey Schedule</h2>
       <p>
-        Every session has a purpose. Train bogie sequence mapped from Mumbai
-        CSMT to Panjim Goa. Your confirmed meeting pods and boarding passes unlock upon curator approval.
+        The complete sequence from Mumbai CSMT flag-off down to Goa. Your private 1:1 meeting pods and boarding passes unlock automatically when matched by the curator.
       </p>
 
       {approvedMatch ? (
         <button className="ticket-cta" onClick={onTicket}>
-          View RailPitch journey ticket <Arrow />
+          View Confirmed Journey Ticket <Arrow />
         </button>
       ) : (
-        <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "#ffffff", padding: "10px 18px", borderRadius: "6px", border: "1px dashed #cad8cf", margin: "0 0 18px" }}>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "#ffffff", padding: "10px 18px", borderRadius: "6px", border: "1px dashed #cad8cf", margin: "0 0 24px" }}>
           <span style={{ fontSize: "11px", color: "#63756d", fontWeight: 700 }}>
             🔒 RailPitch Journey Ticket Locked — Issued after Curator approves your match
           </span>
         </div>
       )}
 
-      <div className="bogie-train-timeline">
-        {/* Train track background spine */}
-        <div className="bogie-track-line" />
+      <div className="schedule-clean-timeline">
+        {bogies.map((item, i) => (
+          <div
+            key={item.time}
+            className={`schedule-clean-item ${item.confirmed ? "confirmed-item" : ""}`}
+          >
+            <div className="schedule-time-badge">
+              <b>{item.time}</b>
+              <small>{item.location}</small>
+            </div>
 
-        {/* Locomotive Head */}
-        <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 16px", background: "#102720", color: "#a6f4d0", borderRadius: "10px", marginBottom: "4px", zIndex: 2, border: "2px solid #234135" }}>
-          <span style={{ fontSize: "16px" }}>🚆</span>
-          <div>
-            <b style={{ fontSize: "11px", letterSpacing: "1px", textTransform: "uppercase" }}>RAILPITCH EXPRESS LOCOMOTIVE · MUMBAI → GOA</b>
-            <small style={{ display: "block", fontSize: "9px", color: "#8fc4ae", marginTop: "2px" }}>Departure: CSMT Platform 8 · Expedition Convoy Active</small>
-          </div>
-        </div>
-
-        {bogies.map((b, i) => (
-          <div className="bogie-item" key={b.time}>
-            {/* Bogie Coupler Connector */}
-            <div className="bogie-coupler" />
-
-            {/* Coach Bogie Card */}
-            <div className={`bogie-coach-card ${b.confirmed ? "bogie-confirmed" : ""}`}>
-              {/* Top roof identifier */}
-              <div className="bogie-roof-strip">
-                <div className="bogie-coach-id">
-                  <span className="bogie-status-dot" />
-                  {b.coachCode}
+            <div className="schedule-card-body">
+              <div className="schedule-card-header">
+                <div>
+                  <h3>{item.title}</h3>
+                  <p>{item.description}</p>
                 </div>
-                <div className="bogie-interior-tag">
-                  {b.coachType}
+                <div className="schedule-card-badges">
+                  {item.confirmed ? (
+                    <span className="schedule-badge-confirmed">
+                      ✓ Confirmed Match
+                    </span>
+                  ) : item.isMatchPod ? (
+                    <span className="schedule-badge-locked">
+                      🔒 Pending Curation
+                    </span>
+                  ) : (
+                    <span className="schedule-badge-neutral">
+                      {item.category}
+                    </span>
+                  )}
                 </div>
               </div>
 
-              {/* Main Content Row */}
-              <div className="bogie-main-row">
-                <div className="bogie-time-block">
-                  {b.time}
+              {item.confirmed && (
+                <div className="schedule-card-actions">
+                  <button className="mini-cta" onClick={onTicket}>
+                    View 1:1 Boarding Pass →
+                  </button>
                 </div>
-
-                <div className="bogie-info">
-                  <h3>
-                    {b.title}
-                    {b.confirmed && <span className="bogie-badge">POD POD MATCH</span>}
-                  </h3>
-                  <p>{b.sub}</p>
-
-                  {/* Top-down compartment seating blueprint */}
-                  <div className="bogie-interior-layout">
-                    <span style={{ fontSize: "8px", fontWeight: 800, color: "#8ca296", letterSpacing: "0.5px", marginRight: "4px" }}>
-                      CABIN PLAN:
-                    </span>
-                    {Array.from({ length: Math.max(1, b.seats) }).map((_, idx) => (
-                      <div key={idx} style={{ display: "flex", alignItems: "center", gap: "2px" }}>
-                        <span className={`bogie-seat-pod ${b.confirmed ? "active" : ""}`} />
-                        {idx % 2 === 0 && <span className="bogie-seat-table" />}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="bogie-actions">
-                  {b.confirmed ? (
-                    <button className="mini-cta" onClick={onTicket}>
-                      View ticket
-                    </button>
-                  ) : (i === 2 || i === 3) ? (
-                    <span className="bogie-badge" style={{ background: "#f0f4f1", color: "#6a7c73", borderColor: "#cbd8cf" }}>
-                      🔒 Pass Pending Curation
-                    </span>
-                  ) : null}
-                </div>
-              </div>
+              )}
             </div>
           </div>
         ))}
