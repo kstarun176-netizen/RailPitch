@@ -16,17 +16,39 @@ const EXPERIENCES: {
   { id: "lounge", title: "Panoramic Scenic Lounge", icon: "🌅", themeColor: "#059669", glowColor: "rgba(5,150,105,0.14)" },
 ];
 
-/* ── Railway Track SVG used between stations ─────────────────────── */
+/* ── Railway Track SVG — realistic perspective with metallic rails & wooden sleepers ─── */
 function RailwayTrack() {
   return (
-    <svg className="ribbon-track-svg" viewBox="0 0 200 18" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-      {/* Two rails */}
-      <line x1="0" y1="5"  x2="200" y2="5"  stroke="#b5ccc2" strokeWidth="2" />
-      <line x1="0" y1="13" x2="200" y2="13" stroke="#b5ccc2" strokeWidth="2" />
-      {/* Sleepers / ties */}
-      {[6, 22, 38, 54, 70, 86, 102, 118, 134, 150, 166, 182].map((x) => (
-        <rect key={x} x={x} y="2" width="8" height="14" rx="1.5" fill="#d4e2d8" stroke="#b5ccc2" strokeWidth="0.8" />
+    <svg className="ribbon-track-svg" viewBox="0 0 300 32" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="railL" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#d1d5db" />
+          <stop offset="40%" stopColor="#f3f4f6" />
+          <stop offset="60%" stopColor="#9ca3af" />
+          <stop offset="100%" stopColor="#6b7280" />
+        </linearGradient>
+        <linearGradient id="sleeperG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#c4a06a" />
+          <stop offset="50%" stopColor="#a07840" />
+          <stop offset="100%" stopColor="#7a5c28" />
+        </linearGradient>
+      </defs>
+
+      {/* ── Ballast / gravel bed ── */}
+      <rect x="0" y="22" width="300" height="10" fill="#e5e7eb" rx="1" />
+
+      {/* ── Wooden sleepers (ties) — brown, evenly spaced ── */}
+      {[4, 26, 48, 70, 92, 114, 136, 158, 180, 202, 224, 246, 268, 290].map((x) => (
+        <rect key={x} x={x} y="14" width="14" height="10" rx="2" fill="url(#sleeperG)" stroke="#8B6520" strokeWidth="0.6" />
       ))}
+
+      {/* ── Left rail — metallic silver with sheen ── */}
+      <rect x="0" y="14" width="300" height="5" rx="1.5" fill="url(#railL)" />
+      <rect x="0" y="14.5" width="300" height="1.5" rx="0.5" fill="#ffffff" opacity="0.5" />
+
+      {/* ── Right rail — offset below ── */}
+      <rect x="0" y="22" width="300" height="5" rx="1.5" fill="url(#railL)" />
+      <rect x="0" y="22.5" width="300" height="1.5" rx="0.5" fill="#ffffff" opacity="0.5" />
     </svg>
   );
 }
@@ -69,9 +91,8 @@ export function InteractiveLuxuryExpedition() {
                 {exp.id === "lounge" && <LoungeScene />}
               </div>
 
-              {/* One-line label */}
+              {/* One-line label — text only, no icon */}
               <div className="exp-label-row" style={{ color: exp.themeColor }}>
-                <span className="exp-icon">{exp.icon}</span>
                 <span className="exp-title">{exp.title}</span>
               </div>
             </div>
