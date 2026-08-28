@@ -302,6 +302,31 @@ function CuratorDashboard({
   const [loading, setLoading] = useState(true);
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
 
+  const getDeletedLocal = useCallback((): Set<string> => {
+    if (typeof window === "undefined") return new Set();
+    try {
+      const raw = localStorage.getItem("rp_curator_deleted_apps");
+      if (raw) {
+        const arr = JSON.parse(raw);
+        if (Array.isArray(arr)) return new Set(arr.map((x: string) => x.toLowerCase().trim()));
+      }
+    } catch {}
+    return new Set();
+  }, []);
+
+  const addDeletedLocal = useCallback((item?: string) => {
+    if (typeof window === "undefined" || !item) return;
+    try {
+      const raw = localStorage.getItem("rp_curator_deleted_apps");
+      const list: string[] = raw ? JSON.parse(raw) : [];
+      const clean = item.toLowerCase().trim();
+      if (!list.includes(clean)) {
+        list.push(clean);
+        localStorage.setItem("rp_curator_deleted_apps", JSON.stringify(list));
+      }
+    } catch {}
+  }, []);
+
   const loadData = useCallback(async (isInitial = false) => {
     if (isInitial) setLoading(true);
     try {
@@ -310,13 +335,19 @@ function CuratorDashboard({
         fetch("/api/matches", { cache: "no-store" }).then((r) => r.json()).catch(() => []),
       ]);
 
-      const allApps: Application[] = Array.isArray(appRes) ? appRes : [];
+      const delSet = getDeletedLocal();
+      const allApps: Application[] = (Array.isArray(appRes) ? appRes : []).filter(
+        (a) =>
+          (!a.email || !delSet.has(a.email.toLowerCase().trim())) &&
+          (!a.full_name || !delSet.has(a.full_name.toLowerCase().trim())) &&
+          (!a.company_name || !delSet.has(a.company_name.toLowerCase().trim()))
+      );
       setFounders(allApps.filter((a) => a.role === "founder"));
       setInvestors(allApps.filter((a) => a.role === "investor"));
       setMatches(Array.isArray(mRes) ? mRes : []);
     } catch {}
     if (isInitial) setLoading(false);
-  }, []);
+  }, [getDeletedLocal]);
 
   useEffect(() => {
     loadData(true);
@@ -327,28 +358,60 @@ function CuratorDashboard({
     return () => clearInterval(interval);
   }, [loadData]);
 
-  async function handleDeleteApplication(email: string) {
-    if (!window.confirm(`Are you sure you want to remove the application for "${email}"? This will permanently delete it and cancel any associated matches.`)) {
+  async function handleDeleteApplication(email: string, full_name?: string, company_name?: string) {
+    if (
+      !window.confirm(
+        `Are you sure you want to remove the application for "${full_name || email}"? This will permanently delete it and cancel any associated matches.`
+      )
+    ) {
       return;
     }
-    // Instant optimistic removal from UI
-    setFounders((prev) => prev.filter((f) => f.email.toLowerCase() !== email.toLowerCase()));
-    setInvestors((prev) => prev.filter((i) => i.email.toLowerCase() !== email.toLowerCase()));
+
+    // Persist immediately in localStorage so it can never reappear upon reload or poll
+    if (email) addDeletedLocal(email);
+    if (full_name) addDeletedLocal(full_name);
+    if (company_name) addDeletedLocal(company_name);
+
+    const targetEmail = (email || "").toLowerCase().trim();
+    const targetName = (full_name || "").toLowerCase().trim();
+    const targetComp = (company_name || "").toLowerCase().trim();
+
+    // Instant optimistic removal from UI state (0ms)
+    setFounders((prev) =>
+      prev.filter(
+        (f) =>
+          (!targetEmail || f.email.toLowerCase().trim() !== targetEmail) &&
+          (!targetName || (f.full_name || "").toLowerCase().trim() !== targetName) &&
+          (!targetComp || (f.company_name || "").toLowerCase().trim() !== targetComp)
+      )
+    );
+    setInvestors((prev) =>
+      prev.filter(
+        (i) =>
+          (!targetEmail || i.email.toLowerCase().trim() !== targetEmail) &&
+          (!targetName || (i.full_name || "").toLowerCase().trim() !== targetName) &&
+          (!targetComp || (i.company_name || "").toLowerCase().trim() !== targetComp)
+      )
+    );
     setMatches((prev) =>
       prev.filter(
         (m) =>
-          m.founder_email.toLowerCase() !== email.toLowerCase() &&
-          m.investor_email.toLowerCase() !== email.toLowerCase()
+          m.founder_email.toLowerCase().trim() !== targetEmail &&
+          m.investor_email.toLowerCase().trim() !== targetEmail
       )
     );
-    if (selectedApp?.email === email) {
+    if (
+      (email && selectedApp?.email?.toLowerCase().trim() === targetEmail) ||
+      (full_name && selectedApp?.full_name?.toLowerCase().trim() === targetName)
+    ) {
       setSelectedApp(null);
     }
+
     try {
       await fetch("/api/applications", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, full_name, company_name }),
       });
     } catch {}
     loadData(false);
@@ -532,7 +595,7 @@ function OverviewTab({
   onRefresh: () => void;
   onInspect: (app: Application) => void;
   onCancelMatch: (fEmail: string, iEmail: string) => void;
-  onDelete: (email: string) => void;
+  onDelete: (email: string, name?: string, company?: string) => void;
 }) {
   const pending = founders.length + investors.length - matches.length * 2;
 
@@ -598,7 +661,7 @@ function OverviewTab({
                     <td>
                       <button
                         className="c-delete-btn"
-                        onClick={() => onDelete(a.email)}
+                        onClick={() => onDelete(a.email, a.full_name, a.company_name)}
                         title="Remove application"
                       >
                         ✕ Remove
@@ -685,7 +748,7 @@ function ApplicationDetailModal({
 }: {
   app: Application;
   close: () => void;
-  onDelete: (email: string) => void;
+  onDelete: (email: string, name?: string, company?: string) => void;
 }) {
   const isFounder = app.role === "founder";
 
@@ -702,7 +765,7 @@ function ApplicationDetailModal({
           <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
             <button
               className="c-cancel-btn"
-              onClick={() => onDelete(app.email)}
+              onClick={() => onDelete(app.email, app.full_name, app.company_name)}
             >
               🗑 Delete Application
             </button>
@@ -881,7 +944,7 @@ function FoundersTab({
   founders: Application[];
   onRefresh: () => void;
   onInspect: (app: Application) => void;
-  onDelete: (email: string) => void;
+  onDelete: (email: string, name?: string, company?: string) => void;
 }) {
   return (
     <div className="c-section">
@@ -934,7 +997,7 @@ function FoundersTab({
                 <td>
                   <button
                     className="c-delete-btn"
-                    onClick={() => onDelete(f.email)}
+                    onClick={() => onDelete(f.email, f.full_name, f.company_name)}
                     title="Remove application"
                   >
                     ✕ Remove
@@ -968,7 +1031,7 @@ function InvestorsTab({
   investors: Application[];
   onRefresh: () => void;
   onInspect: (app: Application) => void;
-  onDelete: (email: string) => void;
+  onDelete: (email: string, name?: string, company?: string) => void;
 }) {
   return (
     <div className="c-section">
@@ -1021,7 +1084,7 @@ function InvestorsTab({
                 <td>
                   <button
                     className="c-delete-btn"
-                    onClick={() => onDelete(inv.email)}
+                    onClick={() => onDelete(inv.email, inv.full_name, inv.company_name)}
                     title="Remove application"
                   >
                     ✕ Remove

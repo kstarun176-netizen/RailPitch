@@ -141,6 +141,28 @@ function saveLocalApps(apps: any[]) {
 
 export async function GET(req: NextRequest) {
   const deleted = getDeletedEmails();
+
+  // Load persistent deleted markers from Supabase (survives Vercel serverless reboots)
+  try {
+    const delRes = await fetch(`${SUPABASE_URL}/rest/v1/matches?founder_name=eq.__DELETED_APP__`, {
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+      next: { revalidate: 0 },
+    });
+    if (delRes.ok) {
+      const delRows = await delRes.json();
+      if (Array.isArray(delRows)) {
+        for (const r of delRows) {
+          if (r.founder_company) {
+            deleted.add(r.founder_company.toLowerCase().trim());
+          }
+        }
+      }
+    }
+  } catch {}
+
   const mergedMap = new Map<string, any>();
 
   // 1. Load seed applications (except deleted)
@@ -390,9 +412,28 @@ export async function DELETE(req: NextRequest) {
       }
     } catch {}
 
-    // Delete from Supabase applications, founders, and investors
+    // Persist deleted marker in Supabase matches table (survives Vercel reboots)
     if (email) {
-      const emailFilter = `email=eq.${encodeURIComponent(email)}`;
+      const cleanEmail = email.toLowerCase().trim();
+      try {
+        await fetch(`${SUPABASE_URL}/rest/v1/matches`, {
+          method: "POST",
+          headers: {
+            apikey: SUPABASE_ANON_KEY,
+            Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+            "Content-Type": "application/json",
+            Prefer: "return=representation",
+          },
+          body: JSON.stringify({
+            founder_name: "__DELETED_APP__",
+            founder_company: cleanEmail,
+            status: "deleted",
+          }),
+        });
+      } catch {}
+
+      // Delete from Supabase applications, founders, and investors
+      const emailFilter = `email=eq.${encodeURIComponent(cleanEmail)}`;
       const tables = ["applications", "founders", "investors"];
       for (const t of tables) {
         try {
