@@ -4,53 +4,20 @@ import React, { useState } from "react";
 
 export function DpiitEligibilityChecker({ onApply }: { onApply?: () => void }) {
   const [activeTab, setActiveTab] = useState<"normal" | "deeptech">("normal");
-
-  // Quiz Form States
   const [showQuiz, setShowQuiz] = useState(false);
-  const currentYear = new Date().getFullYear();
-  const [incYear, setIncYear] = useState<number>(currentYear - 3);
-  const [entityType, setEntityType] = useState<string>("pvt_ltd");
-  const [turnover, setTurnover] = useState<number>(15); // in ₹ Crores
+
+  // Simplified Clean Diagnostic State
+  const [ageCategory, setAgeCategory] = useState<"early" | "growth" | "max" | "deeptech">("early");
+  const [entity, setEntity] = useState<"pvt_ltd" | "llp" | "partnership" | "sole_prop">("pvt_ltd");
+  const [revenue, setRevenue] = useState<"under_50" | "under_100" | "under_200" | "above_200">("under_50");
   const [isOriginal, setIsOriginal] = useState<boolean>(true);
   const [isInnovative, setIsInnovative] = useState<boolean>(true);
-  const [isDeeptech, setIsDeeptech] = useState<boolean>(false);
 
-  // Compute live eligibility
-  const companyAge = currentYear - incYear;
-  const isEligibleEntityType = ["pvt_ltd", "llp", "partnership", "coop"].includes(entityType);
-
-  let resultStatus: "deeptech" | "normal" | "ineligible" = "ineligible";
-  let failReasons: string[] = [];
-
-  if (!isEligibleEntityType) {
-    failReasons.push("Entity must be a Pvt Ltd, LLP, or Partnership Firm.");
-  }
-  if (!isOriginal) {
-    failReasons.push("Must be an original entity (not split/reconstructed).");
-  }
-  if (!isInnovative) {
-    failReasons.push("Must have an innovative product/service with scalable model.");
-  }
-
-  // Deeptech check
-  if (isEligibleEntityType && isOriginal && isInnovative && isDeeptech) {
-    if (companyAge <= 20 && turnover <= 300) {
-      resultStatus = "deeptech";
-    } else {
-      if (companyAge > 20) failReasons.push("Deeptech age must be up to 20 years.");
-      if (turnover > 300) failReasons.push("Deeptech turnover must not exceed ₹300 Crore.");
-    }
-  }
-
-  // Normal check
-  if (resultStatus !== "deeptech" && isEligibleEntityType && isOriginal && isInnovative) {
-    if (companyAge <= 10 && turnover <= 200) {
-      resultStatus = "normal";
-    } else {
-      if (companyAge > 10) failReasons.push("Normal startup age must be up to 10 years.");
-      if (turnover > 200) failReasons.push("Normal startup turnover must not exceed ₹200 Crore.");
-    }
-  }
+  // Live evaluation
+  const isEligibleEntity = entity !== "sole_prop";
+  const isAgeValid = ageCategory !== "deeptech" || activeTab === "deeptech";
+  const isRevenueValid = revenue !== "above_200";
+  const isEligible = isEligibleEntity && isRevenueValid && isOriginal && isInnovative;
 
   const CRITERIA_CARDS = [
     {
@@ -60,7 +27,7 @@ export function DpiitEligibilityChecker({ onApply }: { onApply?: () => void }) {
       desc:
         activeTab === "normal"
           ? "From date of incorporation. Standard recognition applies for up to 10 years."
-          : "Extended 20-year gestation window granted for registered Deeptech & IP startups.",
+          : "Extended 20-year gestation window granted for registered Deeptech startups.",
       pill: activeTab === "normal" ? "10 Yrs Standard Cap" : "20 Yrs Deeptech Window",
       highlight: false,
     },
@@ -116,7 +83,7 @@ export function DpiitEligibilityChecker({ onApply }: { onApply?: () => void }) {
         </p>
       </div>
 
-      {/* ── Tabs & Diagnostic Drawer Button ────────────────────────────── */}
+      {/* ── Tabs & Quick Diagnostic Button ─────────────────────────────── */}
       <div className="dpiit-controls-bar">
         <div className="dpiit-tabs">
           <button
@@ -140,208 +107,155 @@ export function DpiitEligibilityChecker({ onApply }: { onApply?: () => void }) {
           className="dpiit-quiz-toggle-btn"
           onClick={() => setShowQuiz(!showQuiz)}
         >
-          {showQuiz ? "✕ Close Diagnostic Calculator" : "⚡ Check My Startup Eligibility"}
+          {showQuiz ? "✕ Close Quick Check" : "⚡ 30-Second Eligibility Check"}
         </button>
       </div>
 
-      {/* ── Interactive Diagnostic Calculator ──────────────────────────── */}
+      {/* ── Ultra-Clean Minimalist Diagnostic Drawer ───────────────────── */}
       {showQuiz && (
-        <div className="dpiit-diagnostic-card">
-          <div className="diagnostic-header-bar">
-            <div>
-              <span className="diagnostic-kicker">INTERACTIVE DIAGNOSTIC</span>
-              <h3 className="diagnostic-title">Startup India Pre-Screening Assessment</h3>
-              <p className="diagnostic-subtitle">
-                Adjust parameters to simulate your qualification status for Section 80-IAC tax holiday & Angel Tax relief.
-              </p>
-            </div>
-
-            <div className="diagnostic-verdict-pill">
-              {resultStatus === "deeptech" && (
-                <div className="verdict-tag deeptech">
-                  <span className="verdict-beacon" />
-                  <div>
-                    <strong>Eligible for DPIIT Deeptech</strong>
-                    <small>Up to 20 yrs · Max ₹300 Cr</small>
-                  </div>
-                </div>
-              )}
-              {resultStatus === "normal" && (
-                <div className="verdict-tag normal">
-                  <span className="verdict-beacon" />
-                  <div>
-                    <strong>Eligible for DPIIT Normal</strong>
-                    <small>Up to 10 yrs · Max ₹200 Cr</small>
-                  </div>
-                </div>
-              )}
-              {resultStatus === "ineligible" && (
-                <div className="verdict-tag ineligible">
-                  <span className="verdict-beacon-red" />
-                  <div>
-                    <strong>Criteria Incomplete</strong>
-                    <small>{failReasons[0] || "Review requirements"}</small>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Interactive Controls */}
-          <div className="diagnostic-interactive-grid">
-            <div className="param-control-card">
-              <div className="param-card-header">
-                <span className="param-label">Year of Incorporation</span>
-                <span className="param-value-pill">
-                  {incYear} ({companyAge} yrs old)
-                </span>
-              </div>
-              <input
-                type="range"
-                min={currentYear - 22}
-                max={currentYear}
-                value={incYear}
-                onChange={(e) => setIncYear(Number(e.target.value))}
-                className="param-custom-slider"
-              />
-              <div className="param-preset-chips">
+        <div className="dpiit-clean-diagnostic">
+          <div className="clean-diagnostic-grid">
+            {/* Step 1: Incorporation Age */}
+            <div className="diagnostic-step">
+              <span className="step-label">1. Company Age</span>
+              <div className="step-pill-group">
                 <button
                   type="button"
-                  className={companyAge <= 3 ? "preset-btn active" : "preset-btn"}
-                  onClick={() => setIncYear(currentYear - 2)}
+                  className={`step-pill ${ageCategory === "early" ? "active" : ""}`}
+                  onClick={() => setAgeCategory("early")}
                 >
-                  Early (2 Yrs)
+                  1–3 Yrs
                 </button>
                 <button
                   type="button"
-                  className={companyAge === 6 ? "preset-btn active" : "preset-btn"}
-                  onClick={() => setIncYear(currentYear - 6)}
+                  className={`step-pill ${ageCategory === "growth" ? "active" : ""}`}
+                  onClick={() => setAgeCategory("growth")}
                 >
-                  Growth (6 Yrs)
+                  4–7 Yrs
                 </button>
                 <button
                   type="button"
-                  className={companyAge === 10 ? "preset-btn active" : "preset-btn"}
-                  onClick={() => setIncYear(currentYear - 10)}
+                  className={`step-pill ${ageCategory === "max" ? "active" : ""}`}
+                  onClick={() => setAgeCategory("max")}
                 >
-                  Max Limit (10 Yrs)
+                  8–10 Yrs
+                </button>
+                <button
+                  type="button"
+                  className={`step-pill ${ageCategory === "deeptech" ? "active" : ""}`}
+                  onClick={() => setAgeCategory("deeptech")}
+                >
+                  11–20 Yrs
                 </button>
               </div>
             </div>
 
-            <div className="param-control-card">
-              <div className="param-card-header">
-                <span className="param-label">Entity Legal Structure</span>
-                <span className="param-status-tag">
-                  {isEligibleEntityType ? "✓ Eligible" : "✕ Ineligible"}
-                </span>
-              </div>
-              <select
-                value={entityType}
-                onChange={(e) => setEntityType(e.target.value)}
-                className="param-custom-select"
-              >
-                <option value="pvt_ltd">Private Limited Company (Pvt Ltd) — Eligible</option>
-                <option value="llp">Limited Liability Partnership (LLP) — Eligible</option>
-                <option value="partnership">Registered Partnership Firm — Eligible</option>
-                <option value="coop">Cooperative Society — Eligible</option>
-                <option value="sole_prop">Sole Proprietorship — Ineligible</option>
-                <option value="unregistered">Unregistered Entity — Ineligible</option>
-              </select>
-              <small className="param-hint">
-                Must be an incorporated body under Companies Act or LLP Act.
-              </small>
-            </div>
-
-            <div className="param-control-card">
-              <div className="param-card-header">
-                <span className="param-label">Peak Annual Turnover</span>
-                <span className="param-value-pill">₹{turnover} Crore / yr</span>
-              </div>
-              <input
-                type="range"
-                min={1}
-                max={350}
-                value={turnover}
-                onChange={(e) => setTurnover(Number(e.target.value))}
-                className="param-custom-slider"
-              />
-              <div className="param-preset-chips">
+            {/* Step 2: Legal Structure */}
+            <div className="diagnostic-step">
+              <span className="step-label">2. Entity Structure</span>
+              <div className="step-pill-group">
                 <button
                   type="button"
-                  className={turnover === 10 ? "preset-btn active" : "preset-btn"}
-                  onClick={() => setTurnover(10)}
+                  className={`step-pill ${entity === "pvt_ltd" ? "active" : ""}`}
+                  onClick={() => setEntity("pvt_ltd")}
                 >
-                  ₹10 Cr
+                  Pvt Ltd
                 </button>
                 <button
                   type="button"
-                  className={turnover === 50 ? "preset-btn active" : "preset-btn"}
-                  onClick={() => setTurnover(50)}
+                  className={`step-pill ${entity === "llp" ? "active" : ""}`}
+                  onClick={() => setEntity("llp")}
                 >
-                  ₹50 Cr
+                  LLP
                 </button>
                 <button
                   type="button"
-                  className={turnover === 200 ? "preset-btn active" : "preset-btn"}
-                  onClick={() => setTurnover(200)}
+                  className={`step-pill ${entity === "partnership" ? "active" : ""}`}
+                  onClick={() => setEntity("partnership")}
                 >
-                  ₹200 Cr Cap
+                  Partnership
+                </button>
+                <button
+                  type="button"
+                  className={`step-pill ${entity === "sole_prop" ? "active-ineligible" : ""}`}
+                  onClick={() => setEntity("sole_prop")}
+                >
+                  Sole Prop
                 </button>
               </div>
             </div>
 
-            <div className="param-control-card checks-column">
-              <span className="param-label">Statutory Compliance Checkpoints</span>
-              <div className="param-toggles-list">
+            {/* Step 3: Peak Annual Turnover */}
+            <div className="diagnostic-step">
+              <span className="step-label">3. Annual Turnover</span>
+              <div className="step-pill-group">
                 <button
                   type="button"
-                  className={`param-toggle-item ${isOriginal ? "active" : ""}`}
+                  className={`step-pill ${revenue === "under_50" ? "active" : ""}`}
+                  onClick={() => setRevenue("under_50")}
+                >
+                  &lt; ₹50 Cr
+                </button>
+                <button
+                  type="button"
+                  className={`step-pill ${revenue === "under_100" ? "active" : ""}`}
+                  onClick={() => setRevenue("under_100")}
+                >
+                  ₹50–100 Cr
+                </button>
+                <button
+                  type="button"
+                  className={`step-pill ${revenue === "under_200" ? "active" : ""}`}
+                  onClick={() => setRevenue("under_200")}
+                >
+                  ₹100–200 Cr
+                </button>
+                <button
+                  type="button"
+                  className={`step-pill ${revenue === "above_200" ? "active-ineligible" : ""}`}
+                  onClick={() => setRevenue("above_200")}
+                >
+                  &gt; ₹200 Cr
+                </button>
+              </div>
+            </div>
+
+            {/* Step 4: Verification Toggles */}
+            <div className="diagnostic-step">
+              <span className="step-label">4. Key Criteria</span>
+              <div className="step-pill-group">
+                <button
+                  type="button"
+                  className={`step-pill ${isOriginal ? "active" : ""}`}
                   onClick={() => setIsOriginal(!isOriginal)}
                 >
-                  <span className="toggle-box">{isOriginal ? "✓" : ""}</span>
-                  <span className="toggle-text">100% Original Entity (Not formed by splitting existing firm)</span>
+                  {isOriginal ? "✓ Original Entity" : "✕ Split/Reconstructed"}
                 </button>
-
                 <button
                   type="button"
-                  className={`param-toggle-item ${isInnovative ? "active" : ""}`}
+                  className={`step-pill ${isInnovative ? "active" : ""}`}
                   onClick={() => setIsInnovative(!isInnovative)}
                 >
-                  <span className="toggle-box">{isInnovative ? "✓" : ""}</span>
-                  <span className="toggle-text">Innovative Product/Service with Scalable Model</span>
-                </button>
-
-                <button
-                  type="button"
-                  className={`param-toggle-item deeptech ${isDeeptech ? "active" : ""}`}
-                  onClick={() => setIsDeeptech(!isDeeptech)}
-                >
-                  <span className="toggle-box">{isDeeptech ? "✓" : ""}</span>
-                  <span className="toggle-text">Deeptech / IP / Hardware / Proprietary Tech Focus</span>
+                  {isInnovative ? "✓ Scalable Model" : "✕ Standard Model"}
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Footer Bar */}
-          <div className="diagnostic-footer-strip">
-            <div className="footer-verdict-summary">
-              {resultStatus !== "ineligible" ? (
-                <div className="verdict-success-msg">
-                  <span className="icon">✓</span>
-                  <div>
-                    <strong>Pre-Screening Verified: Eligible for DPIIT Status</strong>
-                    <p>Qualifies for Section 80-IAC 3-year Tax Holiday, Angel Tax Exemption & RailPitch Priority.</p>
-                  </div>
+          {/* Clean Instant Result Bar */}
+          <div className="clean-verdict-bar">
+            <div className="verdict-left">
+              {isEligible ? (
+                <div className="verdict-badge-success">
+                  <span className="verdict-dot" />
+                  <strong>DPIIT Eligible Candidate</strong>
+                  <span>Qualifies for 80-IAC Tax Holiday &amp; RailPitch Cohort</span>
                 </div>
               ) : (
-                <div className="verdict-fail-msg">
-                  <span className="icon">⚠️</span>
-                  <div>
-                    <strong>Requirements Incomplete: {failReasons[0]}</strong>
-                    <p>Ensure legal entity type and revenue limits meet statutory DPIIT guidelines.</p>
-                  </div>
+                <div className="verdict-badge-warning">
+                  <span className="verdict-dot red" />
+                  <strong>Criteria Incomplete</strong>
+                  <span>Entity structure or turnover exceeds statutory limit</span>
                 </div>
               )}
             </div>
@@ -349,10 +263,10 @@ export function DpiitEligibilityChecker({ onApply }: { onApply?: () => void }) {
             {onApply && (
               <button
                 type="button"
-                className="diagnostic-apply-btn"
+                className="clean-apply-cta"
                 onClick={onApply}
               >
-                Apply for RailPitch Cohort →
+                Apply for RailPitch Journey →
               </button>
             )}
           </div>
@@ -366,19 +280,14 @@ export function DpiitEligibilityChecker({ onApply }: { onApply?: () => void }) {
             key={idx}
             className={`dpiit-theme-card ${card.highlight ? "highlighted-card" : ""}`}
           >
-            {/* Top Header Row */}
             <div className="card-top-row">
               <span className="card-kicker">{card.kicker}</span>
               <span className="card-num">{card.num}</span>
             </div>
 
-            {/* Bold Clear Title */}
             <h3 className="card-title">{card.title}</h3>
-
-            {/* Concise Clean Description */}
             <p className="card-desc">{card.desc}</p>
 
-            {/* Bottom Status Pill */}
             <div className={`card-pill ${card.highlight ? "highlight-pill" : ""}`}>
               <span>{card.pill}</span>
             </div>
@@ -485,7 +394,170 @@ export function DpiitEligibilityChecker({ onApply }: { onApply?: () => void }) {
           color: #ffffff;
         }
 
-        /* ── 5 Criteria Cards (Clean RailPitch Theme) ────────────── */
+        /* ── Ultra-Clean Minimalist Diagnostic Drawer ────────────── */
+        .dpiit-clean-diagnostic {
+          background: #ffffff;
+          border: 1.5px solid #0f6b61;
+          border-radius: 14px;
+          padding: 24px;
+          margin-bottom: 28px;
+          box-shadow: 0 12px 32px -8px rgba(15, 107, 97, 0.08);
+          animation: fadeIn 0.25s ease;
+        }
+
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(-6px);
+          }
+          to {
+            opacity: 1;
+            transform: none;
+          }
+        }
+
+        .clean-diagnostic-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 18px;
+          margin-bottom: 20px;
+        }
+
+        .diagnostic-step {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .step-label {
+          font-size: 11px;
+          font-weight: 850;
+          color: #102720;
+          letter-spacing: 0.2px;
+        }
+
+        .step-pill-group {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+        }
+
+        .step-pill {
+          flex: 1;
+          min-width: 60px;
+          padding: 8px 10px;
+          border-radius: 6px;
+          border: 1.5px solid #dce5e0;
+          background: #fbfdfc;
+          font-size: 11.5px;
+          font-weight: 750;
+          color: #40574b;
+          cursor: pointer;
+          transition: all 0.15s ease;
+          text-align: center;
+          white-space: nowrap;
+        }
+
+        .step-pill:hover {
+          border-color: #0f6b61;
+          color: #0f6b61;
+        }
+
+        .step-pill.active {
+          background: #0f6b61;
+          color: #ffffff;
+          border-color: #0f6b61;
+          box-shadow: 0 2px 8px rgba(15, 107, 97, 0.2);
+        }
+
+        .step-pill.active-ineligible {
+          background: #fff1f2;
+          color: #be123c;
+          border-color: #fecdd3;
+        }
+
+        .clean-verdict-bar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
+          border-top: 1px solid #edf2ee;
+          padding-top: 18px;
+          flex-wrap: wrap;
+        }
+
+        .verdict-left {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .verdict-badge-success,
+        .verdict-badge-warning {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 8px 14px;
+          border-radius: 8px;
+          font-size: 12px;
+        }
+
+        .verdict-badge-success {
+          background: #eef8f3;
+          border: 1px solid #c2dfcf;
+          color: #0c564e;
+        }
+
+        .verdict-badge-warning {
+          background: #fff1f2;
+          border: 1px solid #fecdd3;
+          color: #9f1239;
+        }
+
+        .verdict-badge-success strong,
+        .verdict-badge-warning strong {
+          font-weight: 850;
+        }
+
+        .verdict-badge-success span,
+        .verdict-badge-warning span {
+          color: #556c60;
+          font-size: 11.5px;
+        }
+
+        .verdict-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: #10b981;
+          box-shadow: 0 0 6px #10b981;
+          flex-shrink: 0;
+        }
+
+        .verdict-dot.red {
+          background: #ef4444;
+          box-shadow: 0 0 6px #ef4444;
+        }
+
+        .clean-apply-cta {
+          background: #102720;
+          color: #ffffff;
+          border: 0;
+          padding: 10px 18px;
+          border-radius: 6px;
+          font-size: 12px;
+          font-weight: 800;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          white-space: nowrap;
+        }
+
+        .clean-apply-cta:hover {
+          background: #0f6b61;
+          transform: translateY(-1px);
+        }
+
+        /* ── 5 Criteria Cards ────────────────────────────────────── */
         .dpiit-cards-grid {
           display: grid;
           grid-template-columns: repeat(5, 1fr);
@@ -581,380 +653,12 @@ export function DpiitEligibilityChecker({ onApply }: { onApply?: () => void }) {
           color: #ea580c;
         }
 
-        /* ── Diagnostic Calculator Styling ───────────────────────── */
-        .dpiit-diagnostic-card {
-          background: #ffffff;
-          border: 1.5px solid #0f6b61;
-          border-radius: 16px;
-          padding: 26px 28px;
-          margin-bottom: 30px;
-          box-shadow: 0 16px 40px -10px rgba(15, 107, 97, 0.12);
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
-          animation: slideDown 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
-
-        @keyframes slideDown {
-          from {
-            opacity: 0;
-            transform: translateY(-8px);
-          }
-          to {
-            opacity: 1;
-            transform: none;
-          }
-        }
-
-        .diagnostic-header-bar {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 20px;
-          flex-wrap: wrap;
-          border-bottom: 1px solid #edf2ee;
-          padding-bottom: 16px;
-        }
-
-        .diagnostic-kicker {
-          font-size: 10px;
-          font-weight: 850;
-          letter-spacing: 1.2px;
-          color: #0f6b61;
-          text-transform: uppercase;
-        }
-
-        .diagnostic-title {
-          font-size: 21px;
-          font-weight: 850;
-          color: #102720;
-          margin: 4px 0 2px;
-          letter-spacing: -0.4px;
-        }
-
-        .diagnostic-subtitle {
-          font-size: 13px;
-          color: #556c62;
-          margin: 0;
-          line-height: 1.45;
-        }
-
-        .verdict-tag {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 10px 18px;
-          border-radius: 10px;
-          border: 1.5px solid;
-        }
-
-        .verdict-tag.normal {
-          background: #eef8f3;
-          border-color: #a3d9c2;
-          color: #0c564e;
-        }
-
-        .verdict-tag.deeptech {
-          background: #e0f2fe;
-          border-color: #7dd3fc;
-          color: #0369a1;
-        }
-
-        .verdict-tag.ineligible {
-          background: #fff1f2;
-          border-color: #fecdd3;
-          color: #9f1239;
-        }
-
-        .verdict-tag strong {
-          display: block;
-          font-size: 13px;
-          font-weight: 850;
-        }
-
-        .verdict-tag small {
-          display: block;
-          font-size: 10.5px;
-          opacity: 0.85;
-          font-weight: 600;
-        }
-
-        .verdict-beacon {
-          width: 10px;
-          height: 10px;
-          border-radius: 50%;
-          background: #10b981;
-          box-shadow: 0 0 10px #10b981;
-        }
-
-        .verdict-beacon-red {
-          width: 10px;
-          height: 10px;
-          border-radius: 50%;
-          background: #ef4444;
-        }
-
-        .diagnostic-interactive-grid {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 16px;
-        }
-
-        .param-control-card {
-          background: #fbfdfc;
-          border: 1.5px solid #dbe6e0;
-          border-radius: 12px;
-          padding: 16px 18px;
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          gap: 10px;
-        }
-
-        .param-control-card.checks-column {
-          grid-column: span 2;
-        }
-
-        .param-card-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        }
-
-        .param-label {
-          font-size: 12px;
-          font-weight: 800;
-          color: #102720;
-        }
-
-        .param-value-pill {
-          font-size: 11px;
-          font-weight: 850;
-          color: #0f6b61;
-          background: #e6f4ed;
-          padding: 3px 10px;
-          border-radius: 20px;
-          border: 1px solid #c2dfcf;
-        }
-
-        .param-status-tag {
-          font-size: 10.5px;
-          font-weight: 800;
-          color: #0f6b61;
-        }
-
-        .param-custom-slider {
-          width: 100%;
-          height: 6px;
-          border-radius: 4px;
-          background: #e2ede7;
-          outline: none;
-          cursor: pointer;
-          accent-color: #0f6b61;
-        }
-
-        .param-preset-chips {
-          display: flex;
-          gap: 6px;
-        }
-
-        .preset-btn {
-          border: 1px solid #d4e0d9;
-          background: #ffffff;
-          color: #556c60;
-          font-size: 10px;
-          font-weight: 750;
-          padding: 4px 10px;
-          border-radius: 6px;
-          cursor: pointer;
-          transition: all 0.15s ease;
-        }
-
-        .preset-btn:hover {
-          border-color: #0f6b61;
-          color: #0f6b61;
-        }
-
-        .preset-btn.active {
-          background: #0f6b61;
-          color: #ffffff;
-          border-color: #0f6b61;
-        }
-
-        .param-custom-select {
-          width: 100%;
-          padding: 10px 12px;
-          border: 1.5px solid #ccdcd2;
-          border-radius: 8px;
-          font-size: 12.5px;
-          font-weight: 750;
-          color: #102720;
-          background: #ffffff;
-          outline: none;
-          cursor: pointer;
-        }
-
-        .param-hint {
-          font-size: 10px;
-          color: #6d8479;
-        }
-
-        .param-toggles-list {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 10px;
-        }
-
-        .param-toggle-item {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          background: #ffffff;
-          border: 1.5px solid #d6e2db;
-          border-radius: 8px;
-          padding: 10px 12px;
-          text-align: left;
-          cursor: pointer;
-          transition: all 0.2s ease;
-        }
-
-        .param-toggle-item:hover {
-          border-color: #0f6b61;
-        }
-
-        .param-toggle-item.active {
-          background: #eef8f3;
-          border-color: #0f6b61;
-        }
-
-        .param-toggle-item.deeptech.active {
-          background: #e0f2fe;
-          border-color: #0284c7;
-        }
-
-        .toggle-box {
-          width: 18px;
-          height: 18px;
-          border-radius: 4px;
-          border: 1.5px solid #a3baa0;
-          display: grid;
-          place-items: center;
-          font-size: 11px;
-          font-weight: 900;
-          color: #ffffff;
-          background: #ffffff;
-          flex-shrink: 0;
-        }
-
-        .param-toggle-item.active .toggle-box {
-          background: #0f6b61;
-          border-color: #0f6b61;
-        }
-
-        .param-toggle-item.deeptech.active .toggle-box {
-          background: #0284c7;
-          border-color: #0284c7;
-        }
-
-        .toggle-text {
-          font-size: 11px;
-          font-weight: 750;
-          color: #102720;
-          line-height: 1.35;
-        }
-
-        .diagnostic-footer-strip {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 20px;
-          background: #f4faf6;
-          border: 1px solid #cce5d7;
-          border-radius: 12px;
-          padding: 14px 18px;
-          flex-wrap: wrap;
-        }
-
-        .verdict-success-msg {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        }
-
-        .verdict-success-msg .icon {
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          background: #0f6b61;
-          color: #ffffff;
-          display: grid;
-          place-items: center;
-          font-size: 16px;
-          font-weight: 900;
-          flex-shrink: 0;
-        }
-
-        .verdict-success-msg strong {
-          display: block;
-          font-size: 13px;
-          color: #0f6b61;
-          font-weight: 850;
-        }
-
-        .verdict-success-msg p {
-          margin: 2px 0 0;
-          font-size: 11.5px;
-          color: #40574b;
-        }
-
-        .verdict-fail-msg {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        }
-
-        .verdict-fail-msg .icon {
-          font-size: 20px;
-        }
-
-        .verdict-fail-msg strong {
-          display: block;
-          font-size: 13px;
-          color: #c2410c;
-          font-weight: 850;
-        }
-
-        .verdict-fail-msg p {
-          margin: 2px 0 0;
-          font-size: 11.5px;
-          color: #5d7166;
-        }
-
-        .diagnostic-apply-btn {
-          background: #102720;
-          color: #ffffff;
-          border: 0;
-          padding: 11px 20px;
-          border-radius: 6px;
-          font-size: 12px;
-          font-weight: 800;
-          cursor: pointer;
-          box-shadow: 0 4px 12px rgba(16, 39, 32, 0.2);
-          transition: all 0.2s ease;
-          white-space: nowrap;
-        }
-
-        .diagnostic-apply-btn:hover {
-          background: #0f6b61;
-          transform: translateY(-1px);
-        }
-
         @media (max-width: 1100px) {
           .dpiit-cards-grid {
             grid-template-columns: repeat(3, 1fr);
           }
-          .param-toggles-list {
-            grid-template-columns: 1fr;
+          .clean-diagnostic-grid {
+            grid-template-columns: repeat(2, 1fr);
           }
         }
 
@@ -965,11 +669,8 @@ export function DpiitEligibilityChecker({ onApply }: { onApply?: () => void }) {
           .dpiit-cards-grid {
             grid-template-columns: 1fr;
           }
-          .diagnostic-interactive-grid {
+          .clean-diagnostic-grid {
             grid-template-columns: 1fr;
-          }
-          .param-control-card.checks-column {
-            grid-column: span 1;
           }
         }
       `}</style>
