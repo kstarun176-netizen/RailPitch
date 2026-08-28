@@ -355,7 +355,7 @@ export default function RailPitch() {
               Where the <em>next</em> big idea finds its way.
             </h1>
             <p>
-              RailPitch brings exceptional founders and investors together for a focused Mumbai–Goa journey built around meaningful conversations—not random pitches.
+              RailPitch connects visionary founders with forward-thinking investors on a curated Mumbai–Goa train journey, turning travel time into high‑conviction partnerships.
             </p>
             <div className="actions">
               <button className="primary" onClick={() => setRole("founder")}>
