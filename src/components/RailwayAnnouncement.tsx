@@ -15,181 +15,250 @@ const ENGLISH_SCRIPT =
 export function RailwayAnnouncement({ onTogglePlay }: RailwayAnnouncementProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [voiceGender, setVoiceGender] = useState<"female" | "male">("female");
+  const [echoEnabled, setEchoEnabled] = useState(true);
   const [activeLang, setActiveLang] = useState<"hi" | "en">("hi");
   const [autoplayBlocked, setAutoplayBlocked] = useState(false);
   const [cardMinimized, setCardMinimized] = useState(false);
+  const [audioStatus, setAudioStatus] = useState("Ready on Platform 1");
 
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const audioElementRef = useRef<HTMLAudioElement | null>(null);
+  const mediaSourceConnectedRef = useRef(false);
   const isPlayingRef = useRef(false);
+  const echoGainRef = useRef<GainNode | null>(null);
 
-  // Play the authentic Indian Railways 3-tone chime (D5 -> F#5 -> A5 with bell harmonics)
-  const playChime = useCallback((): Promise<void> => {
-    return new Promise((resolve) => {
-      try {
-        const AudioCtx =
-          window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-        if (!AudioCtx) {
-          resolve();
-          return;
-        }
-
-        if (!audioCtxRef.current || audioCtxRef.current.state === "closed") {
-          audioCtxRef.current = new AudioCtx();
-        }
-
-        const ctx = audioCtxRef.current;
-        if (ctx.state === "suspended") {
-          ctx.resume();
-        }
-
-        const now = ctx.currentTime;
-        // Classic Indian Railways announcement chime sequence: D5 (587.33Hz) -> F#5 (739.99Hz) -> A5 (880Hz)
-        const notes = [
-          { freq: 587.33, start: now + 0.05, duration: 0.4 },
-          { freq: 739.99, start: now + 0.42, duration: 0.4 },
-          { freq: 880.0, start: now + 0.82, duration: 0.65 },
-        ];
-
-        notes.forEach(({ freq, start, duration }) => {
-          // Fundamental oscillator
-          const osc1 = ctx.createOscillator();
-          const gain1 = ctx.createGain();
-          osc1.type = "sine";
-          osc1.frequency.setValueAtTime(freq, start);
-
-          gain1.gain.setValueAtTime(0.001, start);
-          gain1.gain.exponentialRampToValueAtTime(0.28, start + 0.02);
-          gain1.gain.exponentialRampToValueAtTime(0.001, start + duration);
-
-          osc1.connect(gain1);
-          gain1.connect(ctx.destination);
-
-          osc1.start(start);
-          osc1.stop(start + duration);
-
-          // Bell harmonic overtone (1 octave higher, soft)
-          const osc2 = ctx.createOscillator();
-          const gain2 = ctx.createGain();
-          osc2.type = "sine";
-          osc2.frequency.setValueAtTime(freq * 2, start);
-
-          gain2.gain.setValueAtTime(0.001, start);
-          gain2.gain.exponentialRampToValueAtTime(0.08, start + 0.015);
-          gain2.gain.exponentialRampToValueAtTime(0.001, start + duration * 0.7);
-
-          osc2.connect(gain2);
-          gain2.connect(ctx.destination);
-
-          osc2.start(start);
-          osc2.stop(start + duration);
-        });
-
-        setTimeout(() => {
-          resolve();
-        }, 1450);
-      } catch {
-        resolve();
+  // Initialize AudioContext lazily
+  const getAudioContext = useCallback((): AudioContext | null => {
+    try {
+      const AudioCtx =
+        window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!AudioCtx) return null;
+      if (!audioCtxRef.current || audioCtxRef.current.state === "closed") {
+        audioCtxRef.current = new AudioCtx();
       }
-    });
+      if (audioCtxRef.current.state === "suspended") {
+        audioCtxRef.current.resume();
+      }
+      return audioCtxRef.current;
+    } catch {
+      return null;
+    }
   }, []);
 
-  // Voiceover playback using window.speechSynthesis
-  const playVoice = useCallback((lang: "hi" | "en"): Promise<void> => {
+  // Authentic Radio Station Mic Squelch & Station PA chime starting effect
+  const playRadioStationTune = useCallback((): Promise<void> => {
     return new Promise((resolve) => {
-      if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+      const ctx = getAudioContext();
+      if (!ctx) {
         resolve();
         return;
       }
 
-      window.speechSynthesis.cancel();
+      try {
+        const now = ctx.currentTime;
 
-      const text =
-        lang === "hi"
-          ? "Yatri-gan kripya dhyan dein. Aapke bade sapno aur startup pitches ke saath, Mumbai se Goa jaane wali RailPitch Express, platform number ek par rawana hone ke liye taiyar hai. Aasha karte hain aap is khoobsurat safar ke liye poori tarah tayar hain. Shubh yatra!"
-          : "May I have your attention, please. Boarding all big dreams and startup pitches, the RailPitch Express from Mumbai to Goa is now ready on platform number one. We hope you are ready for this incredible journey. Wishing you a pleasant journey!";
+        // 1. Radio Mic Click & Static Squelch Burst (50ms)
+        const noiseBufferSize = Math.floor(ctx.sampleRate * 0.05);
+        const noiseBuffer = ctx.createBuffer(1, noiseBufferSize, ctx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < noiseBufferSize; i++) {
+          output[i] = (Math.random() * 2 - 1) * Math.exp(-i / (noiseBufferSize * 0.4));
+        }
 
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.88;
-      utterance.pitch = 1.02;
-      utterance.volume = 1;
+        const noiseSource = ctx.createBufferSource();
+        noiseSource.buffer = noiseBuffer;
 
-      const voices = window.speechSynthesis.getVoices();
-      let matchedVoice = null;
+        const noiseFilter = ctx.createBiquadFilter();
+        noiseFilter.type = "bandpass";
+        noiseFilter.frequency.setValueAtTime(2800, now);
+        noiseFilter.Q.setValueAtTime(3, now);
 
-      if (lang === "hi") {
-        matchedVoice =
-          voices.find((v) => v.lang.toLowerCase().startsWith("hi")) ||
-          voices.find((v) => v.name.toLowerCase().includes("hindi")) ||
-          voices.find((v) => v.lang.toLowerCase().includes("in")) ||
-          null;
-      } else {
-        matchedVoice =
-          voices.find((v) => v.lang.toLowerCase() === "en-in") ||
-          voices.find((v) => v.name.toLowerCase().includes("india")) ||
-          voices.find((v) => v.lang.toLowerCase().startsWith("en")) ||
-          null;
-      }
+        const noiseGain = ctx.createGain();
+        noiseGain.gain.setValueAtTime(0.18, now);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
 
-      if (matchedVoice) {
-        utterance.voice = matchedVoice;
-      }
+        noiseSource.connect(noiseFilter);
+        noiseFilter.connect(noiseGain);
+        noiseGain.connect(ctx.destination);
+        noiseSource.start(now);
 
-      utterance.onend = () => {
+        // 2. Classic Indian Railways Announcement Chime Sequence: D5 (587Hz) -> F#5 (740Hz) -> A5 (880Hz)
+        const chimeNotes = [
+          { freq: 587.33, start: now + 0.08, duration: 0.38 },
+          { freq: 739.99, start: now + 0.44, duration: 0.38 },
+          { freq: 880.0, start: now + 0.82, duration: 0.62 },
+        ];
+
+        chimeNotes.forEach(({ freq, start, duration }) => {
+          // Fundamental tone
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(freq, start);
+
+          gain.gain.setValueAtTime(0.001, start);
+          gain.gain.exponentialRampToValueAtTime(0.3, start + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(start);
+          osc.stop(start + duration);
+
+          // Harmonic overtone for resonant station bell bell effect
+          const oscHarmonic = ctx.createOscillator();
+          const gainHarmonic = ctx.createGain();
+          oscHarmonic.type = "sine";
+          oscHarmonic.frequency.setValueAtTime(freq * 2, start);
+
+          gainHarmonic.gain.setValueAtTime(0.001, start);
+          gainHarmonic.gain.exponentialRampToValueAtTime(0.09, start + 0.015);
+          gainHarmonic.gain.exponentialRampToValueAtTime(0.001, start + duration * 0.7);
+
+          oscHarmonic.connect(gainHarmonic);
+          gainHarmonic.connect(ctx.destination);
+          oscHarmonic.start(start);
+          oscHarmonic.stop(start + duration);
+        });
+
+        // Total chime concludes at ~1.45s
+        setTimeout(() => resolve(), 1450);
+      } catch {
         resolve();
-      };
-
-      utterance.onerror = () => {
-        resolve();
-      };
-
-      window.speechSynthesis.speak(utterance);
+      }
     });
-  }, []);
+  }, [getAudioContext]);
 
-  // Complete announcement sequence: Chime -> Hindi -> English
+  // Setup Web Audio Echo / PA Hall Delay Network on the audio element
+  const connectAudioWithEcho = useCallback(
+    (audioEl: HTMLAudioElement) => {
+      const ctx = getAudioContext();
+      if (!ctx || mediaSourceConnectedRef.current) return;
+
+      try {
+        const source = ctx.createMediaElementSource(audioEl);
+        mediaSourceConnectedRef.current = true;
+
+        // Dry path
+        const dryGain = ctx.createGain();
+        dryGain.gain.setValueAtTime(0.95, ctx.currentTime);
+        source.connect(dryGain);
+        dryGain.connect(ctx.destination);
+
+        // Wet station echo / hall reverb path
+        const delayNode = ctx.createDelay();
+        delayNode.delayTime.setValueAtTime(0.22, ctx.currentTime); // 220ms authentic station delay
+
+        const feedbackGain = ctx.createGain();
+        feedbackGain.gain.setValueAtTime(0.32, ctx.currentTime); // 32% feedback
+
+        // Acoustic bandpass filter simulating station platform acoustic reflections
+        const filter = ctx.createBiquadFilter();
+        filter.type = "bandpass";
+        filter.frequency.setValueAtTime(1400, ctx.currentTime);
+        filter.Q.setValueAtTime(0.8, ctx.currentTime);
+
+        const wetGain = ctx.createGain();
+        wetGain.gain.setValueAtTime(echoEnabled ? 0.36 : 0.0, ctx.currentTime);
+        echoGainRef.current = wetGain;
+
+        // Connect echo loop: source -> filter -> delay -> wetGain -> destination
+        // and delay -> feedbackGain -> filter (loop)
+        source.connect(filter);
+        filter.connect(delayNode);
+        delayNode.connect(wetGain);
+        wetGain.connect(ctx.destination);
+
+        delayNode.connect(feedbackGain);
+        feedbackGain.connect(filter);
+      } catch (err) {
+        console.warn("Could not connect audio graph:", err);
+      }
+    },
+    [echoEnabled, getAudioContext]
+  );
+
+  // Update echo wet gain dynamically
+  useEffect(() => {
+    if (echoGainRef.current && audioCtxRef.current) {
+      echoGainRef.current.gain.setValueAtTime(
+        echoEnabled ? 0.36 : 0.0,
+        audioCtxRef.current.currentTime
+      );
+    }
+  }, [echoEnabled]);
+
+  // Main Playback sequence: Radio Tune -> Actual Audio with Echo
   const startAnnouncement = useCallback(
-    async (langOverride?: "hi" | "en") => {
+    async (genderOverride?: "female" | "male") => {
+      const targetGender = genderOverride || voiceGender;
       setIsPlaying(true);
       setIsMuted(false);
       isPlayingRef.current = true;
       setAutoplayBlocked(false);
       onTogglePlay?.(true);
 
-      const targetLang = langOverride || activeLang;
+      const audioSrc =
+        targetGender === "female"
+          ? "/audio/announcement-female.wav"
+          : "/audio/announcement-male.wav";
 
       try {
-        await playChime();
+        setAudioStatus("📻 Station Chime & Mic Tuning...");
+        await playRadioStationTune();
         if (!isPlayingRef.current) return;
 
-        await playVoice(targetLang);
-        if (!isPlayingRef.current) return;
+        setAudioStatus(`📢 Broadcasting ${targetGender.toUpperCase()} Voice with Station Echo...`);
 
-        if (targetLang === "hi") {
-          await new Promise((r) => setTimeout(r, 600));
-          if (!isPlayingRef.current) return;
-          setActiveLang("en");
-          await playVoice("en");
+        // Play audio element with PA echo effect
+        if (!audioElementRef.current) {
+          audioElementRef.current = new Audio();
+          audioElementRef.current.crossOrigin = "anonymous";
         }
+
+        const audioEl = audioElementRef.current;
+        audioEl.src = audioSrc;
+        connectAudioWithEcho(audioEl);
+
+        audioEl.onended = () => {
+          setIsPlaying(false);
+          isPlayingRef.current = false;
+          setAudioStatus("Ready on Platform 1");
+          onTogglePlay?.(false);
+        };
+
+        audioEl.onerror = () => {
+          setIsPlaying(false);
+          isPlayingRef.current = false;
+          setAudioStatus("Ready on Platform 1");
+          onTogglePlay?.(false);
+        };
+
+        await audioEl.play();
       } catch (err) {
-        console.error("Announcement error:", err);
-      } finally {
+        console.warn("Audio playback interrupted or blocked:", err);
+        setAutoplayBlocked(true);
         setIsPlaying(false);
         isPlayingRef.current = false;
+        setAudioStatus("Ready on Platform 1");
         onTogglePlay?.(false);
       }
     },
-    [activeLang, onTogglePlay, playChime, playVoice]
+    [connectAudioWithEcho, onTogglePlay, playRadioStationTune, voiceGender]
   );
 
   const stopAnnouncement = useCallback(() => {
     setIsPlaying(false);
     isPlayingRef.current = false;
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
+    if (audioElementRef.current) {
+      audioElementRef.current.pause();
+      audioElementRef.current.currentTime = 0;
     }
     if (audioCtxRef.current && audioCtxRef.current.state === "running") {
       audioCtxRef.current.suspend();
     }
+    setAudioStatus("Ready on Platform 1");
     onTogglePlay?.(false);
   }, [onTogglePlay]);
 
@@ -203,6 +272,7 @@ export function RailwayAnnouncement({ onTogglePlay }: RailwayAnnouncementProps) 
     }
   };
 
+  // Browser Autoplay handling: Play once per session
   useEffect(() => {
     const hasPlayed = sessionStorage.getItem("railpitch_announcement_played");
     if (!hasPlayed) {
@@ -214,7 +284,6 @@ export function RailwayAnnouncement({ onTogglePlay }: RailwayAnnouncementProps) 
           isPlayingRef.current = false;
         });
       }, 1200);
-
       return () => clearTimeout(timer);
     }
   }, [startAnnouncement]);
@@ -238,7 +307,7 @@ export function RailwayAnnouncement({ onTogglePlay }: RailwayAnnouncementProps) 
               color: "#f5e7b9",
               border: "1px solid #c8a356",
             }}
-            title="Click to play railway station chime and announcement"
+            title="Click to play station announcement with chime and echo"
           >
             <span>🔔</span>
             <span>Station Announcement Available</span>
@@ -348,27 +417,56 @@ export function RailwayAnnouncement({ onTogglePlay }: RailwayAnnouncementProps) 
             </div>
 
             <div className="flex items-center gap-2">
+              {/* Gender Voice Selector */}
               <div className="flex bg-[#0c1f19] rounded p-0.5 border border-[#2b5143]">
                 <button
                   onClick={() => {
-                    setActiveLang("hi");
-                    if (isPlaying) startAnnouncement("hi");
+                    setVoiceGender("female");
+                    if (isPlaying) startAnnouncement("female");
                   }}
+                  className={`px-2 py-0.5 text-[10px] font-black rounded transition-colors cursor-pointer ${voiceGender === "female" ? "bg-[#e8775f] text-white" : "text-[#a0b8ad] hover:text-white"}`}
+                  title="Switch to Female Announcer Voice"
+                >
+                  👩 FEMALE
+                </button>
+                <button
+                  onClick={() => {
+                    setVoiceGender("male");
+                    if (isPlaying) startAnnouncement("male");
+                  }}
+                  className={`px-2 py-0.5 text-[10px] font-black rounded transition-colors cursor-pointer ${voiceGender === "male" ? "bg-[#0f6b61] text-white" : "text-[#a0b8ad] hover:text-white"}`}
+                  title="Switch to Male Announcer Voice"
+                >
+                  👨 MALE
+                </button>
+              </div>
+
+              {/* Station Echo FX Toggle */}
+              <button
+                onClick={() => setEchoEnabled(!echoEnabled)}
+                className={`px-2 py-0.5 text-[10px] font-black rounded border transition-colors cursor-pointer ${echoEnabled ? "bg-[#1f4a3c] text-[#7ee3c2] border-[#39826a]" : "bg-[#0c1f19] text-[#718c81] border-[#203c31]"}`}
+                title="Toggle Platform Echo / Radio Reverb Effect"
+              >
+                📻 ECHO {echoEnabled ? "ON" : "OFF"}
+              </button>
+
+              {/* Language Switcher Tabs */}
+              <div className="flex bg-[#0c1f19] rounded p-0.5 border border-[#2b5143]">
+                <button
+                  onClick={() => setActiveLang("hi")}
                   className={`px-2 py-0.5 text-[10px] font-black rounded transition-colors cursor-pointer ${activeLang === "hi" ? "bg-[#c8a356] text-[#0c1f19]" : "text-[#a0b8ad] hover:text-white"}`}
                 >
                   हिंदी / HINDI
                 </button>
                 <button
-                  onClick={() => {
-                    setActiveLang("en");
-                    if (isPlaying) startAnnouncement("en");
-                  }}
+                  onClick={() => setActiveLang("en")}
                   className={`px-2 py-0.5 text-[10px] font-black rounded transition-colors cursor-pointer ${activeLang === "en" ? "bg-[#c8a356] text-[#0c1f19]" : "text-[#a0b8ad] hover:text-white"}`}
                 >
                   ENGLISH
                 </button>
               </div>
 
+              {/* Minimizer toggle */}
               <button
                 onClick={() => setCardMinimized(!cardMinimized)}
                 className="text-[#9cb5aa] hover:text-white text-xs px-2 py-0.5 font-mono cursor-pointer"
@@ -379,6 +477,7 @@ export function RailwayAnnouncement({ onTogglePlay }: RailwayAnnouncementProps) 
             </div>
           </div>
 
+          {/* Station Notice Content */}
           {!cardMinimized && (
             <div className="p-4 sm:p-6 bg-[#fbf9f2]">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -390,6 +489,9 @@ export function RailwayAnnouncement({ onTogglePlay }: RailwayAnnouncementProps) 
                     <span className="text-[10px] text-[#6b7c73] font-semibold">
                       MUMBAI CSMT ➔ GOA MADGAON (RP-0426)
                     </span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded font-bold bg-[#efe4cd] text-[#634e20]">
+                      {voiceGender === "female" ? "VOICE: FEMALE" : "VOICE: MALE"}
+                    </span>
                   </div>
 
                   <blockquote className="m-0 text-[13px] sm:text-[14px] leading-relaxed text-[#102720] font-medium italic border-l-3 border-[#0f6b61] pl-3 py-1">
@@ -397,7 +499,7 @@ export function RailwayAnnouncement({ onTogglePlay }: RailwayAnnouncementProps) 
                   </blockquote>
                 </div>
 
-                <div className="flex flex-row md:flex-col items-center md:items-end justify-between gap-2 border-t md:border-t-0 md:border-l border-[#e2e7e0] pt-3 md:pt-0 md:pl-5 min-w-[190px]">
+                <div className="flex flex-row md:flex-col items-center md:items-end justify-between gap-2 border-t md:border-t-0 md:border-l border-[#e2e7e0] pt-3 md:pt-0 md:pl-5 min-w-[210px]">
                   <button
                     onClick={() => {
                       if (isPlaying) {
@@ -432,10 +534,10 @@ export function RailwayAnnouncement({ onTogglePlay }: RailwayAnnouncementProps) 
 
                   <div className="text-right">
                     <span className="block text-[9px] font-bold text-[#62776c] uppercase tracking-wider">
-                      Audio Engine: Web Audio + Speech
+                      Engine: Radio Squelch + Chime + Echo
                     </span>
                     <span className="text-[10px] text-[#0f6b61] font-bold">
-                      {isPlaying ? "● Broadcasting Chime & Voice..." : "Ready on Platform 1"}
+                      {audioStatus}
                     </span>
                   </div>
                 </div>
