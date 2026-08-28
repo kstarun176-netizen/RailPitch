@@ -487,28 +487,6 @@ export default function RailPitch() {
                     </span>
                   </div>
                 </div>
-
-                {/* Expedition Curator subtle footer link */}
-                <div style={{ paddingTop: "8px", marginTop: "4px", borderTop: "1px solid #edf2ee", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontSize: "10px", color: "#74857b" }}>Expedition Curator?</span>
-                  <button
-                    onClick={() => {
-                      setRole("curator");
-                      setDropdownOpen(false);
-                    }}
-                    style={{
-                      border: 0,
-                      background: "none",
-                      color: "var(--teal)",
-                      fontSize: "10px",
-                      fontWeight: 800,
-                      cursor: "pointer",
-                      padding: 0,
-                    }}
-                  >
-                    Curator Console →
-                  </button>
-                </div>
               </div>
             )}
           </div>
