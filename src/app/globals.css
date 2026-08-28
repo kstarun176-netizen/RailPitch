@@ -707,13 +707,13 @@ header nav button,.link{border:0;background:none;color:var(--teal);font-weight:7
   transform: translateY(-4px);
 }
 
-/* Illustration Wrapper */
+/* Illustration Wrapper — lighter, theme-warm bg */
 .exp-illustration-wrapper {
   width: 100%;
   border-radius: 10px;
   overflow: hidden;
-  border: 1px solid #e1e9e3;
-  background: #0f172a;
+  border: 1px solid #d4e2d8;
+  background: #e8f0ec;
 }
 
 .exp-svg {
@@ -722,76 +722,90 @@ header nav button,.link{border:0;background:none;color:var(--teal);font-weight:7
   display: block;
 }
 
-/* One-line label row under illustration */
+/* One-line label row — bigger, consistent typography */
 .exp-label-row {
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 4px 2px 2px;
+  gap: 9px;
+  padding: 6px 2px 2px;
 }
 
 .exp-icon {
-  font-size: 16px;
+  font-size: 20px;
   line-height: 1;
 }
 
 .exp-title {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 800;
-  letter-spacing: -0.2px;
+  letter-spacing: -0.4px;
+  font-family: inherit;
 }
 
-/* Route Ribbon Footer */
+/* Route Ribbon — railway track illustration */
 .luxury-route-ribbon {
-  border-top: 1px solid #edf2ee;
-  padding-top: 18px;
-  margin-top: 10px;
+  padding-top: 28px;
+  margin-top: 6px;
 }
 
 .ribbon-milestones {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 8px;
-  flex-wrap: wrap;
+  gap: 0;
+  position: relative;
+}
+
+/* The railway track sits between nodes */
+.ribbon-track-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+  padding-top: 3px; /* align with dot centre */
+}
+
+.ribbon-track-svg {
+  width: 100%;
+  height: 18px;
+  display: block;
 }
 
 .ribbon-node {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  align-items: flex-start;
+  gap: 4px;
+  flex-shrink: 0;
 }
 
 .ribbon-node .dot {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  background: #cbd8d1;
-  margin-bottom: 4px;
+  background: #c4d4cc;
+  border: 2px solid #dce8e0;
+  margin-bottom: 6px;
 }
 
 .ribbon-node .dot.active {
   background: var(--teal);
-  box-shadow: 0 0 6px rgba(15, 107, 97, 0.4);
+  border-color: var(--teal);
+  box-shadow: 0 0 0 4px rgba(15, 107, 97, 0.15);
 }
 
 .ribbon-node b {
-  font-size: 12px;
+  font-size: 13px;
   color: #102720;
   font-weight: 800;
+  letter-spacing: -0.2px;
+  font-family: inherit;
 }
 
 .ribbon-node small {
-  font-size: 10px;
+  font-size: 11px;
   color: #63776d;
   font-weight: 600;
-}
-
-.ribbon-line {
-  flex: 1;
-  height: 2px;
-  background: #e2ebe6;
-  min-width: 20px;
 }
 
 @media (max-width: 960px) {

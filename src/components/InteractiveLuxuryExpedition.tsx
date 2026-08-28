@@ -11,10 +11,25 @@ const EXPERIENCES: {
   themeColor: string;
   glowColor: string;
 }[] = [
-  { id: "pitch",  title: "1:1 Pitch Pods",         icon: "🎯", themeColor: "#ea580c", glowColor: "rgba(234,88,12,0.16)"  },
-  { id: "dine",   title: "Coastal Dining Car",      icon: "🍽️", themeColor: "#d97706", glowColor: "rgba(217,119,6,0.16)" },
-  { id: "lounge", title: "Panoramic Scenic Lounge", icon: "🌅", themeColor: "#059669", glowColor: "rgba(5,150,105,0.16)" },
+  { id: "pitch",  title: "1:1 Pitch Pods",         icon: "🎯", themeColor: "#ea580c", glowColor: "rgba(234,88,12,0.14)"  },
+  { id: "dine",   title: "Coastal Dining Car",      icon: "🍽️", themeColor: "#d97706", glowColor: "rgba(217,119,6,0.14)" },
+  { id: "lounge", title: "Panoramic Scenic Lounge", icon: "🌅", themeColor: "#059669", glowColor: "rgba(5,150,105,0.14)" },
 ];
+
+/* ── Railway Track SVG used between stations ─────────────────────── */
+function RailwayTrack() {
+  return (
+    <svg className="ribbon-track-svg" viewBox="0 0 200 18" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Two rails */}
+      <line x1="0" y1="5"  x2="200" y2="5"  stroke="#b5ccc2" strokeWidth="2" />
+      <line x1="0" y1="13" x2="200" y2="13" stroke="#b5ccc2" strokeWidth="2" />
+      {/* Sleepers / ties */}
+      {[6, 22, 38, 54, 70, 86, 102, 118, 134, 150, 166, 182].map((x) => (
+        <rect key={x} x={x} y="2" width="8" height="14" rx="1.5" fill="#d4e2d8" stroke="#b5ccc2" strokeWidth="0.8" />
+      ))}
+    </svg>
+  );
+}
 
 export function InteractiveLuxuryExpedition() {
   const [active, setActive] = useState<ExperienceId>("pitch");
@@ -49,8 +64,8 @@ export function InteractiveLuxuryExpedition() {
             >
               {/* Illustration */}
               <div className="exp-illustration-wrapper">
-                {exp.id === "pitch" && <PitchScene />}
-                {exp.id === "dine"  && <DineScene />}
+                {exp.id === "pitch"  && <PitchScene />}
+                {exp.id === "dine"   && <DineScene />}
                 {exp.id === "lounge" && <LoungeScene />}
               </div>
 
@@ -64,32 +79,40 @@ export function InteractiveLuxuryExpedition() {
         })}
       </div>
 
-      {/* ── Route Ribbon ──────────────────────────────────────────────── */}
+      {/* ── Route Timeline with Railway Track ────────────────────────── */}
       <div className="luxury-route-ribbon">
         <div className="ribbon-milestones">
+
           <div className="ribbon-node">
             <span className="dot active" />
             <b>Mumbai CSMT</b>
             <small>08:10 AM</small>
           </div>
-          <span className="ribbon-line" />
+
+          <div className="ribbon-track-wrap"><RailwayTrack /></div>
+
           <div className="ribbon-node">
             <span className="dot" />
             <b>Panvel</b>
             <small>09:05 AM</small>
           </div>
-          <span className="ribbon-line" />
+
+          <div className="ribbon-track-wrap"><RailwayTrack /></div>
+
           <div className="ribbon-node">
             <span className="dot" />
             <b>Ratnagiri</b>
             <small>01:30 PM</small>
           </div>
-          <span className="ribbon-line" />
+
+          <div className="ribbon-track-wrap"><RailwayTrack /></div>
+
           <div className="ribbon-node">
             <span className="dot active" />
             <b>Goa (Madgaon)</b>
             <small>06:45 PM</small>
           </div>
+
         </div>
       </div>
     </section>
@@ -97,7 +120,7 @@ export function InteractiveLuxuryExpedition() {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────── */
-/*  Scene Illustrations                                                        */
+/*  Scene Illustrations — lighter, theme-warm palette                         */
 /* ─────────────────────────────────────────────────────────────────────────── */
 
 function PitchScene() {
@@ -105,54 +128,62 @@ function PitchScene() {
     <svg viewBox="0 0 400 220" className="exp-svg" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="pw" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#102720" />
-          <stop offset="100%" stopColor="#071510" />
+          <stop offset="0%" stopColor="#d6ede5" />
+          <stop offset="100%" stopColor="#c4e0d5" />
         </linearGradient>
         <linearGradient id="chartG" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#2fd9ab" />
-          <stop offset="100%" stopColor="#f59e0b" />
+          <stop offset="0%" stopColor="#0f6b61" />
+          <stop offset="100%" stopColor="#ea580c" />
+        </linearGradient>
+        <linearGradient id="screenBg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#0f2d26" />
+          <stop offset="100%" stopColor="#071a14" />
         </linearGradient>
       </defs>
 
       {/* Wall */}
-      <rect width="400" height="220" rx="0" fill="url(#pw)" />
+      <rect width="400" height="220" fill="url(#pw)" />
+      {/* Subtle wall panels */}
+      <rect x="0" y="0" width="400" height="220" fill="none" stroke="#b8d9cc" strokeWidth="0" />
+      <line x1="0" y1="130" x2="400" y2="130" stroke="#b8d9cc" strokeWidth="1" strokeDasharray="4 8" />
 
       {/* Scenic window */}
-      <rect x="50" y="18" width="300" height="65" rx="10" fill="#0c4a6e" />
-      <path d="M50,64 Q150,45 200,60 Q280,38 350,58 L350,83 L50,83 Z" fill="#22c55e" opacity=".6" />
-      <path d="M50,74 Q130,58 200,70 Q300,55 350,70 L350,83 L50,83 Z" fill="#166534" />
+      <rect x="50" y="16" width="300" height="64" rx="10" fill="#a7d4e8" stroke="#7ec8e3" strokeWidth="1.5" />
+      {/* Hills */}
+      <path d="M50,66 Q110,44 170,58 Q230,40 290,56 Q330,48 350,60 L350,80 L50,80 Z" fill="#5ebd7c" opacity=".8" />
+      <path d="M50,72 Q130,58 200,68 Q300,54 350,70 L350,80 L50,80 Z" fill="#38a35a" />
       {/* glass glare */}
-      <path d="M62,24 L150,24 L115,80 L62,80 Z" fill="#fff" opacity=".06" />
+      <path d="M62,22 L140,22 L108,76 L62,76 Z" fill="#fff" opacity=".12" />
 
-      {/* OLED screen */}
-      <rect x="120" y="52" width="160" height="96" rx="5" fill="#0f172a" stroke="#ea580c" strokeWidth="2" />
-      <rect x="125" y="57" width="150" height="86" rx="3" fill="#090d16" />
-      {/* chart */}
-      <path d="M133,118 Q158,106 178,95 T228,72 T250,68"
+      {/* OLED screen — dark inside, warm accent */}
+      <rect x="118" y="50" width="164" height="100" rx="6" fill="url(#screenBg)" stroke="#ea580c" strokeWidth="2" />
+      <rect x="123" y="55" width="154" height="90" rx="3" fill="#0c2118" />
+      {/* chart line */}
+      <path d="M131,122 Q155,110 178,96 T228,74 T252,68"
         fill="none" stroke="url(#chartG)" strokeWidth="2.5" strokeLinecap="round" />
-      <circle cx="250" cy="68" r="3" fill="#2fd9ab" />
+      <circle cx="252" cy="68" r="3.5" fill="#0f6b61" />
       {/* metric tags */}
-      <rect x="133" y="126" width="48" height="10" rx="2" fill="#1e293b" />
-      <text x="157" y="133.5" fill="#2fd9ab" fontSize="6" fontWeight="800" textAnchor="middle">+320% ARR</text>
-      <rect x="188" y="126" width="52" height="10" rx="2" fill="#1e293b" />
-      <text x="214" y="133.5" fill="#38bdf8" fontSize="6" fontWeight="800" textAnchor="middle">₹1.2CR CHEQUE</text>
+      <rect x="131" y="130" width="46" height="10" rx="2" fill="#0f3a2d" />
+      <text x="154" y="137.5" fill="#2fd9ab" fontSize="6" fontWeight="800" textAnchor="middle">+320% ARR</text>
+      <rect x="184" y="130" width="50" height="10" rx="2" fill="#0f3a2d" />
+      <text x="209" y="137.5" fill="#fb923c" fontSize="6" fontWeight="800" textAnchor="middle">₹1.2CR CHEQUE</text>
 
-      {/* Founder seat */}
-      <rect x="26" y="100" width="68" height="98" rx="10" fill="#ea580c" stroke="#c2410c" strokeWidth="1.5" />
-      <rect x="34" y="116" width="52" height="70" rx="6" fill="#1e293b" />
-      <circle cx="60" cy="108" r="11" fill="#fcd34d" />
+      {/* Founder seat — warm saffron */}
+      <rect x="24" y="98" width="68" height="100" rx="10" fill="#ea580c" stroke="#c2410c" strokeWidth="1.2" />
+      <rect x="32" y="114" width="52" height="72" rx="6" fill="#7a2e0a" />
+      <circle cx="58" cy="106" r="12" fill="#fcd34d" stroke="#f59e0b" strokeWidth="1" />
 
-      {/* Investor seat */}
-      <rect x="306" y="100" width="68" height="98" rx="10" fill="#0f6b61" stroke="#08423b" strokeWidth="1.5" />
-      <rect x="314" y="116" width="52" height="70" rx="6" fill="#1e293b" />
-      <circle cx="340" cy="108" r="11" fill="#fcd34d" />
+      {/* Investor seat — teal */}
+      <rect x="308" y="98" width="68" height="100" rx="10" fill="#0f6b61" stroke="#0a4a43" strokeWidth="1.2" />
+      <rect x="316" y="114" width="52" height="72" rx="6" fill="#073d36" />
+      <circle cx="342" cy="106" r="12" fill="#fcd34d" stroke="#f59e0b" strokeWidth="1" />
 
       {/* Desk */}
-      <rect x="100" y="155" width="200" height="28" rx="5" fill="#1e293b" stroke="#334155" />
-      <rect x="148" y="150" width="30" height="16" rx="2" fill="#cbd5e1" />
-      <rect x="151" y="152" width="24" height="12" rx="1" fill="#0f172a" />
-      <circle cx="250" cy="169" r="5" fill="#fff" stroke="#cbd5e1" strokeWidth=".5" />
-      <circle cx="250" cy="169" r="3" fill="#78350f" />
+      <rect x="98" y="156" width="204" height="26" rx="5" fill="#d0e8de" stroke="#afd0c5" strokeWidth="1" />
+      <rect x="148" y="150" width="30" height="16" rx="2" fill="#e2ede7" stroke="#afd0c5" strokeWidth="1" />
+      <rect x="152" y="153" width="22" height="11" rx="1" fill="#102720" />
+      <circle cx="252" cy="169" r="5" fill="#fff" stroke="#b5d4c6" strokeWidth="1" />
+      <circle cx="252" cy="169" r="3" fill="#92400e" />
     </svg>
   );
 }
@@ -162,68 +193,68 @@ function DineScene() {
     <svg viewBox="0 0 400 220" className="exp-svg" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="dw" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#451a03" />
-          <stop offset="100%" stopColor="#1c0a00" />
+          <stop offset="0%" stopColor="#fef3e2" />
+          <stop offset="100%" stopColor="#fde8c4" />
         </linearGradient>
         <linearGradient id="tw" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#78350f" />
-          <stop offset="50%" stopColor="#92400e" />
-          <stop offset="100%" stopColor="#78350f" />
+          <stop offset="0%" stopColor="#a16207" />
+          <stop offset="50%" stopColor="#b45309" />
+          <stop offset="100%" stopColor="#a16207" />
         </linearGradient>
         <linearGradient id="lampG" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#fbbf24" stopOpacity=".35" />
+          <stop offset="0%" stopColor="#fbbf24" stopOpacity=".3" />
           <stop offset="100%" stopColor="#fbbf24" stopOpacity="0" />
         </linearGradient>
       </defs>
 
-      <rect width="400" height="220" rx="0" fill="url(#dw)" />
+      <rect width="400" height="220" fill="url(#dw)" />
 
-      {/* Arched window */}
-      <rect x="40" y="14" width="320" height="82" rx="14" fill="#e0f2fe" />
-      <path d="M40,60 Q120,44 200,56 Q280,42 360,58 L360,96 L40,96 Z" fill="#0284c7" opacity=".5" />
-      <path d="M40,75 Q130,62 200,72 Q300,60 360,72 L360,96 L40,96 Z" fill="#22c55e" opacity=".6" />
+      {/* Arched window — sky-blue */}
+      <rect x="40" y="14" width="320" height="80" rx="14" fill="#bae6fd" stroke="#7dd3fc" strokeWidth="1.2" />
+      <path d="M40,58 Q120,42 200,54 Q280,40 360,56 L360,94 L40,94 Z" fill="#4ade80" opacity=".5" />
+      <path d="M40,72 Q130,60 200,70 Q300,58 360,70 L360,94 L40,94 Z" fill="#22c55e" opacity=".6" />
       {/* viaduct */}
-      <path d="M60,58 L340,58" stroke="#b45309" strokeWidth="3.5" />
-      <rect x="100" y="58" width="10" height="32" fill="#78350f" />
-      <rect x="175" y="58" width="10" height="32" fill="#78350f" />
-      <rect x="250" y="58" width="10" height="32" fill="#78350f" />
-      <rect x="315" y="58" width="10" height="32" fill="#78350f" />
+      <path d="M60,56 L340,56" stroke="#d97706" strokeWidth="3" />
+      <rect x="102" y="56" width="9" height="32" fill="#b45309" />
+      <rect x="174" y="56" width="9" height="32" fill="#b45309" />
+      <rect x="248" y="56" width="9" height="32" fill="#b45309" />
+      <rect x="316" y="56" width="9" height="32" fill="#b45309" />
       {/* palms */}
-      <path d="M80,70 Q76,50 84,37 M84,37 Q70,34 68,44 M84,37 Q97,33 94,43" stroke="#15803d" strokeWidth="2" strokeLinecap="round" />
-      <path d="M290,70 Q286,50 294,37 M294,37 Q280,34 278,44 M294,37 Q307,33 304,43" stroke="#15803d" strokeWidth="2" strokeLinecap="round" />
+      <path d="M80,68 Q76,48 84,35 M84,35 Q70,32 68,42 M84,35 Q97,31 94,41" stroke="#15803d" strokeWidth="2" strokeLinecap="round" />
+      <path d="M292,68 Q288,48 296,35 M296,35 Q282,32 280,42 M296,35 Q309,31 306,41" stroke="#15803d" strokeWidth="2" strokeLinecap="round" />
 
       {/* pendant lamps */}
-      <line x1="140" y1="0" x2="140" y2="38" stroke="#f59e0b" strokeWidth="1.5" />
+      <line x1="140" y1="0" x2="140" y2="38" stroke="#d97706" strokeWidth="1.5" />
       <polygon points="133,38 147,38 150,47 130,47" fill="#d97706" />
       <polygon points="118,47 162,47 190,120 92,120" fill="url(#lampG)" />
 
-      <line x1="260" y1="0" x2="260" y2="38" stroke="#f59e0b" strokeWidth="1.5" />
+      <line x1="260" y1="0" x2="260" y2="38" stroke="#d97706" strokeWidth="1.5" />
       <polygon points="253,38 267,38 270,47 250,47" fill="#d97706" />
       <polygon points="238,47 282,47 308,120 212,120" fill="url(#lampG)" />
 
-      {/* booth seats */}
-      <rect x="22" y="108" width="50" height="90" rx="7" fill="#b45309" stroke="#78350f" strokeWidth="1.2" />
-      <rect x="328" y="108" width="50" height="90" rx="7" fill="#b45309" stroke="#78350f" strokeWidth="1.2" />
+      {/* booth seats — warm amber */}
+      <rect x="22" y="106" width="50" height="92" rx="7" fill="#d97706" stroke="#b45309" strokeWidth="1" />
+      <rect x="328" y="106" width="50" height="92" rx="7" fill="#d97706" stroke="#b45309" strokeWidth="1" />
 
       {/* dining table */}
-      <rect x="78" y="118" width="244" height="70" rx="7" fill="url(#tw)" stroke="#d97706" strokeWidth="1.2" />
-      <rect x="88" y="124" width="224" height="58" rx="4" fill="#fef3c7" />
+      <rect x="78" y="116" width="244" height="70" rx="7" fill="url(#tw)" stroke="#f59e0b" strokeWidth="1" />
+      <rect x="88" y="122" width="224" height="58" rx="4" fill="#fffbeb" />
 
       {/* banana leaf platter */}
-      <ellipse cx="200" cy="152" rx="36" ry="18" fill="#15803d" stroke="#166534" strokeWidth=".8" />
-      <circle cx="185" cy="152" r="5" fill="#f59e0b" />
-      <circle cx="200" cy="152" r="6" fill="#ea580c" />
-      <circle cx="215" cy="152" r="5" fill="#fef08a" />
+      <ellipse cx="200" cy="150" rx="36" ry="17" fill="#4ade80" stroke="#16a34a" strokeWidth=".8" />
+      <circle cx="185" cy="150" r="5" fill="#f59e0b" />
+      <circle cx="200" cy="150" r="6" fill="#ea580c" />
+      <circle cx="215" cy="150" r="5" fill="#fef08a" />
 
       {/* side plates */}
-      <circle cx="128" cy="152" r="14" fill="#fff" stroke="#d97706" strokeWidth="1.2" />
-      <circle cx="128" cy="152" r="7" fill="#d97706" />
-      <circle cx="272" cy="152" r="14" fill="#fff" stroke="#d97706" strokeWidth="1.2" />
-      <circle cx="272" cy="152" r="7" fill="#d97706" />
+      <circle cx="128" cy="150" r="13" fill="#fff" stroke="#f59e0b" strokeWidth="1" />
+      <circle cx="128" cy="150" r="7" fill="#d97706" />
+      <circle cx="272" cy="150" r="13" fill="#fff" stroke="#f59e0b" strokeWidth="1" />
+      <circle cx="272" cy="150" r="7" fill="#d97706" />
 
       {/* drinks */}
-      <rect x="156" y="134" width="9" height="14" rx="2" fill="#b45309" />
-      <rect x="235" y="134" width="9" height="14" rx="2" fill="#be123c" />
+      <rect x="158" y="134" width="8" height="13" rx="2" fill="#92400e" />
+      <rect x="234" y="134" width="8" height="13" rx="2" fill="#be123c" />
     </svg>
   );
 }
@@ -233,49 +264,49 @@ function LoungeScene() {
     <svg viewBox="0 0 400 220" className="exp-svg" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="lw" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#064e3b" />
-          <stop offset="100%" stopColor="#022c22" />
+          <stop offset="0%" stopColor="#d1fae5" />
+          <stop offset="100%" stopColor="#a7f3d0" />
         </linearGradient>
         <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#f97316" />
           <stop offset="35%" stopColor="#fbbf24" />
-          <stop offset="65%" stopColor="#f472b6" />
-          <stop offset="100%" stopColor="#38bdf8" />
+          <stop offset="65%" stopColor="#f9a8d4" />
+          <stop offset="100%" stopColor="#7dd3fc" />
         </linearGradient>
         <linearGradient id="sg" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor="#fef08a" />
-          <stop offset="100%" stopColor="#f59e0b" />
+          <stop offset="100%" stopColor="#fbbf24" />
         </linearGradient>
       </defs>
 
-      <rect width="400" height="220" rx="0" fill="url(#lw)" />
+      <rect width="400" height="220" fill="url(#lw)" />
 
       {/* panoramic window */}
-      <rect x="22" y="12" width="356" height="108" rx="12" fill="url(#sky)" stroke="#34d399" strokeWidth="1.2" />
+      <rect x="22" y="12" width="356" height="106" rx="12" fill="url(#sky)" stroke="#6ee7b7" strokeWidth="1.5" />
 
       {/* sun */}
-      <circle cx="200" cy="58" r="24" fill="url(#sg)" />
-      <circle cx="200" cy="58" r="36" fill="#fef08a" opacity=".2" />
+      <circle cx="200" cy="56" r="22" fill="url(#sg)" />
+      <circle cx="200" cy="56" r="34" fill="#fef08a" opacity=".22" />
 
       {/* ocean */}
-      <path d="M22,88 Q110,80 200,86 Q290,92 378,85 L378,120 L22,120 Z" fill="#047857" opacity=".85" />
-      <path d="M22,102 Q100,96 200,102 Q300,108 378,100 L378,120 L22,120 Z" fill="#065f46" />
+      <path d="M22,86 Q110,78 200,84 Q290,90 378,83 L378,118 L22,118 Z" fill="#059669" opacity=".75" />
+      <path d="M22,100 Q100,94 200,100 Q300,106 378,98 L378,118 L22,118 Z" fill="#047857" />
 
-      {/* palm silhouettes */}
-      <path d="M52,104 Q57,76 70,56 M70,56 Q51,52 47,63 M70,56 Q87,50 84,62 M70,56 Q65,42 78,46" stroke="#022c22" strokeWidth="2.2" strokeLinecap="round" />
-      <path d="M348,104 Q343,76 330,56 M330,56 Q349,52 353,63 M330,56 Q313,50 316,62 M330,56 Q335,42 322,46" stroke="#022c22" strokeWidth="2.2" strokeLinecap="round" />
+      {/* palm silhouettes — softer on light bg */}
+      <path d="M52,102 Q57,74 70,54 M70,54 Q51,50 47,61 M70,54 Q87,48 84,60 M70,54 Q65,40 78,44" stroke="#065f46" strokeWidth="2" strokeLinecap="round" />
+      <path d="M348,102 Q343,74 330,54 M330,54 Q349,50 353,61 M330,54 Q313,48 316,60 M330,54 Q335,40 322,44" stroke="#065f46" strokeWidth="2" strokeLinecap="round" />
 
-      {/* curved lounge sofa */}
-      <path d="M55,152 C95,126 305,126 345,152 L354,196 C290,168 110,168 46,196 Z" fill="#059669" stroke="#10b981" strokeWidth="1.5" />
-      <path d="M74,162 C110,144 290,144 326,162 L316,184 C278,170 122,170 84,184 Z" fill="#047857" />
+      {/* curved lounge sofa — emerald */}
+      <path d="M55,150 C95,124 305,124 345,150 L354,192 C290,166 110,166 46,192 Z" fill="#059669" stroke="#34d399" strokeWidth="1.5" />
+      <path d="M74,160 C110,142 290,142 326,160 L316,182 C278,168 122,168 84,182 Z" fill="#047857" />
 
       {/* cocktail table */}
-      <ellipse cx="200" cy="182" rx="32" ry="12" fill="#fff" stroke="#a7f3d0" strokeWidth="1.2" />
-      <ellipse cx="200" cy="182" rx="18" ry="7" fill="#f0fdf4" />
+      <ellipse cx="200" cy="180" rx="30" ry="11" fill="#ecfdf5" stroke="#6ee7b7" strokeWidth="1" />
+      <ellipse cx="200" cy="180" rx="16" ry="6" fill="#d1fae5" />
 
       {/* champagne flutes */}
-      <polygon points="188,175 191,175 190,182 189,182" fill="#fef08a" stroke="#d97706" strokeWidth=".5" />
-      <polygon points="211,175 214,175 213,182 212,182" fill="#fef08a" stroke="#d97706" strokeWidth=".5" />
+      <polygon points="188,173 191,173 190,180 189,180" fill="#fef08a" stroke="#d97706" strokeWidth=".5" />
+      <polygon points="211,173 214,173 213,180 212,180" fill="#fef08a" stroke="#d97706" strokeWidth=".5" />
     </svg>
   );
 }
