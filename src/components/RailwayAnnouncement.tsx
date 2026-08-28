@@ -185,8 +185,8 @@ export function RailwayAnnouncement({ onTogglePlay }: RailwayAnnouncementProps) 
 
   // Complete Announcement Sequence:
   // 1. Radio Mic Squelch + Chime
-  // 2. Hindi Female voice (/audio/announcement-female.wav)
-  // 3. English Male voice (/audio/announcement-male.wav)
+  // 2. First Audio: /audio/announcement-male.wav
+  // 3. Second Audio: /audio/announcement-female.wav
   const startAnnouncement = useCallback(async () => {
     setIsPlaying(true);
     setIsMuted(false);
@@ -199,16 +199,16 @@ export function RailwayAnnouncement({ onTogglePlay }: RailwayAnnouncementProps) 
       await playRadioStationTune();
       if (!isPlayingRef.current) return;
 
-      // Step 2: First in Hindi (Female Version)
-      await playTrack("/audio/announcement-female.wav");
+      // Step 2: The audio that was second now plays first (Male version)
+      await playTrack("/audio/announcement-male.wav");
       if (!isPlayingRef.current) return;
 
-      // Brief breath pause between language broadcasts
+      // Brief breath pause between broadcasts
       await new Promise((r) => setTimeout(r, 600));
       if (!isPlayingRef.current) return;
 
-      // Step 3: Next in English (Male Version)
-      await playTrack("/audio/announcement-male.wav");
+      // Step 3: The audio that was first now plays second (Female version)
+      await playTrack("/audio/announcement-female.wav");
     } catch (err) {
       console.warn("Announcement playback issue:", err);
     } finally {
@@ -241,20 +241,45 @@ export function RailwayAnnouncement({ onTogglePlay }: RailwayAnnouncementProps) 
     }
   };
 
-  // Browser Autoplay handling: Play once per session on arrival
+  // Automatically start announcement whenever the website is opened
   useEffect(() => {
-    const hasPlayed = sessionStorage.getItem("railpitch_announcement_played");
-    if (!hasPlayed) {
-      const timer = setTimeout(() => {
-        sessionStorage.setItem("railpitch_announcement_played", "true");
-        startAnnouncement().catch(() => {
-          setAutoplayBlocked(true);
-          setIsPlaying(false);
-          isPlayingRef.current = false;
-        });
-      }, 1200);
-      return () => clearTimeout(timer);
-    }
+    let started = false;
+
+    const triggerPlay = () => {
+      if (started || isPlayingRef.current) return;
+      started = true;
+      startAnnouncement().catch(() => {
+        setAutoplayBlocked(true);
+        setIsPlaying(false);
+        isPlayingRef.current = false;
+      });
+    };
+
+    // Immediate attempt on mount
+    const timer = setTimeout(triggerPlay, 400);
+
+    // Fallback: if browser autoplay sandbox restricts audio until first user gesture,
+    // any touch, scroll, key, or tap anywhere on the page unlocks and plays it immediately
+    const handleGesture = () => {
+      triggerPlay();
+      window.removeEventListener("pointerdown", handleGesture);
+      window.removeEventListener("touchstart", handleGesture);
+      window.removeEventListener("scroll", handleGesture);
+      window.removeEventListener("keydown", handleGesture);
+    };
+
+    window.addEventListener("pointerdown", handleGesture, { once: true, passive: true });
+    window.addEventListener("touchstart", handleGesture, { once: true, passive: true });
+    window.addEventListener("scroll", handleGesture, { once: true, passive: true });
+    window.addEventListener("keydown", handleGesture, { once: true, passive: true });
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("pointerdown", handleGesture);
+      window.removeEventListener("touchstart", handleGesture);
+      window.removeEventListener("scroll", handleGesture);
+      window.removeEventListener("keydown", handleGesture);
+    };
   }, [startAnnouncement]);
 
   return (
@@ -349,7 +374,7 @@ export function RailwayAnnouncement({ onTogglePlay }: RailwayAnnouncementProps) 
               border: "1px solid #23473b",
             }}
           >
-            {isPlaying ? "Mute Station Announcement" : "Station Announcement (Hindi ➔ English)"}
+            {isPlaying ? "Mute Station Announcement" : "Station Announcement"}
           </span>
         </div>
       </div>
