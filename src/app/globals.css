@@ -19,26 +19,54 @@
 .stamp{height:122px;width:122px;border:1px solid #8eb3a1;border-radius:50%;display:flex;align-items:center;justify-content:center;gap:6px;transform:rotate(-9deg);color:var(--teal)}.stamp b{font:42px Georgia}.stamp span,.stamp strong{font-size:9px;line-height:1.3}.stamp i{height:43px;border-left:1px solid #9dbba9}.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:15px}.panel,.todo,.full-schedule,.messages,.match,.studio,.queue{background:white;border:1px solid var(--line);border-radius:7px}.panel{padding:23px;position:relative}.panel h3,.todo h3{font-size:19px;margin:8px 0}.panel p{font-size:12px;color:#65766c;line-height:1.5;min-height:38px}.score{position:absolute;right:20px;top:20px;background:#e0f2e8;color:var(--teal);height:48px;width:48px;border-radius:50%;display:grid;place-items:center;font-size:12px}.tag{font-size:9px;border:1px solid #dce3db;border-radius:12px;padding:5px 7px;color:#67776e;background:#fafbf9}.tag.mint{background:#def1e6;color:var(--teal);border-color:#c5dfd0}.panel .link{display:block;font-size:11px;margin-top:20px}.todo{margin-top:15px;padding:23px}.todo>div{display:flex;align-items:center;gap:12px;padding:15px 0;border-bottom:1px solid #edf0ec}.todo>div:last-child{border:0}.todo i{height:25px;width:25px;border:1px solid #cbd7ce;border-radius:50%;display:grid;place-items:center;font-size:10px;font-style:normal}.todo p{flex:1;margin:0}.todo p b,.todo p small{display:block;font-size:12px}.todo p small{font-size:10px;color:#79887f;margin-top:3px}.todo button{border:0;background:#eaf4ed;color:var(--teal);padding:6px 10px;font-size:10px;border-radius:3px}.page{max-width:960px}.page>p{font-size:13px;color:#6a7971;margin-bottom:27px}.match{padding:19px;display:grid;grid-template-columns:35px 1fr auto;gap:13px;margin-bottom:11px}.match h3{font-size:17px;margin:6px 0}.match p{font-size:12px;color:#6d7c74;margin:0 0 10px}.match aside{text-align:right;display:flex;flex-direction:column;justify-content:space-between;align-items:end}.match aside small{font-size:10px;color:#74827a}.match .primary{font-size:10px;padding:8px 10px}.full-schedule{padding:20px 24px}.full-schedule>div{display:grid;grid-template-columns:70px 20px 1fr auto;min-height:66px}.full-schedule time{font-size:12px;font-weight:800}.full-schedule i{height:10px;width:10px;background:#ccd8cf;border-radius:50%;position:relative}.full-schedule i:after{content:"";position:absolute;top:10px;left:4px;height:56px;border-left:1px solid #dce4dd}.full-schedule .confirmed i{background:var(--coral);box-shadow:0 0 0 5px #fff0e9}.full-schedule p{margin:0}.full-schedule p b,.full-schedule p small{display:block;font-size:12px}.full-schedule p small{font-size:10px;color:#7b8981;margin-top:4px}.messages{height:390px;display:grid;grid-template-columns:230px 1fr;overflow:hidden}.messages>aside{padding:10px;border-right:1px solid #e3e8e1}.messages>aside button{display:flex;gap:9px;width:100%;padding:12px 8px;text-align:left;border:0;background:none;border-radius:4px;font-size:11px}.messages>aside button.active{background:#e9f4ed}.messages>aside span small{color:#78877f}.messages>main{padding:18px;display:flex;flex-direction:column}.messages>main>b,.messages>main>small{font-size:11px}.messages>main>small{color:#718078;margin-top:3px}.messages>main>p{background:#eaf3ed;padding:11px;border-radius:8px;border-top-left-radius:2px;font-size:12px;line-height:1.5;max-width:70%;margin-top:24px}.messages>main>.out{margin-left:auto;background:var(--teal);color:white;border-top-right-radius:2px}.messages form{display:flex;gap:7px;margin-top:auto}.messages input{flex:1;border:1px solid var(--line);padding:10px;border-radius:4px;font-size:11px}
 .curator{display:grid;grid-template-columns:215px 1fr;min-height:100vh;background:#f3f5f0}.curator>aside{background:#112e27;padding:29px 17px;display:flex;flex-direction:column}.curator>aside .brand{color:white}.curator>aside .kicker{color:#9ac2b1;margin:49px 8px 14px}.curator>aside button{border:0;background:none;color:#a5c0b3;text-align:left;padding:11px 9px;border-radius:4px;font-size:12px}.curator>aside button.active{background:#245246;color:white}.curator>aside button:last-child{margin-top:auto}.curator>main{padding:38px 4.5vw;max-width:1450px}.curator header{position:static;background:none;padding:0;border:0;height:auto}.curator header h1{font-size:34px;letter-spacing:-2px;margin:8px 0}.curator header>small{background:white;border:1px solid var(--line);padding:7px 10px;border-radius:15px;font-size:10px;color:#61746a}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:28px 0}.metrics>div{background:white;border:1px solid var(--line);border-radius:7px;padding:17px}.metrics b{font-size:27px;display:block;margin:6px 0}.metrics span{font-size:10px;color:#738279}.studio,.queue{padding:24px;margin-top:15px}.studio>p{font-size:12px;color:#718077}.comparison{display:grid;grid-template-columns:1fr 1.05fr 1fr;border:1px solid #dfe6dd;border-radius:6px;overflow:hidden;margin-top:22px}.comparison article{padding:21px}.comparison article:last-child{background:#f6f8f4}.comparison h3{font-size:19px;margin:8px 0}.comparison p{font-size:11px;line-height:1.5;color:#66776e}.comparison dl{display:grid;grid-template-columns:1fr 1fr;font-size:10px;border-top:1px solid #e1e7e0;padding-top:13px}.comparison dt{color:#718077}.comparison dd{font-weight:800;margin:0}.comparison>div{background:#e3f0e8;padding:21px;text-align:center}.comparison>div>b{background:var(--teal);color:white;height:62px;width:62px;border-radius:50%;display:grid;place-items:center;margin:auto;font-size:17px}.comparison label{display:grid;grid-template-columns:68px 1fr;gap:5px;font-size:9px;text-align:left;margin:8px 0;color:#5f7168}.comparison label i{height:5px;background:#c8ded1;border-radius:5px;overflow:hidden}.comparison label em{display:block;height:100%;background:var(--teal)}.comparison .primary{margin-top:10px}.queue>div{display:grid;grid-template-columns:1.2fr 1.4fr .8fr .8fr;border-top:1px solid #e7ebe5;padding:14px 0;font-size:11px}.queue>div span{color:#64756b}
 /* ── Clean Executive Journey Schedule Timeline ──────────────────────────────── */
+.schedule-train-summary-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, #102720 0%, #17382e 100%);
+  color: #ffffff;
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: 1px solid #234c3e;
+  box-shadow: 0 4px 14px rgba(16, 39, 32, 0.12);
+  margin-bottom: 20px;
+}
+
+.schedule-train-summary-pill b {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #f8fafc;
+}
+
+.schedule-train-summary-pill small {
+  display: block;
+  font-size: 9.5px;
+  color: #a4c9b9;
+}
+
 .schedule-clean-timeline {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  margin-top: 24px;
+  margin-top: 14px;
   position: relative;
-  max-width: 860px;
+  max-width: 880px;
 }
 
 .schedule-clean-item {
   display: grid;
-  grid-template-columns: 140px 1fr;
-  gap: 18px;
+  grid-template-columns: 80px 130px 1fr;
+  gap: 20px;
   background: #ffffff;
   border: 1px solid #dce4de;
   border-radius: 12px;
-  padding: 18px 22px;
+  padding: 16px 20px;
   box-shadow: 0 4px 16px rgba(16, 39, 32, 0.04);
   transition: all 0.2s ease;
   align-items: center;
+  position: relative;
 }
 
 .schedule-clean-item:hover {
@@ -53,21 +81,60 @@
   border-color: #f3c7be;
 }
 
+.schedule-coach-visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 2px 0;
+}
+
+.vb-top-coach-wrapper {
+  width: 44px;
+  height: 78px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vb-top-coach-svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.12));
+}
+
+.vb-coach-confirmed .vb-top-coach-svg {
+  filter: drop-shadow(0 0 8px rgba(234, 88, 12, 0.55));
+}
+
+.schedule-coach-label {
+  font-size: 8px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #657a70;
+  letter-spacing: 0.4px;
+  text-align: center;
+  white-space: nowrap;
+}
+
 .schedule-time-badge {
   display: flex;
   flex-direction: column;
   gap: 3px;
+  border-left: 1px dashed #d5ded7;
+  padding-left: 14px;
 }
 
 .schedule-time-badge b {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 900;
   color: var(--ink);
   letter-spacing: -0.2px;
 }
 
 .schedule-time-badge small {
-  font-size: 11px;
+  font-size: 10.5px;
   color: #647a70;
   font-weight: 600;
   line-height: 1.35;
@@ -152,11 +219,26 @@
   margin-top: 4px;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 768px) {
   .schedule-clean-item {
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 12px;
     padding: 16px;
+  }
+  .schedule-coach-visual {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 10px;
+  }
+  .vb-top-coach-wrapper {
+    height: 48px;
+    width: 32px;
+  }
+  .schedule-time-badge {
+    border-left: none;
+    padding-left: 0;
+    border-top: 1px dashed #d5ded7;
+    padding-top: 8px;
   }
   .schedule-card-header {
     flex-direction: column;

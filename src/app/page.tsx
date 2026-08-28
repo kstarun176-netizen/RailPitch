@@ -7,6 +7,7 @@ import { DpiitEligibilityChecker } from "@/components/DpiitEligibilityChecker";
 import { RailwayAnnouncement } from "@/components/RailwayAnnouncement";
 import { KonkanRouteVisualizer } from "@/components/KonkanRouteVisualizer";
 import { VandeBharatTrain } from "@/components/VandeBharatTrain";
+import { VandeBharatCoachTopView } from "@/components/VandeBharatCoachTopView";
 
 const sectors = [
   "AI, Data & Enterprise Software",
@@ -1806,6 +1807,9 @@ function Schedule({
       location: "CSMT Concourse · Platform 8",
       description: "Welcome gathering, espresso bar & cohort badge collection before flag-off.",
       category: "Departure",
+      coachNum: "C1",
+      coachName: "Lead Cab / Salon",
+      type: "lead" as const,
       confirmed: false,
     },
     {
@@ -1814,6 +1818,9 @@ function Schedule({
       location: "Executive Lounge Coach A",
       description: "Expedition intention setting and rapid introductions across all 16 founders and 12 funds.",
       category: "Keynote",
+      coachNum: "C2",
+      coachName: "Executive Lounge",
+      type: "coach" as const,
       confirmed: false,
     },
     {
@@ -1824,6 +1831,9 @@ function Schedule({
         ? `Confirmed 25-minute private pitch session with ${approvedMatch.investor_name || approvedMatch.founder_name || "matched partner"} (${approvedMatch.investor_company || approvedMatch.founder_company || "portfolio"}).`
         : "Pre-matched 25-minute speed pitch with sector-aligned investment thesis partner.",
       category: "1:1 Meeting",
+      coachNum: "C3",
+      coachName: "Innovation Pod 01",
+      type: "coach" as const,
       confirmed: !!approvedMatch,
       isMatchPod: true,
     },
@@ -1835,6 +1845,9 @@ function Schedule({
         ? "Follow-up deep-dive session on unit economics and product roadmap."
         : "Second curated 1:1 interaction slot with participating investment team.",
       category: "1:1 Meeting",
+      coachNum: "C4",
+      coachName: "Innovation Pod 02",
+      type: "coach" as const,
       confirmed: !!approvedMatch,
       isMatchPod: true,
     },
@@ -1844,6 +1857,9 @@ function Schedule({
       location: "Dining Salon · Carriage D",
       description: "Authentic coastal dining service crossing Panval Viaduct followed by mentor breakout circles.",
       category: "Dining & Mentorship",
+      coachNum: "C5",
+      coachName: "Dining Salon",
+      type: "coach" as const,
       confirmed: false,
     },
     {
@@ -1852,6 +1868,9 @@ function Schedule({
       location: "Observation Lounge · Carriage C",
       description: "Lightning deck reviews and open collaboration discussions as the train approaches Goa.",
       category: "Open Deck",
+      coachNum: "C6",
+      coachName: "Observation Deck",
+      type: "coach" as const,
       confirmed: false,
     },
     {
@@ -1860,6 +1879,9 @@ function Schedule({
       location: "Madgaon / Waterfront Reception",
       description: "Expedition arrival, villa showcase transition, term sheet discussions and cohort dinner.",
       category: "Arrival & Mixer",
+      coachNum: "C7",
+      coachName: "Goa Terminus",
+      type: "tail" as const,
       confirmed: false,
     },
   ];
@@ -1869,8 +1891,17 @@ function Schedule({
       <span className="kicker">18 OCTOBER 2026 · EXPEDITION ITINERARY</span>
       <h2>Journey Schedule</h2>
       <p>
-        The complete sequence from Mumbai CSMT flag-off down to Goa. Your private 1:1 meeting pods and boarding passes unlock automatically when matched by the curator.
+        Vande Bharat top-view coach sequence mapped from Mumbai CSMT down to Goa. Your private 1:1 meeting pods and boarding passes unlock automatically when matched by the curator.
       </p>
+
+      {/* Sleek Trainset Summary Pill */}
+      <div className="schedule-train-summary-pill">
+        <span className="text-base">🚆</span>
+        <div>
+          <b>Vande Bharat Express · 7 Connected Coaches</b>
+          <small>Mumbai CSMT ➔ Panvel ➔ Ratnagiri ➔ Madgaon Goa</small>
+        </div>
+      </div>
 
       {approvedMatch ? (
         <button className="ticket-cta" onClick={onTicket}>
@@ -1890,11 +1921,23 @@ function Schedule({
             key={item.time}
             className={`schedule-clean-item ${item.confirmed ? "confirmed-item" : ""}`}
           >
+            {/* Top-View Vande Bharat Coach Vector */}
+            <div className="schedule-coach-visual">
+              <VandeBharatCoachTopView
+                type={item.type}
+                coachNum={item.coachNum}
+                confirmed={item.confirmed}
+              />
+              <span className="schedule-coach-label">{item.coachName}</span>
+            </div>
+
+            {/* Time & Location */}
             <div className="schedule-time-badge">
               <b>{item.time}</b>
               <small>{item.location}</small>
             </div>
 
+            {/* Card Content & Status Badge */}
             <div className="schedule-card-body">
               <div className="schedule-card-header">
                 <div>
