@@ -15,12 +15,19 @@ const EXPERIENCES: {
   { id: "lounge", title: "Panoramic Scenic Lounge", themeColor: "#059669", glowColor: "rgba(5,150,105,0.14)" },
 ];
 
+const STATIONS = [
+  { name: "Mumbai CSMT", time: "08:10 AM", detail: "Flag-off & Onboarding", active: true },
+  { name: "Panvel", time: "09:05 AM", detail: "1:1 Pitch Pods", active: false },
+  { name: "Ratnagiri", time: "01:30 PM", detail: "Coastal Dining", active: false },
+  { name: "Goa (Madgaon)", time: "06:45 PM", detail: "Sunset Mixer & Deals", active: true },
+];
+
 export function InteractiveLuxuryExpedition() {
   const [active, setActive] = useState<ExperienceId>("pitch");
 
   return (
     <section className="luxury-expedition-section" id="journey">
-      {/* ── Header ─────────────────────────────────────────────────────── */}
+      {/* ── Section Header ─────────────────────────────────────────────── */}
       <div className="luxury-expedition-header">
         <h2 className="luxury-main-title">
           Beyond the <em>Boardroom.</em>
@@ -30,7 +37,7 @@ export function InteractiveLuxuryExpedition() {
         </p>
       </div>
 
-      {/* ── 3 Visual Cards ─────────────────────────────────────────────── */}
+      {/* ── 3 Visual Experience Cards ──────────────────────────────────── */}
       <div className="luxury-cards-showcase-grid">
         {EXPERIENCES.map((exp) => {
           const isActive = active === exp.id;
@@ -56,6 +63,88 @@ export function InteractiveLuxuryExpedition() {
             </div>
           );
         })}
+      </div>
+
+      {/* ── Clean Realistic Railway Track Timeline ─────────────────────── */}
+      <div className="luxury-timeline-track-card">
+        {/* Station Names & Times sitting right above the track */}
+        <div className="track-stations-grid">
+          {STATIONS.map((st, idx) => (
+            <div key={idx} className={`track-station-item ${st.active ? "station-active" : ""}`}>
+              <div className="station-meta-box">
+                <span className="station-time-pill">{st.time}</span>
+                <strong className="station-city-name">{st.name}</strong>
+                <small className="station-subtext">{st.detail}</small>
+              </div>
+              <div className="station-track-pin">
+                <span className="pin-dot" />
+                <span className="pin-stem" />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Continuous Realistic Railway Track Vector */}
+        <div className="realistic-track-container">
+          <svg
+            viewBox="0 0 1000 36"
+            className="realistic-track-svg"
+            preserveAspectRatio="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <defs>
+              {/* Metallic Steel Rail Gradients */}
+              <linearGradient id="realRailGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#e2e8f0" />
+                <stop offset="30%" stopColor="#f8fafc" />
+                <stop offset="70%" stopColor="#94a3b8" />
+                <stop offset="100%" stopColor="#475569" />
+              </linearGradient>
+
+              {/* Wooden Sleeper Tie Texture */}
+              <linearGradient id="realWoodSleeper" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#b48348" />
+                <stop offset="35%" stopColor="#8d5b28" />
+                <stop offset="85%" stopColor="#623a13" />
+                <stop offset="100%" stopColor="#452709" />
+              </linearGradient>
+            </defs>
+
+            {/* Ballast / Gravel Bed Base */}
+            <rect x="0" y="2" width="1000" height="32" rx="4" fill="#edf2ee" />
+            <line x1="0" y1="18" x2="1000" y2="18" stroke="#d5ded8" strokeWidth="1" strokeDasharray="3 6" />
+
+            {/* Wooden Sleepers (Ties) spaced evenly across track */}
+            {Array.from({ length: 44 }).map((_, i) => {
+              const x = 8 + i * 22.5;
+              return (
+                <g key={i}>
+                  <rect
+                    x={x}
+                    y="3"
+                    width="11"
+                    height="30"
+                    rx="1.5"
+                    fill="url(#realWoodSleeper)"
+                    stroke="#3b2108"
+                    strokeWidth="0.5"
+                  />
+                  {/* Metal tie fastener plates */}
+                  <rect x={x + 1.5} y="8" width="8" height="3" fill="#64748b" rx="0.5" />
+                  <rect x={x + 1.5} y="25" width="8" height="3" fill="#64748b" rx="0.5" />
+                </g>
+              );
+            })}
+
+            {/* Upper Steel Rail */}
+            <rect x="0" y="7" width="1000" height="5.5" rx="1.5" fill="url(#realRailGrad)" />
+            <line x1="0" y1="7.8" x2="1000" y2="7.8" stroke="#ffffff" strokeWidth="1.2" strokeOpacity="0.8" />
+
+            {/* Lower Steel Rail */}
+            <rect x="0" y="23.5" width="1000" height="5.5" rx="1.5" fill="url(#realRailGrad)" />
+            <line x1="0" y1="24.3" x2="1000" y2="24.3" stroke="#ffffff" strokeWidth="1.2" strokeOpacity="0.8" />
+          </svg>
+        </div>
       </div>
     </section>
   );
