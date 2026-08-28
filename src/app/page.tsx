@@ -6,6 +6,7 @@ import { CloudShader } from "@/components/ui/cloud-shader";
 import { DpiitEligibilityChecker } from "@/components/DpiitEligibilityChecker";
 import { RailwayAnnouncement } from "@/components/RailwayAnnouncement";
 import { KonkanRouteVisualizer } from "@/components/KonkanRouteVisualizer";
+import { VandeBharatTrain } from "@/components/VandeBharatTrain";
 
 const sectors = [
   "AI, Data & Enterprise Software",
@@ -602,21 +603,7 @@ export default function RailPitch() {
             <div className="rail-track" />
 
             <div className="bullet-train-wrap">
-              <div className="bullet-train">
-                <div className="train-nose" />
-                <div className="train-headlamp" />
-                <div className="train-blue-stripe" />
-                <div className="train-window-row">
-                  <span className="train-win" />
-                  <span className="train-win" />
-                  <span className="train-win" />
-                  <span className="train-win" />
-                  <span className="train-win" />
-                  <span className="train-win" />
-                  <span className="train-win" />
-                  <span className="train-win" />
-                </div>
-              </div>
+              <VandeBharatTrain />
             </div>
 
             <div className="match-float">
