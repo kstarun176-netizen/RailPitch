@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { CloudShader } from "@/components/ui/cloud-shader";
 import { DpiitEligibilityChecker } from "@/components/DpiitEligibilityChecker";
 import { RailwayAnnouncement } from "@/components/RailwayAnnouncement";
+import { InteractiveLuxuryExpedition } from "@/components/InteractiveLuxuryExpedition";
 import { KonkanRouteVisualizer } from "@/components/KonkanRouteVisualizer";
 import { VandeBharatTrain } from "@/components/VandeBharatTrain";
 import { VandeBharatCoachTopView } from "@/components/VandeBharatCoachTopView";
@@ -597,41 +598,40 @@ export default function RailPitch() {
 
       <RailwayAnnouncement />
 
-      <section className="statement" id="journey">
-        <span className="kicker">NOT ANOTHER PITCH DAY</span>
-        <p>
-          A <em>moving, curated retreat</em> where preparation happens before boarding—and the real conversations happen when the coast opens up.
-        </p>
-        <div className="three">
-          <Card
-            n="01"
-            title="Matched before departure"
-            text="Every seat is selected around sector, stage and cheque-range fit."
-          />
-          <Card
-            n="02"
-            title="Time that goes somewhere"
-            text="Private meetings, quick pitches and useful peer rooms replace crowded stage events."
-          />
-          <Card
-            n="03"
-            title="Momentum after arrival"
-            text="Follow-up rooms, destination showcases and warm introductions keep the journey moving."
-          />
-        </div>
-      </section>
+      <InteractiveLuxuryExpedition />
 
-      <section className="journey" id="how">
-        <div className="heading">
-          <div>
-            <span className="kicker">THE EXPEDITION</span>
-            <h2>
-              One journey. <em>Many</em> right conversations.
-            </h2>
-          </div>
-          <p>A thoughtfully paced 10-hour programme—built for focus, not performance.</p>
+      <section className="judge-brief" aria-labelledby="judge-brief-title">
+        <div className="judge-brief-rail" aria-hidden="true">
+          <span />
+          <span />
+          <span />
         </div>
-        <KonkanRouteVisualizer />
+        <div className="judge-brief-heading">
+          <span className="kicker">THE JUDGE&apos;S BRIEF</span>
+          <h2 id="judge-brief-title">
+            Built for the conversations that <em>move</em> capital.
+          </h2>
+          <p className="judge-brief-intro">
+            A concise explanation of the RailPitch experience and its advantage over conventional pitch events.
+          </p>
+        </div>
+        <article className="judge-brief-card">
+          <div className="judge-brief-cardhead">
+            <span>SUBMISSION SUMMARY</span>
+            <strong>258 WORDS</strong>
+          </div>
+          <div className="judge-brief-copy">
+            <p>
+              RailPitch is a curated, rail-based startup–investor matching experience that turns a Mumbai–Goa journey into a focused environment for founders, investors, and mentors to build high-conviction relationships. It combines application data—sector, stage, cheque range, investment thesis, and founder needs—with curator review to form purposeful one-to-one meetings before anyone boards. During the journey, participants move through private pitch sessions, small mentor circles, and structured follow-ups; after arrival, the platform preserves momentum through match records, meeting logs, and direct conversation spaces.
+            </p>
+            <p>
+              This is a better model than the legacy pitch-event system, where founders compete for attention in crowded rooms, investors scan generic decks, and meaningful follow-up depends on luck. RailPitch replaces volume with relevance. A founder is not simply given a badge and a stage slot; they are considered in context. An investor is not asked to search through noise; they enter a prepared cohort aligned to their thesis and cheque range. Curators retain the human judgement that algorithms alone miss, while the digital workspace keeps applications, decks, approvals, and meeting history clear and accountable.
+            </p>
+            <p>
+              The result is a calmer, more human capital-formation experience. Travel creates shared time away from daily interruptions, while the platform gives that time structure: who should meet, why they fit, what happens next, and how progress is tracked. RailPitch therefore improves discovery, reduces wasted conversations, and makes every interaction more intentional. It is not another pitch day; it is an operating system for turning promising introductions into durable investment relationships. It gives judges a transparent, live view of the selection logic and the experiences it enables.
+            </p>
+          </div>
+        </article>
       </section>
 
       <section className="sectors" id="sectors">
