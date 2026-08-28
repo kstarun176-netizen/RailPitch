@@ -4,6 +4,7 @@ import { FormEvent, useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { CloudShader } from "@/components/ui/cloud-shader";
 import { DpiitEligibilityChecker } from "@/components/DpiitEligibilityChecker";
+import { RailwayAnnouncement } from "@/components/RailwayAnnouncement";
 
 const sectors = [
   "AI, Data & Enterprise Software",
@@ -444,6 +445,8 @@ export default function RailPitch() {
           </div>
         </section>
       </CloudShader>
+
+      <RailwayAnnouncement />
 
       <section className="statement" id="journey">
         <span className="kicker">NOT ANOTHER PITCH DAY</span>
