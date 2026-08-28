@@ -1204,10 +1204,35 @@ function Dashboard({
         });
 
         if (match) {
+          let resolvedFEmail = (match.founder_email || "").toLowerCase().trim();
+          let resolvedIEmail = (match.investor_email || "").toLowerCase().trim();
+          let resolvedSector = match.sector || profile?.primarySector || "Curated Expedition";
+          let resolvedApprovedAt = match.approved_at || match.created_at || new Date().toISOString();
+
+          if (typeof match.status === "string" && match.status.startsWith("{")) {
+            try {
+              const meta = JSON.parse(match.status);
+              if (meta.founder_email) resolvedFEmail = meta.founder_email.toLowerCase().trim();
+              if (meta.investor_email) resolvedIEmail = meta.investor_email.toLowerCase().trim();
+              if (meta.sector) resolvedSector = meta.sector;
+              if (meta.approved_at) resolvedApprovedAt = meta.approved_at;
+            } catch {}
+          }
+
+          if (founder && !resolvedFEmail && profile?.email) {
+            resolvedFEmail = profile.email.toLowerCase().trim();
+          }
+          if (!founder && !resolvedIEmail && profile?.email) {
+            resolvedIEmail = profile.email.toLowerCase().trim();
+          }
+
           const formattedMatch = {
             ...match,
+            founder_email: resolvedFEmail,
+            investor_email: resolvedIEmail,
             investor_company: match.investor_company || match.investor_firm || "Partner Firm",
-            sector: match.sector || profile?.primarySector || "Curated Expedition",
+            sector: resolvedSector,
+            approved_at: resolvedApprovedAt,
           };
           setApprovedMatch(formattedMatch);
           setUnreadCount(1);
@@ -1817,12 +1842,21 @@ function Messages({
   const [msg, setMsg] = useState("");
   const [sending, setSending] = useState(false);
 
-  const founderEmail = approvedMatch?.founder_email || "";
-  const investorEmail = approvedMatch?.investor_email || "";
-  const myEmail = (profile?.email || "").toLowerCase();
+  const myEmail = (profile?.email || "").toLowerCase().trim();
+  const founderEmail =
+    (approvedMatch?.founder_email || "").toLowerCase().trim() ||
+    (founder ? myEmail : "") ||
+    (approvedMatch?.founder_name || "").toLowerCase().trim() ||
+    "founder";
+
+  const investorEmail =
+    (approvedMatch?.investor_email || "").toLowerCase().trim() ||
+    (!founder ? myEmail : "") ||
+    (approvedMatch?.investor_name || "").toLowerCase().trim() ||
+    "investor";
 
   const loadMessages = useCallback(async () => {
-    if (!approvedMatch || !founderEmail || !investorEmail) return;
+    if (!approvedMatch) return;
     try {
       const res = await fetch(
         `/api/messages?founder_email=${encodeURIComponent(
@@ -1838,13 +1872,15 @@ function Messages({
               sender_email: m.sender_email,
               text: m.text,
               created_at: m.created_at,
-              out: m.sender_email?.toLowerCase() === myEmail,
+              out:
+                (m.sender_email && m.sender_email.toLowerCase() === myEmail) ||
+                (m.sender_name && profile?.name && m.sender_name.toLowerCase() === profile.name.toLowerCase()),
             }))
           );
         }
       }
     } catch {}
-  }, [approvedMatch, founderEmail, investorEmail, myEmail]);
+  }, [approvedMatch, founderEmail, investorEmail, myEmail, profile?.name]);
 
   useEffect(() => {
     loadMessages();
@@ -1868,6 +1904,18 @@ function Messages({
       sender_email: myEmail,
       text: messageText,
     };
+
+    // Optimistically show message immediately in chat
+    setMessages((prev) => [
+      ...prev,
+      {
+        sender_name: newMsg.sender_name,
+        sender_email: newMsg.sender_email,
+        text: newMsg.text,
+        created_at: new Date().toISOString(),
+        out: true,
+      },
+    ]);
 
     try {
       await fetch("/api/messages", {

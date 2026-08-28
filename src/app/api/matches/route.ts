@@ -75,6 +75,8 @@ export async function GET(req: NextRequest) {
       !row.investor_name ||
       row.founder_name.startsWith("__") ||
       row.investor_name.startsWith("__") ||
+      row.founder_company === "CHAT_MSG" ||
+      (typeof row.status === "string" && row.status.includes('"is_chat":true')) ||
       row.status === "deleted"
     ) {
       continue;
