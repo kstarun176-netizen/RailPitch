@@ -543,4 +543,29 @@ header nav button,.link{border:0;background:none;color:var(--teal);font-weight:7
   }
 }
 
+/* ── Prominent Footer Curator CTA ────────────────────────────────────────── */
+.curator-footer-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #0f6b61 0%, #102720 100%);
+  color: #ffffff !important;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 10px 18px;
+  border-radius: 6px;
+  border: 1px solid #093833;
+  box-shadow: 0 4px 14px rgba(15, 107, 97, 0.35);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.curator-footer-cta:hover {
+  background: linear-gradient(135deg, #138377 0%, #0f6b61 100%);
+  box-shadow: 0 6px 20px rgba(15, 107, 97, 0.5);
+  transform: translateY(-2px);
+  color: #ffffff !important;
+}
+
 

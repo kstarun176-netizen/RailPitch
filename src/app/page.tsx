@@ -708,7 +708,11 @@ export default function RailPitch() {
       <footer>
         <Brand />
         <p>Independent innovation-mobility concept. Not affiliated with or endorsed by Indian Railways or IRCTC.</p>
-        <a href="/curator" style={{ border: 0, background: "none", color: "#708078", fontSize: "11px", textAlign: "right", cursor: "pointer", textDecoration: "none" }}>Curator team access</a>
+        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <a href="/curator" className="curator-footer-cta">
+            ⚡ Curator Team Access ↗
+          </a>
+        </div>
       </footer>
     </main>
   );
