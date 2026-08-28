@@ -412,23 +412,34 @@ export async function DELETE(req: NextRequest) {
       }
     } catch {}
 
-    // Persist deleted marker in Supabase matches table (survives Vercel reboots)
     if (email) {
       const cleanEmail = email.toLowerCase().trim();
+      const cleanName = (body.full_name || "").toLowerCase().trim();
+
+      // Clean up all matches in Supabase involving this email or name
       try {
-        await fetch(`${SUPABASE_URL}/rest/v1/matches`, {
-          method: "POST",
-          headers: {
-            apikey: SUPABASE_ANON_KEY,
-            Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-            "Content-Type": "application/json",
-            Prefer: "return=representation",
-          },
-          body: JSON.stringify({
-            founder_name: "__DELETED_APP__",
-            founder_company: cleanEmail,
-            status: "deleted",
-          }),
+        await fetch(`${SUPABASE_URL}/rest/v1/matches?founder_company=eq.${encodeURIComponent(cleanEmail)}`, {
+          method: "DELETE",
+          headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
+        });
+        await fetch(`${SUPABASE_URL}/rest/v1/matches?investor_firm=eq.${encodeURIComponent(cleanEmail)}`, {
+          method: "DELETE",
+          headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
+        });
+        if (cleanName) {
+          await fetch(`${SUPABASE_URL}/rest/v1/matches?founder_name=eq.${encodeURIComponent(cleanName)}`, {
+            method: "DELETE",
+            headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
+          });
+          await fetch(`${SUPABASE_URL}/rest/v1/matches?investor_name=eq.${encodeURIComponent(cleanName)}`, {
+            method: "DELETE",
+            headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
+          });
+        }
+        // Purge any lingering __DELETED_APP__ marker rows so they never appear on any screen
+        await fetch(`${SUPABASE_URL}/rest/v1/matches?founder_name=eq.__DELETED_APP__`, {
+          method: "DELETE",
+          headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
         });
       } catch {}
 

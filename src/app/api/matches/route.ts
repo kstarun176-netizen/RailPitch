@@ -53,11 +53,33 @@ export async function GET(req: NextRequest) {
 
   const mergedMap = new Map();
   for (const m of localMatches) {
+    if (
+      !m ||
+      !m.founder_name ||
+      !m.investor_name ||
+      m.founder_name.startsWith("__") ||
+      m.investor_name.startsWith("__") ||
+      m.status === "deleted"
+    ) {
+      continue;
+    }
     const key = `${(m.founder_email || m.founder_name || "").toLowerCase()}_${(m.investor_email || m.investor_name || "").toLowerCase()}`;
     mergedMap.set(key, m);
   }
 
   for (const row of supabaseMatches) {
+    // Strictly filter out any deleted application markers or incomplete rows
+    if (
+      !row ||
+      !row.founder_name ||
+      !row.investor_name ||
+      row.founder_name.startsWith("__") ||
+      row.investor_name.startsWith("__") ||
+      row.status === "deleted"
+    ) {
+      continue;
+    }
+
     let fEmail = row.founder_email || "";
     let iEmail = row.investor_email || "";
     let sector = row.sector || "Clean Energy & Mobility";

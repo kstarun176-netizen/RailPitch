@@ -344,7 +344,26 @@ function CuratorDashboard({
       );
       setFounders(allApps.filter((a) => a.role === "founder"));
       setInvestors(allApps.filter((a) => a.role === "investor"));
-      setMatches(Array.isArray(mRes) ? mRes : []);
+
+      const validMatches: Match[] = (Array.isArray(mRes) ? mRes : []).filter((m) => {
+        if (!m || !m.founder_name || !m.investor_name) return false;
+        if (m.founder_name.startsWith("__") || m.investor_name.startsWith("__") || m.status === "deleted") return false;
+        const fEmail = (m.founder_email || "").toLowerCase().trim();
+        const iEmail = (m.investor_email || "").toLowerCase().trim();
+        const fName = (m.founder_name || "").toLowerCase().trim();
+        const iName = (m.investor_name || "").toLowerCase().trim();
+        const fComp = (m.founder_company || "").toLowerCase().trim();
+        const iComp = (m.investor_company || "").toLowerCase().trim();
+
+        if (fEmail && delSet.has(fEmail)) return false;
+        if (iEmail && delSet.has(iEmail)) return false;
+        if (fName && delSet.has(fName)) return false;
+        if (iName && delSet.has(iName)) return false;
+        if (fComp && delSet.has(fComp)) return false;
+        if (iComp && delSet.has(iComp)) return false;
+        return true;
+      });
+      setMatches(validMatches);
     } catch {}
     if (isInitial) setLoading(false);
   }, [getDeletedLocal]);
@@ -376,7 +395,7 @@ function CuratorDashboard({
     const targetName = (full_name || "").toLowerCase().trim();
     const targetComp = (company_name || "").toLowerCase().trim();
 
-    // Instant optimistic removal from UI state (0ms)
+    // Instant optimistic removal from UI state (0ms) across all tables
     setFounders((prev) =>
       prev.filter(
         (f) =>
@@ -396,8 +415,9 @@ function CuratorDashboard({
     setMatches((prev) =>
       prev.filter(
         (m) =>
-          m.founder_email.toLowerCase().trim() !== targetEmail &&
-          m.investor_email.toLowerCase().trim() !== targetEmail
+          (!targetEmail || (m.founder_email.toLowerCase().trim() !== targetEmail && m.investor_email.toLowerCase().trim() !== targetEmail)) &&
+          (!targetName || ((m.founder_name || "").toLowerCase().trim() !== targetName && (m.investor_name || "").toLowerCase().trim() !== targetName)) &&
+          (!targetComp || ((m.founder_company || "").toLowerCase().trim() !== targetComp && (m.investor_company || "").toLowerCase().trim() !== targetComp))
       )
     );
     if (

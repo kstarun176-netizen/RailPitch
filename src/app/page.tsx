@@ -1159,6 +1159,17 @@ function Dashboard({
         const myCompany = (profile?.company || "").toLowerCase().trim();
 
         const match = list.find((m: any) => {
+          if (
+            !m ||
+            !m.founder_name ||
+            !m.investor_name ||
+            m.founder_name.startsWith("__") ||
+            m.investor_name.startsWith("__") ||
+            m.status === "deleted"
+          ) {
+            return false;
+          }
+
           let fEmail = (m.founder_email || "").toLowerCase().trim();
           let fName = (m.founder_name || "").toLowerCase().trim();
           let fComp = (m.founder_company || "").toLowerCase().trim();
