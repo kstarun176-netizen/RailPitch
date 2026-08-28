@@ -1528,14 +1528,21 @@ function Panel({
 }) {
   return (
     <article className="panel">
-      <span className="kicker">{title}</span>
-      <h3>{name}</h3>
+      <div style={{ paddingRight: "60px" }}>
+        <span className="kicker">{title}</span>
+        <h3 style={{ margin: "8px 0 10px" }}>{name}</h3>
+      </div>
       <b className="score">{score}</b>
-      <p>{copy}</p>
-      <Tag mint>Selected Focus</Tag> <Tag>Active</Tag>
-      <button className="panel-cta" onClick={click}>
-        {action} <Arrow />
-      </button>
+      <p style={{ margin: "0 0 16px", flex: 1, lineHeight: "1.6", color: "#587068" }}>{copy}</p>
+      <div className="panel-footer">
+        <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+          <Tag mint>Selected Focus</Tag>
+          <Tag>Active</Tag>
+        </div>
+        <button className="panel-cta" onClick={click}>
+          {action} <Arrow />
+        </button>
+      </div>
     </article>
   );
 }
