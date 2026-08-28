@@ -55,58 +55,53 @@ export function DpiitEligibilityChecker({ onApply }: { onApply?: () => void }) {
   const CARDS = [
     {
       kicker: "MAX COMPANY AGE",
-      icon: "⏳",
       title: activeTab === "normal" ? "Up to 10 Years" : "Up to 20 Years",
-      desc: activeTab === "normal" ? "Standard incorporation age" : "Deeptech extended window",
-      badge: activeTab === "normal" ? "10 Yrs Limit" : "20 Yrs Extended",
-      color1: "#f5ce7b",
-      color2: "#0f6b61",
-      color3: "#102720",
-      accentGrad: "linear-gradient(135deg, #f5ce7b 0%, #ffffff 100%)",
+      desc: activeTab === "normal" ? "From date of incorporation" : "Extended gestation window",
+      badge: activeTab === "normal" ? "10 Yrs Standard" : "20 Yrs Deeptech",
+      accentColor: "#0f6b61",
+      color1: "#fef08a",
+      color2: "#bbf7d0",
+      color3: "#f4fbf7",
     },
     {
       kicker: "ELIGIBLE ENTITY",
-      icon: "🏛️",
       title: "Pvt Ltd & LLP",
-      desc: "Registered partnership or company",
-      badge: "Sole Props Ineligible",
-      color1: "#2fd9ab",
-      color2: "#0f6b61",
-      color3: "#07201a",
-      accentGrad: "linear-gradient(135deg, #2fd9ab 0%, #ffffff 100%)",
+      desc: "Registered partnership or entity",
+      badge: "Sole Props Excluded",
+      accentColor: "#0f6b61",
+      color1: "#a7f3d0",
+      color2: "#dbeafe",
+      color3: "#f8fafc",
     },
     {
       kicker: "TURNOVER CAP",
-      icon: "📈",
       title: activeTab === "normal" ? "Max ₹200 Cr" : "Max ₹300 Cr",
-      desc: "Statutory annual revenue cap",
+      desc: "Annual revenue statutory ceiling",
       badge: activeTab === "normal" ? "₹200 Cr Ceiling" : "₹300 Cr Deeptech",
-      color1: "#fbbf24",
-      color2: "#b45309",
-      color3: "#1f1103",
-      accentGrad: "linear-gradient(135deg, #fde68a 0%, #ffffff 100%)",
+      accentColor: "#b45309",
+      color1: "#fde68a",
+      color2: "#fed7aa",
+      color3: "#fffbeb",
     },
     {
       kicker: "INDEPENDENT ENTITY",
-      icon: "🛡️",
       title: "100% Original",
-      desc: "Not formed by split-up or merger",
+      desc: "Not formed by split or merger",
       badge: "Genuine Enterprise",
-      color1: "#38bdf8",
-      color2: "#0f4a42",
-      color3: "#071d19",
-      accentGrad: "linear-gradient(135deg, #7dd3fc 0%, #ffffff 100%)",
+      accentColor: "#0f6b61",
+      color1: "#bae6fd",
+      color2: "#ccfbf1",
+      color3: "#f0fdf4",
     },
     {
       kicker: "CORE THESIS",
-      icon: "🚀",
       title: "Innovation & Scale",
-      desc: "Scalable employment & wealth creation",
+      desc: "Scalable model & jobs creation",
       badge: "Curation Priority",
-      color1: "#ea580c",
-      color2: "#9a3412",
-      color3: "#102720",
-      accentGrad: "linear-gradient(135deg, #fb923c 0%, #fef08a 100%)",
+      accentColor: "#ea580c",
+      color1: "#fed7aa",
+      color2: "#fecdd3",
+      color3: "#fff7ed",
     },
   ];
 
@@ -114,19 +109,19 @@ export function DpiitEligibilityChecker({ onApply }: { onApply?: () => void }) {
     <section className="dpiit-section" id="dpiit">
       {/* ── Global Shared SVG Noise Filter ─────────────────────────────── */}
       <svg style={{ width: 0, height: 0, position: "absolute" }} aria-hidden="true">
-        <filter id="dpiit-noise">
+        <filter id="dpiit-noise-light">
           <feTurbulence
             type="turbulence"
-            baseFrequency="0.9"
+            baseFrequency="0.85"
             numOctaves={2}
-            seed={1}
+            seed={2}
             stitchTiles="stitch"
             result="turbulence"
           />
           <feDisplacementMap
             in="SourceGraphic"
             in2="turbulence"
-            scale={28}
+            scale={22}
             xChannelSelector="R"
             yChannelSelector="G"
           />
@@ -319,7 +314,7 @@ export function DpiitEligibilityChecker({ onApply }: { onApply?: () => void }) {
         </div>
       )}
 
-      {/* ── 5 Aesthetic Noise-Displacement Criteria Cards ─────────────── */}
+      {/* ── 5 Aesthetic Light-Theme Noise Gradient Cards ──────────────── */}
       <div className="dpiit-cards-grid">
         {CARDS.map((card, idx) => (
           <div key={idx} className="dpiit-noise-wrapper">
@@ -335,23 +330,20 @@ export function DpiitEligibilityChecker({ onApply }: { onApply?: () => void }) {
             >
               <div className="dpiit-noise-bg" />
 
-              {/* Card Header & Kicker */}
-              <div className="dpiit-noise-header">
-                <span className="dpiit-noise-icon">{card.icon}</span>
-                <span className="dpiit-noise-kicker">{card.kicker}</span>
+              {/* Clean Kicker (No icon) */}
+              <div className="dpiit-noise-kicker" style={{ color: card.accentColor }}>
+                {card.kicker}
               </div>
 
-              {/* Big Aesthetic Title */}
-              <h3 className="dpiit-noise-title" style={{ background: card.accentGrad }}>
-                {card.title}
-              </h3>
+              {/* Big, Clear, High-Contrast Title */}
+              <h3 className="dpiit-noise-title">{card.title}</h3>
 
-              {/* Clean Concise Description */}
+              {/* Clear, Readable Description */}
               <p className="dpiit-noise-desc">{card.desc}</p>
 
-              {/* Bottom Subtle Pill */}
+              {/* Bottom Clean Pill */}
               <div className="dpiit-noise-badge">
-                <span>{card.badge}</span>
+                <span style={{ color: card.accentColor }}>{card.badge}</span>
               </div>
             </div>
           </div>
@@ -361,7 +353,7 @@ export function DpiitEligibilityChecker({ onApply }: { onApply?: () => void }) {
       <style jsx>{`
         .dpiit-section {
           padding: 85px 5.2vw;
-          background: #faf9f5;
+          background: #f7f6f0;
           border-top: 1px solid #dbe1d9;
           border-bottom: 1px solid #dbe1d9;
         }
@@ -558,39 +550,40 @@ export function DpiitEligibilityChecker({ onApply }: { onApply?: () => void }) {
           flex-wrap: wrap;
         }
 
-        /* ── 5 Aesthetic Noise-Displacement Criteria Cards ────────── */
+        /* ── 5 Aesthetic Light-Theme Noise Gradient Cards ────────── */
         .dpiit-cards-grid {
           display: grid;
           grid-template-columns: repeat(5, 1fr);
-          gap: 14px;
+          gap: 16px;
         }
 
         .dpiit-noise-wrapper {
           width: 100%;
-          border-radius: 14px;
+          border-radius: 16px;
           overflow: hidden;
-          box-shadow: 0 10px 30px rgba(16, 39, 32, 0.08);
+          box-shadow: 0 10px 28px rgba(16, 39, 32, 0.05);
           transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
             box-shadow 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
         .dpiit-noise-wrapper:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 16px 36px rgba(16, 39, 32, 0.16);
+          transform: translateY(-5px);
+          box-shadow: 0 18px 40px rgba(16, 39, 32, 0.12);
         }
 
         .dpiit-noise-card {
           width: 100%;
-          min-height: 220px;
+          min-height: 250px;
           position: relative;
-          background-color: #102720;
+          background-color: #ffffff;
           overflow: hidden;
-          padding: 20px 18px;
+          padding: 24px 20px 20px;
           display: flex;
           flex-direction: column;
           justify-content: space-between;
           cursor: pointer;
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          border: 1.5px solid #dce5df;
+          border-radius: 16px;
         }
 
         .dpiit-noise-bg {
@@ -598,94 +591,73 @@ export function DpiitEligibilityChecker({ onApply }: { onApply?: () => void }) {
           inset: -10%;
           width: 120%;
           height: 120%;
-          filter: url("#dpiit-noise");
+          filter: url("#dpiit-noise-light");
           background: radial-gradient(
-              circle at 50% 100%,
-              var(--color-1) 18%,
-              var(--color-2) 42% 52%,
-              var(--color-3) 68%
+              circle at 50% 115%,
+              var(--color-1) 15%,
+              var(--color-2) 45%,
+              var(--color-3) 75%
             )
             no-repeat center / cover;
-          opacity: 0.95;
+          opacity: 0.9;
           pointer-events: none;
           z-index: 1;
         }
 
-        .dpiit-noise-header {
+        .dpiit-noise-kicker {
           position: relative;
           z-index: 2;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-
-        .dpiit-noise-icon {
-          font-size: 16px;
-        }
-
-        .dpiit-noise-kicker {
-          font-size: 9px;
+          font-size: 11px;
           font-weight: 850;
-          letter-spacing: 0.8px;
+          letter-spacing: 1px;
           text-transform: uppercase;
-          color: rgba(255, 255, 255, 0.75);
+          margin-bottom: 8px;
         }
 
         .dpiit-noise-title {
           position: relative;
           z-index: 2;
-          font-size: 20px;
-          font-weight: 850;
+          font-size: 23px;
+          font-weight: 900;
           line-height: 1.15;
-          letter-spacing: -0.5px;
-          margin: 12px 0 6px;
-          -webkit-background-clip: text !important;
-          -webkit-text-fill-color: transparent !important;
-          background-clip: text !important;
-          color: transparent !important;
-          filter: drop-shadow(0px 3px 8px rgba(0, 0, 0, 0.45));
-          transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+          letter-spacing: -0.6px;
+          color: #102720;
+          margin: 0 0 8px;
+          transition: all 0.3s ease;
         }
 
         .dpiit-noise-wrapper:hover .dpiit-noise-title {
-          letter-spacing: -0.2px;
+          letter-spacing: -0.3px;
           transform: translateY(-2px);
-          filter: drop-shadow(0px 6px 14px rgba(0, 0, 0, 0.6));
+          color: #04251e;
         }
 
         .dpiit-noise-desc {
           position: relative;
           z-index: 2;
-          color: rgba(255, 255, 255, 0.88);
-          font-size: 11.5px;
-          font-weight: 500;
-          line-height: 1.4;
-          margin: 0 0 14px;
-          text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-          transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-        }
-
-        .dpiit-noise-wrapper:hover .dpiit-noise-desc {
-          color: #ffffff;
-          transform: translateY(-1px);
+          color: #40574b;
+          font-size: 13px;
+          font-weight: 600;
+          line-height: 1.45;
+          margin: 0 0 16px;
+          transition: all 0.3s ease;
         }
 
         .dpiit-noise-badge {
           position: relative;
           z-index: 2;
           margin-top: auto;
-          padding: 4px 10px;
+          padding: 6px 12px;
           border-radius: 20px;
-          background: rgba(0, 0, 0, 0.25);
-          border: 1px solid rgba(255, 255, 255, 0.18);
-          backdrop-filter: blur(8px);
+          background: rgba(255, 255, 255, 0.92);
+          border: 1px solid rgba(16, 39, 32, 0.12);
+          box-shadow: 0 2px 8px rgba(16, 39, 32, 0.04);
           width: fit-content;
         }
 
         .dpiit-noise-badge span {
-          font-size: 9px;
-          font-weight: 800;
-          color: rgba(255, 255, 255, 0.95);
+          font-size: 10.5px;
+          font-weight: 850;
           letter-spacing: 0.4px;
           text-transform: uppercase;
         }
