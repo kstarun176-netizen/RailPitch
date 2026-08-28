@@ -744,100 +744,83 @@ header nav button,.link{border:0;background:none;color:var(--teal);font-weight:7
   font-family: inherit;
 }
 
-/* Route Ribbon — labels above, track below */
+/* Route Ribbon — single-row clean station timeline */
 .luxury-route-ribbon {
-  padding-top: 32px;
-  margin-top: 8px;
+  margin-top: 20px;
+  padding: 22px 28px 20px;
+  background: #ffffff;
+  border: 1px solid #dce5e0;
+  border-radius: 14px;
 }
 
-/* Outer wrapper: positions labels row above the track row */
+/* The whole timeline is one horizontal flex row */
 .ribbon-layout {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 0;
 }
 
-/* Row 1: station names equally spaced */
-.ribbon-labels-row {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  padding: 0 0 10px;
-}
-
-.ribbon-node {
+/* Each station: name above, dot on track, time below */
+.ribbon-station {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: 0;
   flex-shrink: 0;
-  min-width: 72px;
-  text-align: center;
 }
 
-.ribbon-node b {
-  font-size: 13px;
+.ribbon-station-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-bottom: 8px;
+}
+
+.ribbon-station-label b {
+  font-size: 12.5px;
   color: #102720;
   font-weight: 800;
   letter-spacing: -0.2px;
-  font-family: inherit;
   white-space: nowrap;
 }
 
-.ribbon-node small {
-  font-size: 10.5px;
-  color: #63776d;
+.ribbon-station-label small {
+  font-size: 10px;
+  color: #7a9188;
   font-weight: 600;
 }
 
-/* Gap spacer between labels — keeps them spread like track nodes */
-.ribbon-node-gap {
-  flex: 1;
-}
-
-/* Row 2: track + dots row */
-.ribbon-track-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.ribbon-node-dot {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 72px;
-}
-
-.ribbon-node-dot .dot {
-  width: 12px;
-  height: 12px;
+/* Station dot — sits inline with the track */
+.ribbon-dot {
+  width: 13px;
+  height: 13px;
   border-radius: 50%;
-  background: #c4d4cc;
-  border: 2.5px solid #dce8e0;
+  background: #c8d8d0;
+  border: 2.5px solid #e0ebe5;
+  flex-shrink: 0;
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 
-.ribbon-node-dot .dot.active {
+.ribbon-dot.active {
   background: var(--teal);
-  border-color: var(--teal);
-  box-shadow: 0 0 0 5px rgba(15, 107, 97, 0.14);
+  border-color: #0f6b61;
+  box-shadow: 0 0 0 5px rgba(15, 107, 97, 0.12);
 }
 
-/* The railway track sits between dots */
-.ribbon-track-wrap {
+/* Track segment between stations */
+.ribbon-track-seg {
   flex: 1;
-  display: flex;
-  align-items: center;
-  padding: 0;
-  margin-top: -1px;
+  height: 28px;
+  position: relative;
+  overflow: hidden;
+  margin-top: 20px; /* push down to align with dots (below labels) */
 }
 
-.ribbon-track-svg {
+.ribbon-track-seg svg {
   width: 100%;
-  height: 32px;
+  height: 100%;
   display: block;
 }
 
@@ -848,22 +831,16 @@ header nav button,.link{border:0;background:none;color:var(--teal);font-weight:7
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 680px) {
   .luxury-expedition-section {
     padding: 60px 4vw 70px;
   }
-  .ribbon-labels-row,
-  .ribbon-track-row {
+  .ribbon-track-seg {
+    display: none;
+  }
+  .ribbon-layout {
     flex-wrap: wrap;
-    gap: 10px;
-  }
-  .ribbon-track-wrap {
-    display: none;
-  }
-  .ribbon-node-gap {
-    display: none;
-  }
-  .ribbon-node-dot {
-    width: auto;
+    gap: 16px;
+    justify-content: space-around;
   }
 }

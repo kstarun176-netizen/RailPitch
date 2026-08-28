@@ -16,45 +16,47 @@ const EXPERIENCES: {
   { id: "lounge", title: "Panoramic Scenic Lounge", icon: "🌅", themeColor: "#059669", glowColor: "rgba(5,150,105,0.14)" },
 ];
 
-/* ── Railway Track SVG — realistic perspective with metallic rails & wooden sleepers ─── */
-function RailwayTrack() {
+/* ── Flat Top-View Railway Track (two rails + sleepers) ────────────── */
+function TrackSeg() {
   return (
-    <svg className="ribbon-track-svg" viewBox="0 0 300 32" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 120 28" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="railL" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#d1d5db" />
-          <stop offset="40%" stopColor="#f3f4f6" />
-          <stop offset="60%" stopColor="#9ca3af" />
-          <stop offset="100%" stopColor="#6b7280" />
+        <linearGradient id="rail" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#e2e8f0" />
+          <stop offset="35%" stopColor="#f8fafc" />
+          <stop offset="65%" stopColor="#cbd5e1" />
+          <stop offset="100%" stopColor="#94a3b8" />
         </linearGradient>
-        <linearGradient id="sleeperG" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id="tie" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#c4a06a" />
-          <stop offset="50%" stopColor="#a07840" />
-          <stop offset="100%" stopColor="#7a5c28" />
+          <stop offset="100%" stopColor="#8b6520" />
         </linearGradient>
       </defs>
-
-      {/* ── Ballast / gravel bed ── */}
-      <rect x="0" y="22" width="300" height="10" fill="#e5e7eb" rx="1" />
-
-      {/* ── Wooden sleepers (ties) — brown, evenly spaced ── */}
-      {[4, 26, 48, 70, 92, 114, 136, 158, 180, 202, 224, 246, 268, 290].map((x) => (
-        <rect key={x} x={x} y="14" width="14" height="10" rx="2" fill="url(#sleeperG)" stroke="#8B6520" strokeWidth="0.6" />
+      {/* Ballast */}
+      <rect x="0" y="0" width="120" height="28" fill="#f1f5f2" />
+      {/* Sleepers */}
+      {[4, 18, 32, 46, 60, 74, 88, 102, 116].map((x) => (
+        <rect key={x} x={x} y="4" width="8" height="20" rx="1.5" fill="url(#tie)" />
       ))}
-
-      {/* ── Left rail — metallic silver with sheen ── */}
-      <rect x="0" y="14" width="300" height="5" rx="1.5" fill="url(#railL)" />
-      <rect x="0" y="14.5" width="300" height="1.5" rx="0.5" fill="#ffffff" opacity="0.5" />
-
-      {/* ── Right rail — offset below ── */}
-      <rect x="0" y="22" width="300" height="5" rx="1.5" fill="url(#railL)" />
-      <rect x="0" y="22.5" width="300" height="1.5" rx="0.5" fill="#ffffff" opacity="0.5" />
+      {/* Left rail */}
+      <rect x="0" y="6" width="120" height="4.5" rx="1" fill="url(#rail)" />
+      <rect x="0" y="6.3" width="120" height="1.2" fill="#fff" opacity="0.55" />
+      {/* Right rail */}
+      <rect x="0" y="17.5" width="120" height="4.5" rx="1" fill="url(#rail)" />
+      <rect x="0" y="17.8" width="120" height="1.2" fill="#fff" opacity="0.55" />
     </svg>
   );
 }
 
 export function InteractiveLuxuryExpedition() {
   const [active, setActive] = useState<ExperienceId>("pitch");
+
+  const stations = [
+    { name: "Mumbai CSMT", time: "08:10 AM", active: true  },
+    { name: "Panvel",       time: "09:05 AM", active: false },
+    { name: "Ratnagiri",   time: "01:30 PM", active: false },
+    { name: "Goa (Madgaon)", time: "06:45 PM", active: true },
+  ];
 
   return (
     <section className="luxury-expedition-section" id="journey">
@@ -84,14 +86,11 @@ export function InteractiveLuxuryExpedition() {
                 boxShadow: isActive ? `0 18px 42px ${exp.glowColor}` : "0 4px 16px rgba(16,39,32,0.04)",
               }}
             >
-              {/* Illustration */}
               <div className="exp-illustration-wrapper">
                 {exp.id === "pitch"  && <PitchScene />}
                 {exp.id === "dine"   && <DineScene />}
                 {exp.id === "lounge" && <LoungeScene />}
               </div>
-
-              {/* One-line label — text only, no icon */}
               <div className="exp-label-row" style={{ color: exp.themeColor }}>
                 <span className="exp-title">{exp.title}</span>
               </div>
@@ -100,46 +99,30 @@ export function InteractiveLuxuryExpedition() {
         })}
       </div>
 
-      {/* ── Route Timeline: Labels above + Track below ───────────────── */}
+      {/* ── Route Timeline ─────────────────────────────────────────────── */}
       <div className="luxury-route-ribbon">
         <div className="ribbon-layout">
-
-          {/* Row 1 — Station names + times */}
-          <div className="ribbon-labels-row">
-            <div className="ribbon-node">
-              <b>Mumbai CSMT</b>
-              <small>08:10 AM</small>
-            </div>
-            <div className="ribbon-node-gap" />
-            <div className="ribbon-node">
-              <b>Panvel</b>
-              <small>09:05 AM</small>
-            </div>
-            <div className="ribbon-node-gap" />
-            <div className="ribbon-node">
-              <b>Ratnagiri</b>
-              <small>01:30 PM</small>
-            </div>
-            <div className="ribbon-node-gap" />
-            <div className="ribbon-node">
-              <b>Goa (Madgaon)</b>
-              <small>06:45 PM</small>
-            </div>
-          </div>
-
-          {/* Row 2 — Dots sitting right on the track */}
-          <div className="ribbon-track-row">
-            <div className="ribbon-node-dot"><span className="dot active" /></div>
-            <div className="ribbon-track-wrap"><RailwayTrack /></div>
-            <div className="ribbon-node-dot"><span className="dot" /></div>
-            <div className="ribbon-track-wrap"><RailwayTrack /></div>
-            <div className="ribbon-node-dot"><span className="dot" /></div>
-            <div className="ribbon-track-wrap"><RailwayTrack /></div>
-            <div className="ribbon-node-dot"><span className="dot active" /></div>
-          </div>
-
+          {stations.map((s, i) => (
+            <React.Fragment key={s.name}>
+              {/* Station */}
+              <div className="ribbon-station">
+                <div className="ribbon-station-label">
+                  <b>{s.name}</b>
+                  <small>{s.time}</small>
+                </div>
+                <span className={`ribbon-dot${s.active ? " active" : ""}`} />
+              </div>
+              {/* Track between stations */}
+              {i < stations.length - 1 && (
+                <div className="ribbon-track-seg">
+                  <TrackSeg />
+                </div>
+              )}
+            </React.Fragment>
+          ))}
         </div>
       </div>
+
     </section>
   );
 }
