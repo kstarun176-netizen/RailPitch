@@ -59,6 +59,8 @@ export default function RailPitch() {
   const [menu, setMenu] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [showGoogleModal, setShowGoogleModal] = useState(false);
+  const [targetLoginRole, setTargetLoginRole] = useState<Role>("founder");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   // Restore saved session on initial mount
   useEffect(() => {
@@ -227,28 +229,40 @@ export default function RailPitch() {
     }
   };
 
-  const handleGoogleAuthSuccess = async (name: string, email: string) => {
+  const handleGoogleAuthSuccess = async (name: string, email: string, forcedRole?: Role) => {
     const found = await syncWithSupabase(email, name);
     if (!found) {
+      const chosenRole = forcedRole || targetLoginRole || role || "founder";
       const profile: UserProfile = {
         name,
         email,
         company: userProfile?.company || "",
         primarySector: userProfile?.primarySector || sectors[3],
         secondarySectors: userProfile?.secondarySectors || [],
-        stageOrCheque: userProfile?.stageOrCheque || "Pre-seed",
+        stageOrCheque: userProfile?.stageOrCheque || (chosenRole === "investor" ? "$50k - $250k" : "Pre-seed"),
         askOrFocus: userProfile?.askOrFocus || "",
         linkedinUrl: userProfile?.linkedinUrl || "",
         submitted: false,
       };
       setUserProfile(profile);
-      if (!role) setRole("founder");
+      setRole(chosenRole);
       try {
         localStorage.setItem("rp_live_user_profile", JSON.stringify(profile));
-        localStorage.setItem("rp_live_user_role", role || "founder");
+        localStorage.setItem("rp_live_user_role", chosenRole);
         localStorage.setItem("rp_live_auth_email", email);
       } catch {}
       setShowGoogleModal(false);
+    }
+  };
+
+  const handleSelectLoginRole = (selectedRole: Role) => {
+    setTargetLoginRole(selectedRole);
+    setDropdownOpen(false);
+    if (userProfile && userProfile.submitted) {
+      setRole(selectedRole);
+      setRegistered(true);
+    } else {
+      setShowGoogleModal(true);
     }
   };
 
@@ -294,6 +308,7 @@ export default function RailPitch() {
           <GoogleAuthModal
             close={() => setShowGoogleModal(false)}
             onSuccess={handleGoogleAuthSuccess}
+            targetRole={targetLoginRole}
           />
         )}
       </>
@@ -315,6 +330,7 @@ export default function RailPitch() {
         <GoogleAuthModal
           close={() => setShowGoogleModal(false)}
           onSuccess={handleGoogleAuthSuccess}
+          targetRole={targetLoginRole}
         />
       )}
 
@@ -327,9 +343,175 @@ export default function RailPitch() {
           <a href="#how">How it works</a>
           <a href="#sectors">Sectors</a>
           <a href="#dpiit">DPIIT Checker</a>
-          <button onClick={() => setShowGoogleModal(true)}>
-            Log in <Arrow />
-          </button>
+
+          {/* Hover Login Dropdown with Founder & Investor CTAs */}
+          <div
+            className="login-dropdown-wrapper"
+            onMouseEnter={() => setDropdownOpen(true)}
+            onMouseLeave={() => setDropdownOpen(false)}
+          >
+            <button
+              type="button"
+              onClick={() => setDropdownOpen((prev) => !prev)}
+              className="login-nav-trigger"
+              aria-expanded={dropdownOpen}
+              aria-haspopup="true"
+            >
+              <span>Log in</span>
+              <svg
+                width="11"
+                height="11"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{
+                  transition: "transform 0.2s ease",
+                  transform: dropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
+                }}
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </button>
+
+            {/* Dropdown Menu */}
+            {dropdownOpen && (
+              <div className="login-dropdown-menu">
+                {/* Bridge to prevent accidental hover loss */}
+                <div className="login-dropdown-bridge" />
+
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: "12px",
+                    paddingBottom: "8px",
+                    borderBottom: "1px dashed #dbe5df",
+                  }}
+                >
+                  <span className="kicker" style={{ fontSize: "9px", letterSpacing: "1.2px", color: "var(--teal)" }}>
+                    SELECT LOGIN PORTAL
+                  </span>
+                  <small style={{ fontSize: "9px", color: "#7a8a81", fontWeight: 700 }}>EDITION 01</small>
+                </div>
+
+                {/* Founder Option */}
+                <div
+                  onClick={() => handleSelectLoginRole("founder")}
+                  role="button"
+                  tabIndex={0}
+                  className="login-option-card founder-card"
+                >
+                  <div
+                    style={{
+                      width: "38px",
+                      height: "38px",
+                      borderRadius: "8px",
+                      background: "#d6ede2",
+                      color: "var(--teal)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                      boxShadow: "0 2px 6px rgba(15,107,97,0.15)",
+                    }}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
+                      <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
+                      <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
+                      <path d="M12 9v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
+                    </svg>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "2px" }}>
+                      <strong style={{ fontSize: "13px", color: "var(--ink)", fontWeight: 800 }}>
+                        As a Founder
+                      </strong>
+                      <span className="tag mint" style={{ fontSize: "8px", padding: "2px 6px" }}>
+                        FOUNDER
+                      </span>
+                    </div>
+                    <p style={{ fontSize: "11px", color: "#5a6f64", margin: "0 0 6px", lineHeight: 1.35 }}>
+                      Submit pitch deck, DPIIT checker & 1:1 meeting schedule.
+                    </p>
+                    <span style={{ fontSize: "11px", fontWeight: 800, color: "var(--teal)", display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                      Log In as Founder →
+                    </span>
+                  </div>
+                </div>
+
+                {/* Investor Option */}
+                <div
+                  onClick={() => handleSelectLoginRole("investor")}
+                  role="button"
+                  tabIndex={0}
+                  className="login-option-card investor-card"
+                >
+                  <div
+                    style={{
+                      width: "38px",
+                      height: "38px",
+                      borderRadius: "8px",
+                      background: "#fee5de",
+                      color: "var(--coral)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                      boxShadow: "0 2px 6px rgba(232,119,95,0.15)",
+                    }}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="12" y1="1" x2="12" y2="23" />
+                      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                    </svg>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "2px" }}>
+                      <strong style={{ fontSize: "13px", color: "var(--ink)", fontWeight: 800 }}>
+                        As an Investor
+                      </strong>
+                      <span className="tag" style={{ fontSize: "8px", padding: "2px 6px", background: "#fff0eb", color: "#e8775f", borderColor: "#f9d0c5" }}>
+                        INVESTOR
+                      </span>
+                    </div>
+                    <p style={{ fontSize: "11px", color: "#6e6057", margin: "0 0 6px", lineHeight: 1.35 }}>
+                      Browse cohort startups, evaluate thesis fit & live 1:1 rooms.
+                    </p>
+                    <span style={{ fontSize: "11px", fontWeight: 800, color: "#e8775f", display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                      Log In as Investor →
+                    </span>
+                  </div>
+                </div>
+
+                {/* Expedition Curator subtle footer link */}
+                <div style={{ paddingTop: "8px", marginTop: "4px", borderTop: "1px solid #edf2ee", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontSize: "10px", color: "#74857b" }}>Expedition Curator?</span>
+                  <button
+                    onClick={() => {
+                      setRole("curator");
+                      setDropdownOpen(false);
+                    }}
+                    style={{
+                      border: 0,
+                      background: "none",
+                      color: "var(--teal)",
+                      fontSize: "10px",
+                      fontWeight: 800,
+                      cursor: "pointer",
+                      padding: 0,
+                    }}
+                  >
+                    Curator Console →
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </nav>
         <button className="hamburger" onClick={() => setMenu(!menu)}>
           {menu ? "×" : "☰"}
@@ -630,9 +812,11 @@ function Metric({ n, t }: { n: string; t: string }) {
 function GoogleAuthModal({
   close,
   onSuccess,
+  targetRole = "founder",
 }: {
   close: () => void;
-  onSuccess: (name: string, email: string) => void;
+  onSuccess: (name: string, email: string, forcedRole?: Role) => void;
+  targetRole?: Role;
 }) {
   const [googleName, setGoogleName] = useState("");
   const [googleEmail, setGoogleEmail] = useState("");
@@ -640,7 +824,7 @@ function GoogleAuthModal({
 
   const handleQuickSelect = async (name: string, email: string) => {
     setLoading(true);
-    await onSuccess(name, email);
+    await onSuccess(name, email, targetRole);
     setLoading(false);
   };
 
@@ -649,7 +833,7 @@ function GoogleAuthModal({
     if (googleEmail.trim()) {
       setLoading(true);
       const nameToUse = googleName.trim() || googleEmail.split("@")[0];
-      await onSuccess(nameToUse, googleEmail.trim());
+      await onSuccess(nameToUse, googleEmail.trim(), targetRole);
       setLoading(false);
     }
   };
@@ -659,16 +843,47 @@ function GoogleAuthModal({
       ? localStorage.getItem("rp_live_auth_email") || "kstarun176@gmail.com"
       : "kstarun176@gmail.com";
 
+  const isFounder = targetRole === "founder";
+  const isInvestor = targetRole === "investor";
+
   return (
     <div className="overlay">
       <section className="meeting-modal" style={{ maxWidth: "460px", padding: "32px" }}>
         <button className="close" onClick={close}>
           ×
         </button>
-        <span className="kicker">AUTHENTICATION & SESSION</span>
-        <h2 style={{ fontSize: "24px", margin: "8px 0" }}>Sign In to RailPitch</h2>
+
+        {isFounder ? (
+          <span className="tag mint" style={{ display: "inline-block", marginBottom: "8px", fontWeight: 800 }}>
+            FOUNDER PORTAL LOGIN
+          </span>
+        ) : isInvestor ? (
+          <span
+            className="tag"
+            style={{
+              display: "inline-block",
+              marginBottom: "8px",
+              background: "#fff0ec",
+              color: "#e8775f",
+              borderColor: "#fad2c8",
+              fontWeight: 800,
+            }}
+          >
+            INVESTOR ACCESS LOGIN
+          </span>
+        ) : (
+          <span className="kicker">AUTHENTICATION & SESSION</span>
+        )}
+
+        <h2 style={{ fontSize: "24px", margin: "6px 0" }}>
+          {isFounder ? "Sign In as Founder" : isInvestor ? "Sign In as Investor" : "Sign In to RailPitch"}
+        </h2>
         <p className="modal-copy" style={{ marginBottom: "20px", fontSize: "12px" }}>
-          Log in with your Google account or email. Your login info, role, and matches will be remembered securely.
+          {isFounder
+            ? "Log in to manage your startup application, DPIIT checker, pitch deck and confirmed 1:1 meetings."
+            : isInvestor
+            ? "Log in to browse the curated startup cohort, evaluate deals and access confirmed 1:1 tables."
+            : "Log in with your Google account or email. Your login info, role, and matches will be remembered securely."}
         </p>
 
         {/* 1-Click Fast Google Account Button */}
@@ -683,13 +898,13 @@ function GoogleAuthModal({
             width: "100%",
             padding: "12px 16px",
             background: "#ffffff",
-            border: "1.5px solid #0f6b61",
+            border: isInvestor ? "1.5px solid #e8775f" : "1.5px solid #0f6b61",
             borderRadius: "8px",
             fontSize: "13px",
             fontWeight: 700,
             color: "#102720",
             cursor: "pointer",
-            boxShadow: "0 4px 12px rgba(15, 107, 97, 0.08)",
+            boxShadow: isInvestor ? "0 4px 12px rgba(232, 119, 95, 0.1)" : "0 4px 12px rgba(15, 107, 97, 0.08)",
             marginBottom: "16px",
             transition: "all 0.2s ease",
           }}
@@ -705,12 +920,12 @@ function GoogleAuthModal({
               <div style={{ fontSize: "12px", color: "#102720" }}>
                 Continue as <b>{savedEmail}</b>
               </div>
-              <small style={{ fontSize: "10px", color: "#0f6b61", fontWeight: 600 }}>
+              <small style={{ fontSize: "10px", color: isInvestor ? "#e8775f" : "#0f6b61", fontWeight: 600 }}>
                 1-Click Instant Google Sign-In
               </small>
             </div>
           </div>
-          <span style={{ color: "#0f6b61", fontSize: "14px" }}>→</span>
+          <span style={{ color: isInvestor ? "#e8775f" : "#0f6b61", fontSize: "14px" }}>→</span>
         </button>
 
         <div style={{ display: "flex", alignItems: "center", gap: "10px", margin: "14px 0 18px" }}>
@@ -738,12 +953,26 @@ function GoogleAuthModal({
               type="email"
               value={googleEmail}
               onChange={(e) => setGoogleEmail(e.target.value)}
-              placeholder="founder@startup.com"
+              placeholder={isInvestor ? "investor@venturefund.com" : "founder@startup.com"}
               style={{ width: "100%", padding: "10px", marginTop: "4px", border: "1px solid #d5ddd4", borderRadius: "4px" }}
             />
           </label>
-          <button className="primary" disabled={loading} style={{ width: "100%", marginTop: "8px" }}>
-            {loading ? "Checking Supabase Records…" : "Sign In & Remember Me →"}
+          <button
+            className="primary"
+            disabled={loading}
+            style={{
+              width: "100%",
+              marginTop: "8px",
+              background: isInvestor ? "#e8775f" : "var(--ink)",
+            }}
+          >
+            {loading
+              ? "Checking Supabase Records…"
+              : isFounder
+              ? "Sign In as Founder →"
+              : isInvestor
+              ? "Sign In as Investor →"
+              : "Sign In & Remember Me →"}
           </button>
         </form>
       </section>

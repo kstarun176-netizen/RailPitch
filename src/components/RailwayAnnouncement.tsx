@@ -1,5 +1,7 @@
 "use client";
 
+import { usePathname } from "next/navigation";
+
 import { useEffect, useState, useRef, useCallback } from "react";
 
 interface RailwayAnnouncementProps {
@@ -284,6 +286,10 @@ export function RailwayAnnouncement({ onTogglePlay }: RailwayAnnouncementProps) 
       setIsPlaying(false);
       isPlayingRef.current = false;
       onTogglePlay?.(false);
+      // Mark announcement as played to prevent future auto‑play
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("railpitch_announcement_played", "true");
+      }
     }
   }, [getAudioContext, onTogglePlay, playRadioStationTune, setupAudioEchoGraph, startCrowdAmbience]);
 
@@ -314,8 +320,19 @@ export function RailwayAnnouncement({ onTogglePlay }: RailwayAnnouncementProps) 
     }
   };
 
+  const pathname = usePathname();
+
   // Automatically start on website open without any click or permission needed
   useEffect(() => {
+    // Ensure autoplay only on the home page and first visit
+    if (pathname !== "/") return; // not home page
+
+    // Check session flag for first-time play
+    if (typeof window !== "undefined") {
+      const played = sessionStorage.getItem("railpitch_announcement_played");
+      if (played) return; // already played in this session
+    }
+
     let started = false;
 
     const triggerAutoPlay = () => {
@@ -328,20 +345,23 @@ export function RailwayAnnouncement({ onTogglePlay }: RailwayAnnouncementProps) 
     triggerAutoPlay();
     const timer = setTimeout(triggerAutoPlay, 100);
 
-    // Seamless browser unlock: Any natural mouse move, focus, scroll, or hover immediately starts audio
+    // Browser unlock via natural activity
     const events = ["pointermove", "mousemove", "mouseenter", "scroll", "wheel", "focus", "touchstart", "pointerdown"];
     const handleNaturalActivity = () => {
       triggerAutoPlay();
       events.forEach((ev) => window.removeEventListener(ev, handleNaturalActivity));
     };
-
     events.forEach((ev) => window.addEventListener(ev, handleNaturalActivity, { once: true, passive: true }));
 
+    // Cleanup on unmount: stop any playing audio
     return () => {
       clearTimeout(timer);
       events.forEach((ev) => window.removeEventListener(ev, handleNaturalActivity));
+      // Ensure announcement is stopped when navigating away
+      stopAnnouncement();
     };
-  }, [startAnnouncement]);
+  }, [pathname, startAnnouncement, stopAnnouncement]);
+
 
   return (
     <div
