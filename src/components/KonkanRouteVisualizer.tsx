@@ -34,12 +34,12 @@ const STOPS: StopInfo[] = [
     badge: "DEPARTURE",
     badgeColor: "#0f6b61",
     badgeBg: "#e4f6ef",
-    headline: "Flag-Off & Opening Keynote Circle",
+    headline: "Flag-Off & Opening Keynote",
     description:
-      "Boarding at the heritage CSMT concourse. Set the expedition intention, meet your 16 cohort founders & 12 participating funds with fresh roast coastal coffee.",
-    format: "Cohort Gathering • Keynote Concourse",
-    carriage: "Executive Lounge Coach A",
-    tags: ["Platform 8 CSMT", "RFID Founder Badges", "Curator Opening Remarks"],
+      "Heritage concourse departure, opening coffee keynote circle and cohort introductions.",
+    format: "Cohort Gathering",
+    carriage: "Executive Lounge",
+    tags: [],
     cx: 88,
     cy: 62,
     elevation: "14m ASL",
@@ -57,10 +57,10 @@ const STOPS: StopInfo[] = [
     badgeBg: "#fff0eb",
     headline: "Curated 1-on-1 Pitches (Round 1)",
     description:
-      "As the train exits the metropolitan grid into the Sahyadri foothills, pre-matched 25-minute private pod pitches commence across carriages A and B.",
-    format: "25-min Speed Pitching • 1:1 Pods",
-    carriage: "Innovation Carriage Pods 01–08",
-    tags: ["3 Pre-Confirmed Meetings", "Sector-Specific Fit", "Direct Thesis Feedback"],
+      "Pre-matched 25-minute private speed pitches between founders and verified investors.",
+    format: "Speed Pitching",
+    carriage: "Innovation Pods",
+    tags: [],
     cx: 172,
     cy: 168,
     elevation: "28m ASL",
@@ -78,10 +78,10 @@ const STOPS: StopInfo[] = [
     badgeBg: "#fef3c7",
     headline: "Konkan Lunch & Deep-Dive Discussions",
     description:
-      "Mid-journey stop crossing the iconic Panval Viaduct. Authentic Konkan dining service followed by mentor breakout circles, deck reviews and founder studios.",
-    format: "Coastal Table • Founder Studio",
-    carriage: "Dining Lounge & Studio Pods",
-    tags: ["Authentic Konkan Thali", "Mentor Office Hours", "Product Architecture Reviews"],
+      "Authentic coastal dining service, mentor breakout circles and founder studio reviews.",
+    format: "Coastal Table",
+    carriage: "Dining Lounge",
+    tags: [],
     cx: 118,
     cy: 338,
     elevation: "125m ASL",
@@ -99,10 +99,10 @@ const STOPS: StopInfo[] = [
     badgeBg: "#ecfdf5",
     headline: "Sunset Mixer & Deal Commitments",
     description:
-      "Arrival in tropical Goa as the sun sets over the Arabian Sea. Transition to destination villa showcase, follow-up agreement rooms and cohort dinner.",
-    format: "Destination Reception • Follow-up Rooms",
-    carriage: "Goa Terminal & Villa Reception",
-    tags: ["Sunset Cocktails & Dinner", "Term Sheet Commitment Rooms", "Alumni Cohort Network"],
+      "Arrival in tropical Goa, term sheet commitment rooms and destination networking reception.",
+    format: "Destination Reception",
+    carriage: "Villa Reception",
+    tags: [],
     cx: 206,
     cy: 508,
     elevation: "18m ASL",
@@ -439,7 +439,7 @@ export function KonkanRouteVisualizer() {
           </div>
         </div>
 
-        {/* ── Right Column: Interactive Milestone Itinerary Cards ────────── */}
+        {/* ── Right Column: Clean Milestone Itinerary Cards ────────── */}
         <div className="konkan-cards-column">
           <div className="konkan-timeline-track">
             {STOPS.map((stop, idx) => {
@@ -454,8 +454,8 @@ export function KonkanRouteVisualizer() {
                   }}
                 >
                   {/* Card Top Row: Station + Time + Badge */}
-                  <div className="flex items-center justify-between gap-2 mb-2">
-                    <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-between gap-2 mb-1.5">
+                    <div className="flex items-center gap-2.5">
                       <span
                         className="konkan-card-num"
                         style={{
@@ -466,7 +466,7 @@ export function KonkanRouteVisualizer() {
                         0{idx + 1}
                       </span>
                       <div>
-                        <h4 className="text-base font-extrabold text-[#102720] leading-none">
+                        <h4 className="text-sm font-extrabold text-[#102720] leading-tight">
                           {stop.name}
                         </h4>
                         <span className="text-[11px] font-bold text-[#60796e]">
@@ -487,41 +487,13 @@ export function KonkanRouteVisualizer() {
                     </span>
                   </div>
 
-                  {/* Headline & Session Description */}
-                  <h5 className="text-xs font-black text-[#102720] mt-2 mb-1">
+                  {/* Headline & Clean Concise Summary */}
+                  <h5 className="text-xs font-black text-[#102720] mt-1.5 mb-0.5">
                     {stop.headline}
                   </h5>
-                  <p className="text-xs text-[#52695f] leading-relaxed mb-3">
+                  <p className="text-xs text-[#52695f] leading-relaxed m-0">
                     {stop.description}
                   </p>
-
-                  {/* Format & Carriage Metas */}
-                  <div className="konkan-format-pill-row">
-                    <span className="konkan-meta-pill">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                        <circle cx="12" cy="12" r="10" />
-                        <polyline points="12 6 12 12 16 14" />
-                      </svg>
-                      <b>Format:</b> {stop.format}
-                    </span>
-                    <span className="konkan-meta-pill">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                        <rect x="2" y="3" width="20" height="14" rx="2" />
-                        <line x1="8" y1="21" x2="16" y2="21" />
-                        <line x1="12" y1="17" x2="12" y2="21" />
-                      </svg>
-                      <b>Carriage:</b> {stop.carriage}
-                    </span>
-                  </div>
-
-                  {/* Highlight Bullets */}
-                  <div className="konkan-tag-pills mt-2.5">
-                    {stop.tags.map((tag) => (
-                      <span key={tag} className="konkan-subtag">
-                        ✓ {tag}
-                      </span>
-                    ))}
-                  </div>
                 </div>
               );
             })}
