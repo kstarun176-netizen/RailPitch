@@ -70,17 +70,17 @@ export function RailwayAnnouncement({ onTogglePlay }: RailwayAnnouncementProps) 
       filter2.type = "lowpass";
       filter2.frequency.setValueAtTime(2200, now);
 
-      // Gentle 20% background gain (0.19) with smooth fade-in
+      // Ultra-gentle 10% background gain (0.095) with smooth fade-in
       const crowdGain = ctx.createGain();
       crowdGain.gain.setValueAtTime(0.001, now);
-      crowdGain.gain.exponentialRampToValueAtTime(0.19, now + 0.4); // Exactly ~20% volume
+      crowdGain.gain.exponentialRampToValueAtTime(0.095, now + 0.4); // Exactly ~10% volume
 
       // Distant low train rumble hum (62Hz) on platform tracks
       const rumbleOsc = ctx.createOscillator();
       const rumbleGain = ctx.createGain();
       rumbleOsc.type = "sine";
       rumbleOsc.frequency.setValueAtTime(62, now);
-      rumbleGain.gain.setValueAtTime(0.04, now);
+      rumbleGain.gain.setValueAtTime(0.02, now);
 
       crowdSource.connect(filter1);
       filter1.connect(filter2);
