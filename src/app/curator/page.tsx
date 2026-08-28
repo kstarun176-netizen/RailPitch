@@ -64,31 +64,15 @@ function CuratorBrand({ size = 18 }: { size?: number }) {
 // ── Main Page ────────────────────────────────────────────────────────────────
 
 export default function CuratorPage() {
-  const [authState, setAuthState] = useState<"loading" | "login" | "dashboard">("loading");
+  const [authState, setAuthState] = useState<"loading" | "login" | "dashboard">("dashboard");
   const [ownerName, setOwnerName] = useState("Owner");
 
   useEffect(() => {
-    checkStoredToken();
-  }, []);
-
-  async function checkStoredToken() {
-    const token = localStorage.getItem("rp_curator_token");
-    if (!token) { setAuthState("login"); return; }
-    try {
-      const res = await fetch("/api/curator-auth", {
-        headers: { "x-curator-token": token },
-      });
-      const data = await res.json();
-      if (data.ok) {
-        setAuthState("dashboard");
-      } else {
-        localStorage.removeItem("rp_curator_token");
-        setAuthState("login");
-      }
-    } catch {
-      setAuthState("login");
+    // Auto-seed session token in localStorage for public hackathon judging
+    if (typeof window !== "undefined") {
+      localStorage.setItem("rp_curator_token", "rp_curator_auth_token_live_railpitch");
     }
-  }
+  }, []);
 
   function handleLoginSuccess(token: string) {
     localStorage.setItem("rp_curator_token", token);
@@ -98,17 +82,6 @@ export default function CuratorPage() {
   function handleSignOut() {
     localStorage.removeItem("rp_curator_token");
     setAuthState("login");
-  }
-
-  if (authState === "loading") {
-    return (
-      <div className="c-login-wrap">
-        <div className="c-loading">
-          <div className="c-spinner" />
-          Verifying access…
-        </div>
-      </div>
-    );
   }
 
   if (authState === "login") {

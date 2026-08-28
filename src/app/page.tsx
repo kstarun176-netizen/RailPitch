@@ -343,6 +343,36 @@ export default function RailPitch() {
           <a href="#how">How it works</a>
           <a href="#sectors">Sectors</a>
           <a href="#dpiit">DPIIT Checker</a>
+          <button
+            type="button"
+            onClick={() => setRole("founder")}
+            style={{ fontWeight: 750, color: "var(--teal)", background: "none", border: 0, padding: 0, cursor: "pointer" }}
+          >
+            Founder
+          </button>
+          <button
+            type="button"
+            onClick={() => setRole("investor")}
+            style={{ fontWeight: 750, color: "#e8775f", background: "none", border: 0, padding: 0, cursor: "pointer" }}
+          >
+            Investor
+          </button>
+          <a
+            href="/curator"
+            style={{
+              fontWeight: 750,
+              color: "var(--teal)",
+              background: "#eaf4ed",
+              padding: "4px 10px",
+              borderRadius: "4px",
+              border: "1px solid #c9e6d8",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "4px",
+            }}
+          >
+            Curator ↗
+          </a>
 
           {/* Hover Login Dropdown with Founder & Investor CTAs */}
           <div
