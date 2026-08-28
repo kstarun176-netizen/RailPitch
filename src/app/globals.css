@@ -709,13 +709,13 @@ header nav button,.link{border:0;background:none;color:var(--teal);font-weight:7
   transform: translateY(-4px);
 }
 
-/* Illustration Wrapper — lighter, theme-warm bg */
+/* Illustration Wrapper — clean architectural white background */
 .exp-illustration-wrapper {
   width: 100%;
   border-radius: 10px;
   overflow: hidden;
-  border: 1px solid #d4e2d8;
-  background: #e8f0ec;
+  border: 1px solid #e2e8e4;
+  background: #ffffff;
 }
 
 .exp-svg {

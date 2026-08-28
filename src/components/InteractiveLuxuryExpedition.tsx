@@ -10,9 +10,9 @@ const EXPERIENCES: {
   themeColor: string;
   glowColor: string;
 }[] = [
-  { id: "pitch",  title: "1:1 Pitch Pods",         themeColor: "#ea580c", glowColor: "rgba(234,88,12,0.14)"  },
-  { id: "dine",   title: "Coastal Dining Car",      themeColor: "#d97706", glowColor: "rgba(217,119,6,0.14)" },
-  { id: "lounge", title: "Panoramic Scenic Lounge", themeColor: "#059669", glowColor: "rgba(5,150,105,0.14)" },
+  { id: "pitch",  title: "1:1 Pitch Pods",         themeColor: "#ea580c", glowColor: "rgba(234,88,12,0.12)"  },
+  { id: "dine",   title: "Coastal Dining Car",      themeColor: "#d97706", glowColor: "rgba(217,119,6,0.12)" },
+  { id: "lounge", title: "Panoramic Scenic Lounge", themeColor: "#059669", glowColor: "rgba(5,150,105,0.12)" },
 ];
 
 const STATIONS = [
@@ -37,7 +37,7 @@ export function InteractiveLuxuryExpedition() {
         </p>
       </div>
 
-      {/* ── 3 Visual Experience Cards ──────────────────────────────────── */}
+      {/* ── 3 Visual Experience Cards (Minimal Architectural Aesthetic) ─ */}
       <div className="luxury-cards-showcase-grid">
         {EXPERIENCES.map((exp) => {
           const isActive = active === exp.id;
@@ -67,7 +67,6 @@ export function InteractiveLuxuryExpedition() {
 
       {/* ── Clean Realistic Railway Track Timeline ─────────────────────── */}
       <div className="luxury-timeline-track-card">
-        {/* Station Names & Times sitting right above the track */}
         <div className="track-stations-grid">
           {STATIONS.map((st, idx) => (
             <div key={idx} className={`track-station-item ${st.active ? "station-active" : ""}`}>
@@ -93,7 +92,6 @@ export function InteractiveLuxuryExpedition() {
             xmlns="http://www.w3.org/2000/svg"
           >
             <defs>
-              {/* Metallic Steel Rail Gradients */}
               <linearGradient id="realRailGrad" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" stopColor="#e2e8f0" />
                 <stop offset="30%" stopColor="#f8fafc" />
@@ -101,7 +99,6 @@ export function InteractiveLuxuryExpedition() {
                 <stop offset="100%" stopColor="#475569" />
               </linearGradient>
 
-              {/* Wooden Sleeper Tie Texture */}
               <linearGradient id="realWoodSleeper" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" stopColor="#b48348" />
                 <stop offset="35%" stopColor="#8d5b28" />
@@ -110,11 +107,9 @@ export function InteractiveLuxuryExpedition() {
               </linearGradient>
             </defs>
 
-            {/* Ballast / Gravel Bed Base */}
             <rect x="0" y="2" width="1000" height="32" rx="4" fill="#edf2ee" />
             <line x1="0" y1="18" x2="1000" y2="18" stroke="#d5ded8" strokeWidth="1" strokeDasharray="3 6" />
 
-            {/* Wooden Sleepers (Ties) spaced evenly across track */}
             {Array.from({ length: 44 }).map((_, i) => {
               const x = 8 + i * 22.5;
               return (
@@ -129,18 +124,15 @@ export function InteractiveLuxuryExpedition() {
                     stroke="#3b2108"
                     strokeWidth="0.5"
                   />
-                  {/* Metal tie fastener plates */}
                   <rect x={x + 1.5} y="8" width="8" height="3" fill="#64748b" rx="0.5" />
                   <rect x={x + 1.5} y="25" width="8" height="3" fill="#64748b" rx="0.5" />
                 </g>
               );
             })}
 
-            {/* Upper Steel Rail */}
             <rect x="0" y="7" width="1000" height="5.5" rx="1.5" fill="url(#realRailGrad)" />
             <line x1="0" y1="7.8" x2="1000" y2="7.8" stroke="#ffffff" strokeWidth="1.2" strokeOpacity="0.8" />
 
-            {/* Lower Steel Rail */}
             <rect x="0" y="23.5" width="1000" height="5.5" rx="1.5" fill="url(#realRailGrad)" />
             <line x1="0" y1="24.3" x2="1000" y2="24.3" stroke="#ffffff" strokeWidth="1.2" strokeOpacity="0.8" />
           </svg>
@@ -151,183 +143,274 @@ export function InteractiveLuxuryExpedition() {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────── */
-/*  Scene Illustrations — lighter, theme-warm palette                         */
+/*  Clean Architectural Style Vector Illustrations (Matching Reference)       */
 /* ─────────────────────────────────────────────────────────────────────────── */
 
+/* 🎯 Scene 1: 1:1 Pitch Pods (High-Back Acoustic Chairs & Desktop Screen) */
 function PitchScene() {
   return (
-    <svg viewBox="0 0 400 220" className="exp-svg" xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 400 240" className="exp-svg" fill="none" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="pw" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#d6ede5" />
-          <stop offset="100%" stopColor="#c4e0d5" />
+        <linearGradient id="podScreenGrad" x1="0" y1="0" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#f8fafc" />
+          <stop offset="100%" stopColor="#e2e8f0" />
         </linearGradient>
-        <linearGradient id="chartG" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#0f6b61" />
-          <stop offset="100%" stopColor="#ea580c" />
-        </linearGradient>
-        <linearGradient id="screenBg" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#0f2d26" />
-          <stop offset="100%" stopColor="#071a14" />
+        <linearGradient id="podBackdrop" x1="0" y1="0" x2="0" y2="100%">
+          <stop offset="0%" stopColor="#f0fdf4" />
+          <stop offset="100%" stopColor="#f8fafc" />
         </linearGradient>
       </defs>
 
-      {/* Wall */}
-      <rect width="400" height="220" fill="url(#pw)" />
-      <line x1="0" y1="130" x2="400" y2="130" stroke="#b8d9cc" strokeWidth="1" strokeDasharray="4 8" />
+      {/* Clean White/Airy Background */}
+      <rect width="400" height="240" fill="#ffffff" />
 
-      {/* Scenic window */}
-      <rect x="50" y="16" width="300" height="64" rx="10" fill="#a7d4e8" stroke="#7ec8e3" strokeWidth="1.5" />
-      <path d="M50,66 Q110,44 170,58 Q230,40 290,56 Q330,48 350,60 L350,80 L50,80 Z" fill="#5ebd7c" opacity=".8" />
-      <path d="M50,72 Q130,58 200,68 Q300,54 350,70 L350,80 L50,80 Z" fill="#38a35a" />
-      <path d="M62,22 L140,22 L108,76 L62,76 Z" fill="#fff" opacity=".12" />
+      {/* Subtle Train Window Arch in Background */}
+      <path
+        d="M 120,195 L 120,90 Q 200,45 280,90 L 280,195 Z"
+        fill="#f1f5f9"
+        opacity="0.75"
+      />
+      {/* Distant soft hill silhouette in window */}
+      <path d="M 120,165 Q 160,135 200,150 Q 240,130 280,155 L 280,195 L 120,195 Z" fill="#e2e8f0" opacity="0.6" />
 
-      {/* OLED screen */}
-      <rect x="118" y="50" width="164" height="100" rx="6" fill="url(#screenBg)" stroke="#ea580c" strokeWidth="2" />
-      <rect x="123" y="55" width="154" height="90" rx="3" fill="#0c2118" />
-      <path d="M131,122 Q155,110 178,96 T228,74 T252,68"
-        fill="none" stroke="url(#chartG)" strokeWidth="2.5" strokeLinecap="round" />
-      <circle cx="252" cy="68" r="3.5" fill="#0f6b61" />
-      <rect x="131" y="130" width="46" height="10" rx="2" fill="#0f3a2d" />
-      <text x="154" y="137.5" fill="#2fd9ab" fontSize="6" fontWeight="800" textAnchor="middle">+320% ARR</text>
-      <rect x="184" y="130" width="50" height="10" rx="2" fill="#0f3a2d" />
-      <text x="209" y="137.5" fill="#fb923c" fontSize="6" fontWeight="800" textAnchor="middle">₹1.2CR CHEQUE</text>
+      {/* Floor Shadow Line */}
+      <ellipse cx="200" cy="202" rx="170" ry="4" fill="#cbd5e1" opacity="0.5" />
 
-      {/* Founder seat */}
-      <rect x="24" y="98" width="68" height="100" rx="10" fill="#ea580c" stroke="#c2410c" strokeWidth="1.2" />
-      <rect x="32" y="114" width="52" height="72" rx="6" fill="#7a2e0a" />
-      <circle cx="58" cy="106" r="12" fill="#fcd34d" stroke="#f59e0b" strokeWidth="1" />
+      {/* ── Left High-Back Acoustic Pod Chair ── */}
+      {/* Outer Shell (High-Back Acoustic Wing) */}
+      <path
+        d="M 52,192 L 52,70 Q 52,58 64,58 L 78,58 Q 90,58 90,70 L 90,192 Z"
+        fill="#b0c4de"
+      />
+      {/* Inner Dark Acoustic Padding */}
+      <path
+        d="M 68,190 L 68,68 Q 68,62 76,62 L 98,62 Q 106,62 106,68 L 106,190 Z"
+        fill="#2c3e50"
+      />
+      {/* Plush Light Seat Cushion & Armrest */}
+      <path
+        d="M 68,145 L 86,145 L 86,118 Q 86,112 94,112 L 108,112 L 108,162 L 68,162 Z"
+        fill="#ffffff"
+        stroke="#cbd5e1"
+        strokeWidth="1"
+      />
+      <rect x="65" y="152" width="46" height="14" rx="4" fill="#f8fafc" stroke="#94a3b8" strokeWidth="1" />
+      {/* Chair Wooden Legs */}
+      <line x1="68" y1="166" x2="56" y2="198" stroke="#78350f" strokeWidth="3" strokeLinecap="round" />
+      <line x1="102" y1="166" x2="114" y2="198" stroke="#78350f" strokeWidth="3" strokeLinecap="round" />
 
-      {/* Investor seat */}
-      <rect x="308" y="98" width="68" height="100" rx="10" fill="#0f6b61" stroke="#0a4a43" strokeWidth="1.2" />
-      <rect x="316" y="114" width="52" height="72" rx="6" fill="#073d36" />
-      <circle cx="342" cy="106" r="12" fill="#fcd34d" stroke="#f59e0b" strokeWidth="1" />
+      {/* ── Right High-Back Acoustic Pod Chair ── */}
+      {/* Outer Shell */}
+      <path
+        d="M 348,192 L 348,70 Q 348,58 336,58 L 322,58 Q 310,58 310,70 L 310,192 Z"
+        fill="#b0c4de"
+      />
+      {/* Inner Dark Acoustic Padding */}
+      <path
+        d="M 332,190 L 332,68 Q 332,62 324,62 L 302,62 Q 294,62 294,68 L 294,190 Z"
+        fill="#2c3e50"
+      />
+      {/* Plush Light Seat Cushion & Armrest */}
+      <path
+        d="M 332,145 L 314,145 L 314,118 Q 314,112 306,112 L 292,112 L 292,162 L 332,162 Z"
+        fill="#ffffff"
+        stroke="#cbd5e1"
+        strokeWidth="1"
+      />
+      <rect x="289" y="152" width="46" height="14" rx="4" fill="#f8fafc" stroke="#94a3b8" strokeWidth="1" />
+      {/* Chair Wooden Legs */}
+      <line x1="332" y1="166" x2="344" y2="198" stroke="#78350f" strokeWidth="3" strokeLinecap="round" />
+      <line x1="298" y1="166" x2="286" y2="198" stroke="#78350f" strokeWidth="3" strokeLinecap="round" />
 
-      {/* Desk */}
-      <rect x="98" y="156" width="204" height="26" rx="5" fill="#d0e8de" stroke="#afd0c5" strokeWidth="1" />
-      <rect x="148" y="150" width="30" height="16" rx="2" fill="#e2ede7" stroke="#afd0c5" strokeWidth="1" />
-      <rect x="152" y="153" width="22" height="11" rx="1" fill="#102720" />
-      <circle cx="252" cy="169" r="5" fill="#fff" stroke="#b5d4c6" strokeWidth="1" />
-      <circle cx="252" cy="169" r="3" fill="#92400e" />
+      {/* ── Center Presentation Desktop Display ── */}
+      {/* Monitor Shadow */}
+      <ellipse cx="200" cy="182" rx="16" ry="2" fill="#94a3b8" opacity="0.4" />
+      {/* Stand Base */}
+      <path d="M 188,180 L 212,180 L 208,172 L 192,172 Z" fill="#94a3b8" />
+      <rect x="198" y="140" width="4" height="34" fill="#cbd5e1" />
+      {/* Monitor Bezel */}
+      <rect
+        x="142"
+        y="90"
+        width="116"
+        height="76"
+        rx="6"
+        fill="#1e293b"
+        stroke="#475569"
+        strokeWidth="1.5"
+      />
+      {/* Monitor Screen Glass */}
+      <rect x="146" y="94" width="108" height="68" rx="4" fill="url(#podScreenGrad)" />
+      {/* Glass Diagonal Glare */}
+      <polygon points="146,94 195,94 175,162 146,162" fill="#ffffff" opacity="0.5" />
+      {/* Mini UI Pitch Line Chart on Screen */}
+      <path d="M 160,140 Q 180,132 195,120 T 235,108" fill="none" stroke="#ea580c" strokeWidth="2" strokeLinecap="round" />
+      <circle cx="235" cy="108" r="2.5" fill="#ea580c" />
     </svg>
   );
 }
 
+/* 🍽️ Scene 2: Coastal Dining Car (Draped Table, Warm Pendant Lamp, Wine & Glasses) */
 function DineScene() {
   return (
-    <svg viewBox="0 0 400 220" className="exp-svg" xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 400 240" className="exp-svg" fill="none" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="dw" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#fef3e2" />
-          <stop offset="100%" stopColor="#fde8c4" />
-        </linearGradient>
-        <linearGradient id="tw" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#a16207" />
-          <stop offset="50%" stopColor="#b45309" />
-          <stop offset="100%" stopColor="#a16207" />
-        </linearGradient>
-        <linearGradient id="lampG" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#fbbf24" stopOpacity=".3" />
-          <stop offset="100%" stopColor="#fbbf24" stopOpacity="0" />
+        <radialGradient id="lampWarmGlow" cx="50%" cy="0%" r="90%">
+          <stop offset="0%" stopColor="#fed7aa" stopOpacity="0.8" />
+          <stop offset="45%" stopColor="#ffedd5" stopOpacity="0.45" />
+          <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+        </radialGradient>
+        <linearGradient id="clothGrad" x1="0" y1="0" x2="0" y2="100%">
+          <stop offset="0%" stopColor="#f5d0b5" />
+          <stop offset="60%" stopColor="#e2b191" />
+          <stop offset="100%" stopColor="#c89270" />
         </linearGradient>
       </defs>
 
-      <rect width="400" height="220" fill="url(#dw)" />
+      {/* Clean White Background */}
+      <rect width="400" height="240" fill="#ffffff" />
 
-      {/* Arched window */}
-      <rect x="40" y="14" width="320" height="80" rx="14" fill="#bae6fd" stroke="#7dd3fc" strokeWidth="1.2" />
-      <path d="M40,58 Q120,42 200,54 Q280,40 360,56 L360,94 L40,94 Z" fill="#4ade80" opacity=".5" />
-      <path d="M40,72 Q130,60 200,70 Q300,58 360,70 L360,94 L40,94 Z" fill="#22c55e" opacity=".6" />
-      <path d="M60,56 L340,56" stroke="#d97706" strokeWidth="3" />
-      <rect x="102" y="56" width="9" height="32" fill="#b45309" />
-      <rect x="174" y="56" width="9" height="32" fill="#b45309" />
-      <rect x="248" y="56" width="9" height="32" fill="#b45309" />
-      <rect x="316" y="56" width="9" height="32" fill="#b45309" />
-      <path d="M80,68 Q76,48 84,35 M84,35 Q70,32 68,42 M84,35 Q97,31 94,41" stroke="#15803d" strokeWidth="2" strokeLinecap="round" />
-      <path d="M292,68 Q288,48 296,35 M296,35 Q282,32 280,42 M296,35 Q309,31 306,41" stroke="#15803d" strokeWidth="2" strokeLinecap="round" />
+      {/* Arched Warm Peach / Sunlight Backdrop Arch */}
+      <path
+        d="M 110,210 L 110,120 A 90,90 0 0 1 290,120 L 290,210 Z"
+        fill="#ffedd5"
+      />
 
-      {/* Pendant lamps */}
-      <line x1="140" y1="0" x2="140" y2="38" stroke="#d97706" strokeWidth="1.5" />
-      <polygon points="133,38 147,38 150,47 130,47" fill="#d97706" />
-      <polygon points="118,47 162,47 190,120 92,120" fill="url(#lampG)" />
+      {/* Hanging Brass Pendant Lamp & Downward Light Cone */}
+      <line x1="200" y1="0" x2="200" y2="46" stroke="#b45309" strokeWidth="1.5" />
+      <polygon points="186,46 214,46 222,60 178,60" fill="#d97706" />
+      <circle cx="200" cy="60" r="4" fill="#ffffff" />
+      {/* Light Cone */}
+      <polygon points="178,60 222,60 310,210 90,210" fill="url(#lampWarmGlow)" />
 
-      <line x1="260" y1="0" x2="260" y2="38" stroke="#d97706" strokeWidth="1.5" />
-      <polygon points="253,38 267,38 270,47 250,47" fill="#d97706" />
-      <polygon points="238,47 282,47 308,120 212,120" fill="url(#lampG)" />
+      {/* Floor Shadow */}
+      <ellipse cx="200" cy="204" rx="140" ry="5" fill="#e2e8f0" />
 
-      {/* Booth seats */}
-      <rect x="22" y="106" width="50" height="92" rx="7" fill="#d97706" stroke="#b45309" strokeWidth="1" />
-      <rect x="328" y="106" width="50" height="92" rx="7" fill="#d97706" stroke="#b45309" strokeWidth="1" />
+      {/* ── Left Dining Chair ── */}
+      <rect x="110" y="118" width="50" height="12" rx="2" fill="#78350f" transform="rotate(-6 110 118)" />
+      <line x1="114" y1="128" x2="114" y2="198" stroke="#5c2406" strokeWidth="3" strokeLinecap="round" />
+      <line x1="148" y1="128" x2="148" y2="198" stroke="#5c2406" strokeWidth="3" strokeLinecap="round" />
 
-      {/* Dining table */}
-      <rect x="78" y="116" width="244" height="70" rx="7" fill="url(#tw)" stroke="#f59e0b" strokeWidth="1" />
-      <rect x="88" y="122" width="224" height="58" rx="4" fill="#fffbeb" />
+      {/* ── Right Dining Chair ── */}
+      <rect x="250" y="128" width="56" height="14" rx="3" fill="#5c2406" />
+      <line x1="256" y1="140" x2="252" y2="200" stroke="#451a03" strokeWidth="3.5" strokeLinecap="round" />
+      <line x1="294" y1="140" x2="300" y2="200" stroke="#451a03" strokeWidth="3.5" strokeLinecap="round" />
+      {/* Chair Backrest */}
+      <rect x="250" y="148" width="56" height="8" rx="2" fill="#78350f" />
 
-      {/* Banana leaf platter */}
-      <ellipse cx="200" cy="150" rx="36" ry="17" fill="#4ade80" stroke="#16a34a" strokeWidth=".8" />
-      <circle cx="185" cy="150" r="5" fill="#f59e0b" />
-      <circle cx="200" cy="150" r="6" fill="#ea580c" />
-      <circle cx="215" cy="150" r="5" fill="#fef08a" />
+      {/* ── Draped Dining Table ── */}
+      <polygon
+        points="130,126 270,126 288,188 274,188 260,192 245,188 230,194 215,188 200,192 185,188 170,194 155,188 140,192 112,188"
+        fill="url(#clothGrad)"
+        stroke="#b45309"
+        strokeWidth="0.8"
+      />
+      {/* Table Top Surface Highlight */}
+      <polygon points="130,126 270,126 264,136 136,136" fill="#fde6d2" />
 
-      {/* Side plates */}
-      <circle cx="128" cy="150" r="13" fill="#fff" stroke="#f59e0b" strokeWidth="1" />
-      <circle cx="128" cy="150" r="7" fill="#d97706" />
-      <circle cx="272" cy="150" r="13" fill="#fff" stroke="#f59e0b" strokeWidth="1" />
-      <circle cx="272" cy="150" r="7" fill="#d97706" />
+      {/* Table Dinnerware Setup */}
+      {/* Left Plate & Glass */}
+      <ellipse cx="160" cy="132" rx="14" ry="4" fill="#ffffff" stroke="#c2410c" strokeWidth="0.8" />
+      <ellipse cx="160" cy="132" rx="8" ry="2" fill="#ffedd5" />
+      {/* Wine Glass Left */}
+      <path d="M 174,124 Q 170,116 174,112 L 180,112 Q 184,116 180,124 Z" fill="#fed7aa" stroke="#c2410c" strokeWidth="0.6" />
+      <line x1="177" y1="124" x2="177" y2="132" stroke="#c2410c" strokeWidth="0.8" />
 
-      {/* Drinks */}
-      <rect x="158" y="134" width="8" height="13" rx="2" fill="#92400e" />
-      <rect x="234" y="134" width="8" height="13" rx="2" fill="#be123c" />
+      {/* Center Wine Bottle & Candle */}
+      <rect x="196" y="104" width="8" height="24" rx="1.5" fill="#92400e" stroke="#451a03" strokeWidth="0.6" />
+      <rect x="198" y="98" width="4" height="7" fill="#78350f" />
+      {/* Candle */}
+      <line x1="210" y1="106" x2="210" y2="128" stroke="#cbd5e1" strokeWidth="2" />
+      <circle cx="210" cy="103" r="2.5" fill="#f59e0b" />
+
+      {/* Right Plate & Glass */}
+      <ellipse cx="240" cy="132" rx="14" ry="4" fill="#ffffff" stroke="#c2410c" strokeWidth="0.8" />
+      <ellipse cx="240" cy="132" rx="8" ry="2" fill="#ffedd5" />
+      {/* Wine Glass Right */}
+      <path d="M 224,124 Q 220,116 224,112 L 230,112 Q 234,116 230,124 Z" fill="#fed7aa" stroke="#c2410c" strokeWidth="0.6" />
+      <line x1="227" y1="124" x2="227" y2="132" stroke="#c2410c" strokeWidth="0.8" />
     </svg>
   );
 }
 
+/* 🌅 Scene 3: Panoramic Scenic Lounge (Sunset Window, Ocean Horizon & Chaise Lounge) */
 function LoungeScene() {
   return (
-    <svg viewBox="0 0 400 220" className="exp-svg" xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 400 240" className="exp-svg" fill="none" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="lw" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#d1fae5" />
-          <stop offset="100%" stopColor="#a7f3d0" />
+        <linearGradient id="sunsetSkyArch" x1="0" y1="0" x2="0" y2="100%">
+          <stop offset="0%" stopColor="#bfdbfe" />
+          <stop offset="30%" stopColor="#fed7aa" />
+          <stop offset="65%" stopColor="#f472b6" />
+          <stop offset="100%" stopColor="#38bdf8" />
         </linearGradient>
-        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#f97316" />
-          <stop offset="35%" stopColor="#fbbf24" />
-          <stop offset="65%" stopColor="#f9a8d4" />
-          <stop offset="100%" stopColor="#7dd3fc" />
-        </linearGradient>
-        <linearGradient id="sg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#fef08a" />
-          <stop offset="100%" stopColor="#fbbf24" />
-        </linearGradient>
+        <radialGradient id="sunDisc" cx="50%" cy="100%" r="100%">
+          <stop offset="0%" stopColor="#ffffff" />
+          <stop offset="60%" stopColor="#fef08a" />
+          <stop offset="100%" stopColor="#fde047" />
+        </radialGradient>
       </defs>
 
-      <rect width="400" height="220" fill="url(#lw)" />
+      {/* Clean White Background */}
+      <rect width="400" height="240" fill="#ffffff" />
 
-      {/* Panoramic window */}
-      <rect x="22" y="12" width="356" height="106" rx="12" fill="url(#sky)" stroke="#6ee7b7" strokeWidth="1.5" />
-      <circle cx="200" cy="56" r="22" fill="url(#sg)" />
-      <circle cx="200" cy="56" r="34" fill="#fef08a" opacity=".22" />
+      {/* Semi-Circular Panoramic Window Frame overlooking Sunset */}
+      <path
+        d="M 80,180 L 80,120 A 120,120 0 0 1 320,120 L 320,180 Z"
+        fill="url(#sunsetSkyArch)"
+      />
 
-      {/* Ocean */}
-      <path d="M22,86 Q110,78 200,84 Q290,90 378,83 L378,118 L22,118 Z" fill="#059669" opacity=".75" />
-      <path d="M22,100 Q100,94 200,100 Q300,106 378,98 L378,118 L22,118 Z" fill="#047857" />
+      {/* Glowing Sunset Sun on Horizon */}
+      <circle cx="250" cy="120" r="28" fill="url(#sunDisc)" />
+      <circle cx="250" cy="120" r="38" fill="#fef08a" opacity="0.3" />
 
-      {/* Palm silhouettes */}
-      <path d="M52,102 Q57,74 70,54 M70,54 Q51,50 47,61 M70,54 Q87,48 84,60 M70,54 Q65,40 78,44" stroke="#065f46" strokeWidth="2" strokeLinecap="round" />
-      <path d="M348,102 Q343,74 330,54 M330,54 Q349,50 353,61 M330,54 Q313,48 316,60 M330,54 Q335,40 322,44" stroke="#065f46" strokeWidth="2" strokeLinecap="round" />
+      {/* Ocean Water Horizon */}
+      <rect x="80" y="120" width="240" height="60" fill="#0284c7" opacity="0.85" />
+      {/* Sun Golden Water Reflections */}
+      <ellipse cx="250" cy="126" rx="32" ry="2" fill="#ffffff" opacity="0.6" />
+      <ellipse cx="250" cy="132" rx="26" ry="1.5" fill="#fef08a" opacity="0.5" />
+      <ellipse cx="250" cy="138" rx="20" ry="1.2" fill="#fef08a" opacity="0.4" />
+      <ellipse cx="250" cy="144" rx="14" ry="1" fill="#fef08a" opacity="0.3" />
 
-      {/* Curved lounge sofa */}
-      <path d="M55,150 C95,124 305,124 345,150 L354,192 C290,166 110,166 46,192 Z" fill="#059669" stroke="#34d399" strokeWidth="1.5" />
-      <path d="M74,160 C110,142 290,142 326,160 L316,182 C278,168 122,168 84,182 Z" fill="#047857" />
+      {/* Balcony / Window Lower Railing */}
+      <line x1="80" y1="150" x2="320" y2="150" stroke="#0f172a" strokeWidth="2" opacity="0.7" />
+      <line x1="200" y1="150" x2="200" y2="180" stroke="#0f172a" strokeWidth="1.5" opacity="0.7" />
+      <line x1="280" y1="150" x2="280" y2="180" stroke="#0f172a" strokeWidth="1.5" opacity="0.7" />
 
-      {/* Cocktail table */}
-      <ellipse cx="200" cy="180" rx="30" ry="11" fill="#ecfdf5" stroke="#6ee7b7" strokeWidth="1" />
-      <ellipse cx="200" cy="180" rx="16" ry="6" fill="#d1fae5" />
+      {/* Floor Shadow for Lounger */}
+      <ellipse cx="190" cy="204" rx="100" ry="6" fill="#cbd5e1" opacity="0.7" />
 
-      {/* Champagne flutes */}
-      <polygon points="188,173 191,173 190,180 189,180" fill="#fef08a" stroke="#d97706" strokeWidth=".5" />
-      <polygon points="211,173 214,173 213,180 212,180" fill="#fef08a" stroke="#d97706" strokeWidth=".5" />
+      {/* ── Modern Curved Teakwood Chaise Lounge Recliner ── */}
+      {/* Wooden Underframe Legs */}
+      <line x1="126" y1="175" x2="114" y2="202" stroke="#5c2406" strokeWidth="4.5" strokeLinecap="round" />
+      <line x1="210" y1="172" x2="216" y2="202" stroke="#5c2406" strokeWidth="4" strokeLinecap="round" />
+      <line x1="280" y1="172" x2="292" y2="198" stroke="#5c2406" strokeWidth="4" strokeLinecap="round" />
+
+      {/* Curved Wooden Frame Backbone */}
+      <path
+        d="M 104,136 Q 110,165 140,172 Q 190,178 220,160 Q 250,154 286,172"
+        fill="none"
+        stroke="#78350f"
+        strokeWidth="11"
+        strokeLinecap="round"
+      />
+
+      {/* Plush Light Cream Contoured Cushion Mattress */}
+      <path
+        d="M 106,134 Q 112,162 142,168 Q 192,174 222,156 Q 252,150 286,168"
+        fill="none"
+        stroke="#fef3c7"
+        strokeWidth="7"
+        strokeLinecap="round"
+      />
+      {/* Cushion Edge Highlight */}
+      <path
+        d="M 107,133 Q 113,161 143,167 Q 193,173 223,155 Q 253,149 285,167"
+        fill="none"
+        stroke="#ffffff"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
