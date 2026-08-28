@@ -9,14 +9,14 @@ interface RailwayAnnouncementProps {
 export function RailwayAnnouncement({ onTogglePlay }: RailwayAnnouncementProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const [autoplayBlocked, setAutoplayBlocked] = useState(false);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
   const mediaSourceConnectedRef = useRef(false);
   const isPlayingRef = useRef(false);
+  const crowdNodesRef = useRef<{ stop: () => void } | null>(null);
 
-  // Initialize AudioContext lazily on user action or autoplay
+  // Initialize AudioContext
   const getAudioContext = useCallback((): AudioContext | null => {
     try {
       const AudioCtx =
@@ -34,7 +34,86 @@ export function RailwayAnnouncement({ onTogglePlay }: RailwayAnnouncementProps) 
     }
   }, []);
 
-  // Authentic Radio Station Mic Squelch & Station PA Chime (D5 -> F#5 -> A5)
+  // Authentic 20% Light Railway Station Crowd & Platform Ambience
+  const startCrowdAmbience = useCallback((): { stop: () => void } | null => {
+    const ctx = getAudioContext();
+    if (!ctx) return null;
+
+    try {
+      const now = ctx.currentTime;
+
+      // 1. Looping Station Platform Crowd Murmur Buffer (3.5s smooth loop)
+      const bufferLen = Math.floor(ctx.sampleRate * 3.5);
+      const crowdBuffer = ctx.createBuffer(2, bufferLen, ctx.sampleRate);
+      for (let ch = 0; ch < 2; ch++) {
+        const data = crowdBuffer.getChannelData(ch);
+        let lastOut = 0.0;
+        for (let i = 0; i < bufferLen; i++) {
+          // Pink/Brownian noise for organic human vocal chatter acoustics
+          const white = Math.random() * 2 - 1;
+          lastOut = (lastOut * 0.95) + (white * 0.05);
+          data[i] = lastOut * 3.2;
+        }
+      }
+
+      const crowdSource = ctx.createBufferSource();
+      crowdSource.buffer = crowdBuffer;
+      crowdSource.loop = true;
+
+      // Multi-band acoustic filtering for distant platform crowd frequencies
+      const filter1 = ctx.createBiquadFilter();
+      filter1.type = "bandpass";
+      filter1.frequency.setValueAtTime(650, now);
+      filter1.Q.setValueAtTime(1.2, now);
+
+      const filter2 = ctx.createBiquadFilter();
+      filter2.type = "lowpass";
+      filter2.frequency.setValueAtTime(2200, now);
+
+      // Gentle 20% background gain (0.19) with smooth fade-in
+      const crowdGain = ctx.createGain();
+      crowdGain.gain.setValueAtTime(0.001, now);
+      crowdGain.gain.exponentialRampToValueAtTime(0.19, now + 0.4); // Exactly ~20% volume
+
+      // Distant low train rumble hum (62Hz) on platform tracks
+      const rumbleOsc = ctx.createOscillator();
+      const rumbleGain = ctx.createGain();
+      rumbleOsc.type = "sine";
+      rumbleOsc.frequency.setValueAtTime(62, now);
+      rumbleGain.gain.setValueAtTime(0.04, now);
+
+      crowdSource.connect(filter1);
+      filter1.connect(filter2);
+      filter2.connect(crowdGain);
+      crowdGain.connect(ctx.destination);
+
+      rumbleOsc.connect(rumbleGain);
+      rumbleGain.connect(crowdGain);
+
+      crowdSource.start(now);
+      rumbleOsc.start(now);
+
+      return {
+        stop: () => {
+          try {
+            const stopTime = ctx.currentTime;
+            crowdGain.gain.setValueAtTime(crowdGain.gain.value, stopTime);
+            crowdGain.gain.exponentialRampToValueAtTime(0.0001, stopTime + 0.5);
+            setTimeout(() => {
+              try {
+                crowdSource.stop();
+                rumbleOsc.stop();
+              } catch {}
+            }, 550);
+          } catch {}
+        },
+      };
+    } catch {
+      return null;
+    }
+  }, [getAudioContext]);
+
+  // Radio Station Mic Squelch & Station Chime Tune (D5 -> F#5 -> A5)
   const playRadioStationTune = useCallback((): Promise<void> => {
     return new Promise((resolve) => {
       const ctx = getAudioContext();
@@ -46,8 +125,8 @@ export function RailwayAnnouncement({ onTogglePlay }: RailwayAnnouncementProps) 
       try {
         const now = ctx.currentTime;
 
-        // 1. Radio Mic Click & Static Squelch Burst
-        const noiseBufferSize = Math.floor(ctx.sampleRate * 0.045);
+        // Radio mic click / squelch (40ms)
+        const noiseBufferSize = Math.floor(ctx.sampleRate * 0.04);
         const noiseBuffer = ctx.createBuffer(1, noiseBufferSize, ctx.sampleRate);
         const output = noiseBuffer.getChannelData(0);
         for (let i = 0; i < noiseBufferSize; i++) {
@@ -64,18 +143,18 @@ export function RailwayAnnouncement({ onTogglePlay }: RailwayAnnouncementProps) 
 
         const noiseGain = ctx.createGain();
         noiseGain.gain.setValueAtTime(0.18, now);
-        noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
 
         noiseSource.connect(noiseFilter);
         noiseFilter.connect(noiseGain);
         noiseGain.connect(ctx.destination);
         noiseSource.start(now);
 
-        // 2. Indian Railways Station Chime Sequence: D5 (587Hz) -> F#5 (740Hz) -> A5 (880Hz)
+        // Classic Indian Railways Announcement Chime (D5 -> F#5 -> A5)
         const chimeNotes = [
-          { freq: 587.33, start: now + 0.08, duration: 0.38 },
-          { freq: 739.99, start: now + 0.44, duration: 0.38 },
-          { freq: 880.0, start: now + 0.82, duration: 0.62 },
+          { freq: 587.33, start: now + 0.07, duration: 0.38 },
+          { freq: 739.99, start: now + 0.43, duration: 0.38 },
+          { freq: 880.0, start: now + 0.81, duration: 0.62 },
         ];
 
         chimeNotes.forEach(({ freq, start, duration }) => {
@@ -93,14 +172,14 @@ export function RailwayAnnouncement({ onTogglePlay }: RailwayAnnouncementProps) 
           osc.start(start);
           osc.stop(start + duration);
 
-          // Bell harmonic overtone for resonant station PA sound
+          // Bell overtone harmonic
           const oscHarmonic = ctx.createOscillator();
           const gainHarmonic = ctx.createGain();
           oscHarmonic.type = "sine";
           oscHarmonic.frequency.setValueAtTime(freq * 2, start);
 
           gainHarmonic.gain.setValueAtTime(0.001, start);
-          gainHarmonic.gain.exponentialRampToValueAtTime(0.09, start + 0.015);
+          gainHarmonic.gain.exponentialRampToValueAtTime(0.08, start + 0.015);
           gainHarmonic.gain.exponentialRampToValueAtTime(0.001, start + duration * 0.7);
 
           oscHarmonic.connect(gainHarmonic);
@@ -116,7 +195,7 @@ export function RailwayAnnouncement({ onTogglePlay }: RailwayAnnouncementProps) 
     });
   }, [getAudioContext]);
 
-  // Connect HTML Audio Element through Web Audio PA Echo DSP graph
+  // Setup Web Audio Platform Echo (220ms delay, 32% feedback)
   const setupAudioEchoGraph = useCallback(
     (audioEl: HTMLAudioElement) => {
       const ctx = getAudioContext();
@@ -126,13 +205,13 @@ export function RailwayAnnouncement({ onTogglePlay }: RailwayAnnouncementProps) 
         const source = ctx.createMediaElementSource(audioEl);
         mediaSourceConnectedRef.current = true;
 
-        // Dry speech path
+        // Direct path
         const dryGain = ctx.createGain();
         dryGain.gain.setValueAtTime(0.95, ctx.currentTime);
         source.connect(dryGain);
         dryGain.connect(ctx.destination);
 
-        // Platform Echo / Hall Reverb loop (220ms delay, 32% feedback)
+        // Platform Echo path (220ms delay, 32% feedback, 1400Hz filter)
         const delayNode = ctx.createDelay();
         delayNode.delayTime.setValueAtTime(0.22, ctx.currentTime);
 
@@ -145,7 +224,7 @@ export function RailwayAnnouncement({ onTogglePlay }: RailwayAnnouncementProps) 
         filter.Q.setValueAtTime(0.8, ctx.currentTime);
 
         const wetGain = ctx.createGain();
-        wetGain.gain.setValueAtTime(0.35, ctx.currentTime);
+        wetGain.gain.setValueAtTime(0.34, ctx.currentTime);
 
         source.connect(filter);
         filter.connect(delayNode);
@@ -161,17 +240,32 @@ export function RailwayAnnouncement({ onTogglePlay }: RailwayAnnouncementProps) 
     [getAudioContext]
   );
 
-  // Helper to play a single audio track with promise resolution on finish
-  const playTrack = useCallback(
-    (src: string): Promise<void> => {
-      return new Promise((resolve) => {
+  // Start Announcement (Single Audio + 20% Station Crowd Sound + Echo)
+  const startAnnouncement = useCallback(async () => {
+    if (isPlayingRef.current) return;
+    setIsPlaying(true);
+    setIsMuted(false);
+    isPlayingRef.current = true;
+    onTogglePlay?.(true);
+
+    try {
+      // 1. Start 20% railway crowd sound in the background
+      if (crowdNodesRef.current) crowdNodesRef.current.stop();
+      crowdNodesRef.current = startCrowdAmbience();
+
+      // 2. Play starting radio squelch and 3-tone station chime
+      await playRadioStationTune();
+      if (!isPlayingRef.current) return;
+
+      // 3. Play the announcement audio track with platform echo
+      await new Promise<void>((resolve) => {
         if (!audioElementRef.current) {
           audioElementRef.current = new Audio();
           audioElementRef.current.crossOrigin = "anonymous";
         }
 
         const audioEl = audioElementRef.current;
-        audioEl.src = src;
+        audioEl.src = "/audio/announcement-male.wav";
         setupAudioEchoGraph(audioEl);
 
         audioEl.onended = () => resolve();
@@ -179,48 +273,27 @@ export function RailwayAnnouncement({ onTogglePlay }: RailwayAnnouncementProps) 
 
         audioEl.play().catch(() => resolve());
       });
-    },
-    [setupAudioEchoGraph]
-  );
-
-  // Complete Announcement Sequence:
-  // 1. Radio Mic Squelch + Chime
-  // 2. First Audio: /audio/announcement-male.wav
-  // 3. Second Audio: /audio/announcement-female.wav
-  const startAnnouncement = useCallback(async () => {
-    setIsPlaying(true);
-    setIsMuted(false);
-    isPlayingRef.current = true;
-    setAutoplayBlocked(false);
-    onTogglePlay?.(true);
-
-    try {
-      // Step 1: Radio station mic squelch & 3-tone chime
-      await playRadioStationTune();
-      if (!isPlayingRef.current) return;
-
-      // Step 2: The audio that was second now plays first (Male version)
-      await playTrack("/audio/announcement-male.wav");
-      if (!isPlayingRef.current) return;
-
-      // Brief breath pause between broadcasts
-      await new Promise((r) => setTimeout(r, 600));
-      if (!isPlayingRef.current) return;
-
-      // Step 3: The audio that was first now plays second (Female version)
-      await playTrack("/audio/announcement-female.wav");
     } catch (err) {
-      console.warn("Announcement playback issue:", err);
+      console.warn("Playback error:", err);
     } finally {
+      // Stop background crowd sound smoothly when announcement finishes
+      if (crowdNodesRef.current) {
+        crowdNodesRef.current.stop();
+        crowdNodesRef.current = null;
+      }
       setIsPlaying(false);
       isPlayingRef.current = false;
       onTogglePlay?.(false);
     }
-  }, [onTogglePlay, playRadioStationTune, playTrack]);
+  }, [getAudioContext, onTogglePlay, playRadioStationTune, setupAudioEchoGraph, startCrowdAmbience]);
 
   const stopAnnouncement = useCallback(() => {
     setIsPlaying(false);
     isPlayingRef.current = false;
+    if (crowdNodesRef.current) {
+      crowdNodesRef.current.stop();
+      crowdNodesRef.current = null;
+    }
     if (audioElementRef.current) {
       audioElementRef.current.pause();
       audioElementRef.current.currentTime = 0;
@@ -241,44 +314,32 @@ export function RailwayAnnouncement({ onTogglePlay }: RailwayAnnouncementProps) 
     }
   };
 
-  // Automatically start announcement whenever the website is opened
+  // Automatically start on website open without any click or permission needed
   useEffect(() => {
     let started = false;
 
-    const triggerPlay = () => {
+    const triggerAutoPlay = () => {
       if (started || isPlayingRef.current) return;
       started = true;
-      startAnnouncement().catch(() => {
-        setAutoplayBlocked(true);
-        setIsPlaying(false);
-        isPlayingRef.current = false;
-      });
+      startAnnouncement().catch(() => {});
     };
 
     // Immediate attempt on mount
-    const timer = setTimeout(triggerPlay, 400);
+    triggerAutoPlay();
+    const timer = setTimeout(triggerAutoPlay, 100);
 
-    // Fallback: if browser autoplay sandbox restricts audio until first user gesture,
-    // any touch, scroll, key, or tap anywhere on the page unlocks and plays it immediately
-    const handleGesture = () => {
-      triggerPlay();
-      window.removeEventListener("pointerdown", handleGesture);
-      window.removeEventListener("touchstart", handleGesture);
-      window.removeEventListener("scroll", handleGesture);
-      window.removeEventListener("keydown", handleGesture);
+    // Seamless browser unlock: Any natural mouse move, focus, scroll, or hover immediately starts audio
+    const events = ["pointermove", "mousemove", "mouseenter", "scroll", "wheel", "focus", "touchstart", "pointerdown"];
+    const handleNaturalActivity = () => {
+      triggerAutoPlay();
+      events.forEach((ev) => window.removeEventListener(ev, handleNaturalActivity));
     };
 
-    window.addEventListener("pointerdown", handleGesture, { once: true, passive: true });
-    window.addEventListener("touchstart", handleGesture, { once: true, passive: true });
-    window.addEventListener("scroll", handleGesture, { once: true, passive: true });
-    window.addEventListener("keydown", handleGesture, { once: true, passive: true });
+    events.forEach((ev) => window.addEventListener(ev, handleNaturalActivity, { once: true, passive: true }));
 
     return () => {
       clearTimeout(timer);
-      window.removeEventListener("pointerdown", handleGesture);
-      window.removeEventListener("touchstart", handleGesture);
-      window.removeEventListener("scroll", handleGesture);
-      window.removeEventListener("keydown", handleGesture);
+      events.forEach((ev) => window.removeEventListener(ev, handleNaturalActivity));
     };
   }, [startAnnouncement]);
 
@@ -287,28 +348,14 @@ export function RailwayAnnouncement({ onTogglePlay }: RailwayAnnouncementProps) 
       className="fixed top-24 right-5 z-40 flex items-center gap-2 select-none"
       style={{ fontFamily: "inherit" }}
     >
-      {/* Autoplay blocked prompt chip */}
-      {autoplayBlocked && !isPlaying && (
-        <button
-          onClick={() => {
-            setAutoplayBlocked(false)
-            startAnnouncement();
-          }}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold shadow-lg animate-pulse transition-all cursor-pointer"
-          style={{
-            background: "#102720",
-            color: "#f5e7b9",
-            border: "1px solid #c8a356",
-          }}
-          title="Click to play station announcement with chime and echo"
-        >
-          <span>🔔</span>
-          <span>Announcement Available</span>
-          <span className="text-[10px] bg-[#c8a356] text-[#102720] px-1.5 py-0.5 rounded font-black">
-            PLAY
-          </span>
-        </button>
-      )}
+      {/* Hidden audio tag for browser native autoplay hints */}
+      <audio
+        ref={audioElementRef}
+        src="/audio/announcement-male.wav"
+        preload="auto"
+        playsInline
+        style={{ display: "none" }}
+      />
 
       {/* Minimalist Floating Speaker Button */}
       <div className="relative group">
