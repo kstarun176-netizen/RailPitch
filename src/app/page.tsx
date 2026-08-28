@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { CloudShader } from "@/components/ui/cloud-shader";
 import { DpiitEligibilityChecker } from "@/components/DpiitEligibilityChecker";
 import { RailwayAnnouncement } from "@/components/RailwayAnnouncement";
+import { KonkanRouteVisualizer } from "@/components/KonkanRouteVisualizer";
 
 const sectors = [
   "AI, Data & Enterprise Software",
@@ -672,49 +673,7 @@ export default function RailPitch() {
           </div>
           <p>A thoughtfully paced 10-hour programme—built for focus, not performance.</p>
         </div>
-        <div className="programme">
-          <div className="map">
-            <div className="mapline" />
-            <span>
-              Mumbai
-              <br />
-              <b>08:10</b>
-            </span>
-            <span>
-              Panvel
-              <br />
-              <b>09:05</b>
-            </span>
-            <span>
-              Ratnagiri
-              <br />
-              <b>13:30</b>
-            </span>
-            <span>
-              Goa
-              <br />
-              <b>18:45</b>
-            </span>
-          </div>
-          <div className="times">
-            {[
-              ["08:45", "Opening circle", "Set the intention. Meet your cohort."],
-              ["10:30", "Curated 1:1s", "Three pre-confirmed conversations."],
-              ["13:15", "Coastal table", "Lunch, product showcase & peer circles."],
-              ["15:20", "Founder studio", "Mentor office hours and follow-up plans."],
-              ["18:45", "Goa arrival", "Destination showcase and next steps."],
-            ].map((x, i) => (
-              <div key={x[0]}>
-                <time>{x[0]}</time>
-                <i className={i === 1 ? "hot" : ""} />
-                <p>
-                  <strong>{x[1]}</strong>
-                  <small>{x[2]}</small>
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
+        <KonkanRouteVisualizer />
       </section>
 
       <section className="sectors" id="sectors">
